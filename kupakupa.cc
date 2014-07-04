@@ -74,8 +74,11 @@ int main (int argc, char *argv[])
 	std::string tcp_wmem_server_max = "8388608";
 	std::string udp_bw="1m";
 	std::string delay = "2ms";
-	//char ErrorModel = 'r';
-	int SimuTime = 20;
+	std::string user_bw = "150Mbps";
+	std::string server_bw = "10Gbps";
+
+        int ErrorModel = 1;
+        int SimuTime = 20;
 
 	cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe scalable vegas, veno, westwood, yeah", tcp_cc);
 	cmd.AddValue ("tcp_rmem_user_min", "put minimal values for tcp_rmem in user, range 4096-8388608", tcp_rmem_user_min);
@@ -92,9 +95,12 @@ int main (int argc, char *argv[])
 	cmd.AddValue ("tcp_wmem_server_def", "put default values for tcp_wmem in server, range 4096-8388608", tcp_wmem_server_def);
 	cmd.AddValue ("tcp_wmem_server_max", "put maximum values for tcp_wmem in server, range 4096-8388608", tcp_wmem_server_max);
 
+	cmd.AddValue ("user_bw", "bandwidth between user and BS", user_bw);
+	cmd.AddValue ("server_bw", "bandwidth between server and BS", server_bw);
+
 	cmd.AddValue ("delay", "Delay.", delay);
 	cmd.AddValue ("errRate", "Error rate.", errRate);
-	//cmd.AddValue ("error_model", "Choose error model you want to use. options: r -rate error model-default, b -burst error model and l -list error model", ErrorModel);
+	cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model, 3 - list error model", ErrorModel);
 	cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
     cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
         std::string IperfTime = IntToString(SimuTime);
@@ -139,66 +145,66 @@ int main (int argc, char *argv[])
 // channel
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
-	p2p.SetDeviceAttribute ("DataRate", StringValue ("150Mbps"));
+	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
 
 //error model options
-        /*switch (ErrorModel)
-    {
-    case 'r':
-    case 'b':
-    case 'l':
-      break;
-    default:
-      std::cout << "Unknown error_model : " << ErrorModel << " ?" << std::endl;
-      return (ErrorModel);
-    }*/
 
-        Ptr<RateErrorModel> err = CreateObjectWithAttributes<RateErrorModel> (
-                                                        "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
-                                                        "ErrorRate", DoubleValue (errRate),
-                            "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
-                            );
+        /*
+    Config::SetDefault ("ns3::RateErrorModel::ErrorRate", DoubleValue (errRate));
+    Config::SetDefault ("ns3::RateErrorModel::ErrorUnit", StringValue ("ERROR_UNIT_PACKET"));
+    Config::SetDefault ("ns3::RateErrorModel::RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"));
 
-        /*switch (ErrorModel)
-    {
-    case 'r':
-                {
-                Ptr<RateErrorModel> err = CreateObjectWithAttributes<RateErrorModel> (
-                                                        "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
-                                                        "ErrorRate", DoubleValue (errRate),
-                            "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
-                            );
-                }
-        break;
-    case 'b':
-                {
-                Ptr<BurstErrorModel> err = CreateObjectWithAttributes<BurstErrorModel> (
-                                                        "BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1,Max=4]"),
-                                                        "BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"),
-                            "ErrorRate", DoubleValue (errRate)
-                            );
-                }
-        break;
-        case 'l':
-                {
-                std::list<uint32_t> sampleList;
-                sampleList.push_back (10);
-                sampleList.push_back (17);
-                sampleList.push_back (19);
-                sampleList.push_back (80);
-                // This time, we'll explicitly create the error model we want
-                Ptr<ListErrorModel> err = CreateObject<ListErrorModel> ();
-                err->SetList (sampleList);
-                }
-        break;
-    }*/
+    Config::SetDefault ("ns3::BurstErrorModel::ErrorRate", DoubleValue (errRate));
+    Config::SetDefault ("ns3::BurstErrorModel::BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1|Max=4]"));
+    Config::SetDefault ("ns3::BurstErrorModel::BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"));
+*/
+
+	std::cout << "the error model is "<< ErrorModel <<std::endl;
+	Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
+			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate),
+			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
+			    );
+	std::cout << "building error model..." <<std::endl;
 
 
-	//d0d1.Get (1)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
+	if (ErrorModel == 1){
+	std::cout << "the error model is Rate Error Model"<<std::endl;
+	Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
+			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate),
+			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
+			    );
+	std::cout << "building error model completed" <<std::endl;
+	}
+	else if (ErrorModel==2)
+	{
+	std::cout << "the error model is Burst Error Model" <<std::endl;
+	Ptr<BurstErrorModel> em = CreateObjectWithAttributes<BurstErrorModel> (
+			    "BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1,Max=4]"),
+			    "BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate)
+			    );
+	std::cout << "building error model completed" <<std::endl;
+	}
+	else {
+	    std::list<uint32_t> sampleList;
+	    sampleList.push_back (10);
+	    sampleList.push_back (17);
+	    sampleList.push_back (19);
+	    sampleList.push_back (80);
+	    // This time, we'll explicitly create the error model we want
+	    Ptr<ListErrorModel> em = CreateObject<ListErrorModel> ();
+	    em->SetList (sampleList);
+	    std::cout << "error model that will be used is List Error Model with packet dropped #10, #17, #19, and #80" << std::endl;
+	  }
 
-	p2p.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
+
+
+
+	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue (delay));
 	NetDeviceContainer d1d2 = p2p.Install (n1n2);
 	//d0d1.Get (1)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
@@ -234,9 +240,9 @@ int main (int argc, char *argv[])
     {
     case 'p':
       {
-                if (ModeOperation)
-                {
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (err));
+        if (ModeOperation)
+            {
+            d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf server on node 0
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
@@ -264,7 +270,7 @@ int main (int argc, char *argv[])
         }
                 else
                         {
-                                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (err));
+                                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
                 dce.SetBinary ("iperf");
                 dce.ResetArguments ();
@@ -297,7 +303,7 @@ int main (int argc, char *argv[])
       {
                 if (ModeOperation)
                 {
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (err));
+                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf udp server on node 0
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
@@ -329,7 +335,7 @@ int main (int argc, char *argv[])
         }
                 else
                         {
-                        d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (err));
+                        d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf udp server on node 0
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
@@ -365,7 +371,7 @@ int main (int argc, char *argv[])
     case 'w':
       {
       ModeOperation=true;
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (err));
+                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             ApplicationContainer SerApps2 = dce.Install (c.Get (2));
             SerApps2.Start (Seconds (1));
             SerApps2.Stop (Seconds (SimuTime));
@@ -390,6 +396,7 @@ int main (int argc, char *argv[])
     default:
         {
             // Launch iperf server on node 0
+                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
