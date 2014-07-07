@@ -11,11 +11,22 @@ using namespace ns3;
 using namespace std;
 NS_LOG_COMPONENT_DEFINE ("kupakupa");
 
+//function to turn interger to string for iperf input
 string IntToString (int a)
 {
     ostringstream temp;
     temp<<a;
     return temp.str();
+}
+
+//fungtion to get the last value in tcp_mem for tcp_mem_max
+string SplitLastValue (const std::string& str)
+{
+  std::cout << "Splitting: " << str << '\n';
+  unsigned found = str.find_last_of(" ");
+  ostringstream temp;
+  temp << str.substr(found+1);
+  return temp.str();
 }
 
 static void RunIp (Ptr<Node> node, Time at, std::string str)
@@ -59,19 +70,9 @@ int main (int argc, char *argv[])
 
 	double errRate = 0.01;
 	std::string tcp_cc = "reno";
-	std::string tcp_rmem_user_min = "4096";
-	std::string tcp_rmem_user_def = "8192";
-	std::string tcp_rmem_user_max = "8388608";
-	std::string tcp_rmem_server_min = "4096";
-	std::string tcp_rmem_server_def = "8192";
-	std::string tcp_rmem_server_max = "8388608";
+	std::string tcp_mem_user = "4096 8192 8388608";
+	std::string tcp_mem_server = "4096 8192 8388608";
 
-	std::string tcp_wmem_user_min = "4096";
-	std::string tcp_wmem_user_def = "8192";
-	std::string tcp_wmem_user_max = "8388608";
-	std::string tcp_wmem_server_min = "4096";
-	std::string tcp_wmem_server_def = "8192";
-	std::string tcp_wmem_server_max = "8388608";
 	std::string udp_bw="1m";
 	std::string delay = "2ms";
 	std::string user_bw = "150Mbps";
@@ -80,61 +81,54 @@ int main (int argc, char *argv[])
         int ErrorModel = 1;
         int SimuTime = 20;
 
-	cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe scalable vegas, veno, westwood, yeah", tcp_cc);
-	cmd.AddValue ("tcp_rmem_user_min", "put minimal values for tcp_rmem in user, range 4096-8388608", tcp_rmem_user_min);
-	cmd.AddValue ("tcp_rmem_user_def", "put default values for tcp_rmem in user, range 4096-8388608", tcp_rmem_user_def);
-	cmd.AddValue ("tcp_rmem_user_max", "put maximum values for tcp_rmem in user, range 4096-8388608", tcp_rmem_user_max);
-	cmd.AddValue ("tcp_rmem_server_min", "put minimal values for tcp_rmem in server, range 4096-8388608", tcp_rmem_server_min);
-	cmd.AddValue ("tcp_rmem_server_def", "put default values for tcp_rmem in server, range 4096-8388608", tcp_rmem_server_def);
-	cmd.AddValue ("tcp_rmem_server_max", "put maximum values for tcp_rmem in server, range 4096-8388608", tcp_rmem_server_max);
-
-	cmd.AddValue ("tcp_wmem_user_min", "put minimal values for tcp_wmem in user, range 4096-8388608", tcp_wmem_user_min);
-	cmd.AddValue ("tcp_wmem_user_def", "put default values for tcp_wmem in user, range 4096-8388608", tcp_wmem_user_def);
-	cmd.AddValue ("tcp_wmem_user_max", "put maximum values for tcp_wmem in user, range 4096-8388608", tcp_wmem_user_max);
-	cmd.AddValue ("tcp_wmem_server_min", "put minimal values for tcp_wmem in server, range 4096-8388608", tcp_wmem_server_min);
-	cmd.AddValue ("tcp_wmem_server_def", "put default values for tcp_wmem in server, range 4096-8388608", tcp_wmem_server_def);
-	cmd.AddValue ("tcp_wmem_server_max", "put maximum values for tcp_wmem in server, range 4096-8388608", tcp_wmem_server_max);
-
-	cmd.AddValue ("user_bw", "bandwidth between user and BS", user_bw);
-	cmd.AddValue ("server_bw", "bandwidth between server and BS", server_bw);
+	cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
+	cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", tcp_mem_user);
+	cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
+	cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
+	cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
 
 	cmd.AddValue ("delay", "Delay.", delay);
 	cmd.AddValue ("errRate", "Error rate.", errRate);
-	cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model, 3 - list error model", ErrorModel);
+	cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
 	cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
     cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
-        std::string IperfTime = IntToString(SimuTime);
-        cmd.Parse (argc, argv);
+    std::string IperfTime = IntToString(SimuTime);
+    cmd.Parse (argc, argv);
 
 // topologies
     std::cout << "building topologies.." << std::endl;
-        NS_LOG_INFO ("Create nodes.");
-        NodeContainer c;
-        c.Create (3);
-        NodeContainer n0n1 = NodeContainer (c.Get (0), c.Get (1));
-        NodeContainer n1n2 = NodeContainer (c.Get (1), c.Get (2));
+    NS_LOG_INFO ("Create nodes.");
+    NodeContainer c;
+    c.Create (3);
+    NodeContainer n0n1 = NodeContainer (c.Get (0), c.Get (1));
+    NodeContainer n1n2 = NodeContainer (c.Get (1), c.Get (2));
 
-        DceManagerHelper dceManager;
+    DceManagerHelper dceManager;
 
     std::cout << "setting memory size.." << std::endl;
+        //setting memory size for user and server
 #ifdef KERNEL_STACK
     dceManager.SetNetworkStack ("ns3::LinuxSocketFdFactory", "Library", StringValue ("liblinux.so"));
     LinuxStackHelper stack;
     stack.Install (c);
     dceManager.Install (c);
-    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_rmem_user_min+" "+tcp_rmem_user_def+" "+tcp_rmem_user_max);
-        stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_rmem_server_min+" "+tcp_rmem_server_def+" "+tcp_rmem_server_max);
 
-	stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_wmem_user_min+" "+tcp_wmem_user_def+" "+tcp_wmem_user_max);
-	stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_wmem_server_min+" "+tcp_wmem_server_def+" "+tcp_wmem_server_max);
+	//assume coma has been removed
+	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
+	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
 
-    stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_rmem_user_max);
-    stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_wmem_user_max);
+        stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server);
+        stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server);
 
-        stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_rmem_server_max);
-    stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_wmem_server_max);
+    stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_mem_user_max);
+    stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_mem_user_max);
 
-        stack.SysctlSet (c, ".net.ipv4.tcp_congestion_control", tcp_cc);
+    stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_mem_server_max);
+    stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_mem_server_max);
+
+    stack.SysctlSet (c, ".net.ipv4.tcp_congestion_control", tcp_cc);
 #else
     NS_LOG_ERROR ("Linux kernel stack for DCE is not available. build with dce-linux module.");
     //silently exit
@@ -142,25 +136,22 @@ int main (int argc, char *argv[])
 #endif
 
     std::cout << "setting link.." << std::endl;
-// channel
+// channel for user to BS
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
+//channel for server to BS
+	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
+	p2p.SetChannelAttribute ("Delay", StringValue (delay));
+	NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
 //error model options
 
-        /*
-    Config::SetDefault ("ns3::RateErrorModel::ErrorRate", DoubleValue (errRate));
-    Config::SetDefault ("ns3::RateErrorModel::ErrorUnit", StringValue ("ERROR_UNIT_PACKET"));
-    Config::SetDefault ("ns3::RateErrorModel::RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"));
-
-    Config::SetDefault ("ns3::BurstErrorModel::ErrorRate", DoubleValue (errRate));
-    Config::SetDefault ("ns3::BurstErrorModel::BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1|Max=4]"));
-    Config::SetDefault ("ns3::BurstErrorModel::BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"));
-*/
-
+	/*strangely, if em is not set at the begining, it doesn't want to compile.
+	therefore, i just put it here as a default object and to make sure it can
+	be build properly*/
 	std::cout << "the error model is "<< ErrorModel <<std::endl;
 	Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
 			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
@@ -169,69 +160,58 @@ int main (int argc, char *argv[])
 			    );
 	std::cout << "building error model..." <<std::endl;
 
-
-	if (ErrorModel == 1){
-	std::cout << "the error model is Rate Error Model"<<std::endl;
-	Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
+	if (ErrorModel == 1)
+	{
+		std::cout << "the error model is Rate Error Model"<<std::endl;
+		Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
 			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
 			    "ErrorRate", DoubleValue (errRate),
 			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
 			    );
-	std::cout << "building error model completed" <<std::endl;
+		std::cout << "building error model completed" <<std::endl;
 	}
 	else if (ErrorModel==2)
 	{
-	std::cout << "the error model is Burst Error Model" <<std::endl;
-	Ptr<BurstErrorModel> em = CreateObjectWithAttributes<BurstErrorModel> (
+		std::cout << "the error model is Burst Error Model" <<std::endl;
+		Ptr<BurstErrorModel> em = CreateObjectWithAttributes<BurstErrorModel> (
 			    "BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1,Max=4]"),
 			    "BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"),
 			    "ErrorRate", DoubleValue (errRate)
 			    );
-	std::cout << "building error model completed" <<std::endl;
+		std::cout << "building error model completed" <<std::endl;
 	}
-	else {
-	    std::list<uint32_t> sampleList;
-	    sampleList.push_back (10);
-	    sampleList.push_back (17);
-	    sampleList.push_back (19);
-	    sampleList.push_back (80);
-	    // This time, we'll explicitly create the error model we want
-	    Ptr<ListErrorModel> em = CreateObject<ListErrorModel> ();
-	    em->SetList (sampleList);
-	    std::cout << "error model that will be used is List Error Model with packet dropped #10, #17, #19, and #80" << std::endl;
-	  }
+	else
+	{
+		//this will not change the error model
+		std::cout << "Unknown error model. Restore to default: rate error model" <<std::endl;
+	}
 
 
-
-
-	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
-	p2p.SetChannelAttribute ("Delay", StringValue (delay));
-	NetDeviceContainer d1d2 = p2p.Install (n1n2);
-	//d0d1.Get (1)->SetAttribute ("ReceiveErrorModel", PointerValue (em));
 
 // IP Address
-        NS_LOG_INFO ("Assign IP Addresses.");
+    NS_LOG_INFO ("Assign IP Addresses.");
     std::cout << "setting Ip addresses" << std::endl;
-        Ipv4AddressHelper ipv4;
+    Ipv4AddressHelper ipv4;
+    //for client and BS net devices
         ipv4.SetBase ("10.1.1.0", "255.255.255.0");
-        Ipv4InterfaceContainer i0i1 = ipv4.Assign (d0d1);
+    Ipv4InterfaceContainer i0i1 = ipv4.Assign (d0d1);
+        //for server and BS devices
+        ipv4.SetBase ("10.1.2.0", "255.255.255.0");
+        Ipv4InterfaceContainer i1i2 = ipv4.Assign (d1d2);
 
-	ipv4.SetBase ("10.1.2.0", "255.255.255.0");
-	Ipv4InterfaceContainer i1i2 = ipv4.Assign (d1d2);
-
-// Create router nodes, initialize routing database and set up the routing
-// tables in the nodes.
+// Create router nodes, initialize routing database and set up the routing tables in the nodes.
     std::cout << "creating simple routing table" << std::endl;
-        Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+    Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
 #ifdef KERNEL_STACK
-        LinuxStackHelper::PopulateRoutingTables ();
+    LinuxStackHelper::PopulateRoutingTables ();
 #endif
 
 
 // Application
-        NS_LOG_INFO ("Create Applications.");
+    NS_LOG_INFO ("Create Applications.");
     std::cout << "creating applications.." << std::endl;
-        DceApplicationHelper dce;
+    DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
 	int EndTime = SimuTime+10;
@@ -264,12 +244,14 @@ int main (int argc, char *argv[])
             dce.AddArgument ("1");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
+                        dce.AddArgument (">");
+                        dce.AddArgument ("/temp/iperf-download-result");
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
             ClientApps0.Stop (Seconds (EndTime));
         }
-                else
-                        {
+            else
+            {
                                 d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
                 dce.SetBinary ("iperf");
@@ -295,47 +277,47 @@ int main (int argc, char *argv[])
                 ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
                 ClientApps0.Start (Seconds (1));
                 ClientApps0.Stop (Seconds (EndTime));
-                        }
+            }
         }
       break;
 
     case 'u':
       {
-                if (ModeOperation)
-                {
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            // Launch iperf udp server on node 0
-            dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-s");
-            dce.AddArgument ("-u");
-            dce.AddArgument ("-P");
-            dce.AddArgument ("1");
-            ApplicationContainer SerApps0 = dce.Install (c.Get (0));
-            SerApps0.Start (Seconds (1));
-            SerApps0.Stop (Seconds (EndTime));
+        if (ModeOperation)
+        {
+        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        // Launch iperf udp server on node 0
+        dce.SetBinary ("iperf");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.AddArgument ("-s");
+        dce.AddArgument ("-u");
+        dce.AddArgument ("-P");
+        dce.AddArgument ("1");
+        ApplicationContainer SerApps0 = dce.Install (c.Get (0));
+        SerApps0.Start (Seconds (1));
+        SerApps0.Stop (Seconds (EndTime));
 
-            // Launch iperf client on node 2
-            dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-c");
-            dce.AddArgument ("-u");
-            dce.AddArgument ("10.1.1.1");
-            dce.AddArgument ("-i");
-            dce.AddArgument ("1");
-                        dce.AddArgument ("-b");
-                        dce.AddArgument (udp_bw);
-            dce.AddArgument ("--time");
-            dce.AddArgument (IperfTime);
-            ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
-            ClientApps0.Start (Seconds (1));
-            ClientApps0.Stop (Seconds (EndTime));
+        // Launch iperf client on node 2
+        dce.SetBinary ("iperf");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.AddArgument ("-c");
+        dce.AddArgument ("-u");
+        dce.AddArgument ("10.1.1.1");
+        dce.AddArgument ("-i");
+        dce.AddArgument ("1");
+        dce.AddArgument ("-b");
+        dce.AddArgument (udp_bw);
+        dce.AddArgument ("--time");
+        dce.AddArgument (IperfTime);
+        ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
+        ClientApps0.Start (Seconds (1));
+        ClientApps0.Stop (Seconds (EndTime));
         }
-                else
-                        {
-                        d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        else
+            {
+             d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf udp server on node 0
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
@@ -357,46 +339,46 @@ int main (int argc, char *argv[])
             dce.AddArgument ("10.1.2.2");
             dce.AddArgument ("-i");
             dce.AddArgument ("1");
-                        dce.AddArgument ("-b");
-                        dce.AddArgument (udp_bw);
+            dce.AddArgument ("-b");
+            dce.AddArgument (udp_bw);
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
             ClientApps0.Start (Seconds (1));
             ClientApps0.Stop (Seconds (EndTime));
                         }
-                }
+      }
       break;
 
     case 'w':
       {
-      ModeOperation=true;
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            ApplicationContainer SerApps2 = dce.Install (c.Get (2));
-            SerApps2.Start (Seconds (1));
-            SerApps2.Stop (Seconds (SimuTime));
-            dce.SetBinary ("thttpd");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.SetUid (1);
-            dce.SetEuid (1);
-            ApplicationContainer serHttp = dce.Install (c.Get (2));
-            serHttp.Start (Seconds (1));
+                ModeOperation=true;
+        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        ApplicationContainer SerApps2 = dce.Install (c.Get (2));
+        SerApps2.Start (Seconds (1));
+        SerApps2.Stop (Seconds (SimuTime));
+        dce.SetBinary ("thttpd");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.SetUid (1);
+        dce.SetEuid (1);
+        ApplicationContainer serHttp = dce.Install (c.Get (2));
+        serHttp.Start (Seconds (1));
 
-                        dce.SetBinary ("wget");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-r");
-            dce.AddArgument ("http://10.1.2.2/index.html");
-            ApplicationContainer clientHttp = dce.Install (c.Get (0));
-            clientHttp.Start (Seconds (1));
+        dce.SetBinary ("wget");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.AddArgument ("-r");
+        dce.AddArgument ("http://10.1.2.2/index.html");
+        ApplicationContainer clientHttp = dce.Install (c.Get (0));
+        clientHttp.Start (Seconds (1));
         }
       break;
 
     default:
         {
             // Launch iperf server on node 0
-                        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
@@ -420,7 +402,7 @@ int main (int argc, char *argv[])
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
             ClientApps0.Stop (Seconds (SimuTime));
-         }
+        }
       break;
     }
 
@@ -432,31 +414,20 @@ int main (int argc, char *argv[])
     }
 
   // print tcp sysctl value
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1.0),
-                                                                ".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),
-                                                                ".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),
-                                                                ".net.ipv4.tcp_rmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),
-                                                                ".net.ipv4.tcp_wmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),
-                                                                ".net.core.rmem_max", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),
-                                                                ".net.core.wmem_max", &PrintTcpFlags);
+    //LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1.0),".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
+        LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_rmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.core.rmem_max", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.core.wmem_max", &PrintTcpFlags);
 
-	LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-								".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-                                                                ".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-                                                                ".net.ipv4.tcp_rmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-                                                                ".net.ipv4.tcp_wmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-                                                                ".net.core.rmem_max", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),
-                                                                ".net.core.wmem_max", &PrintTcpFlags);
+        //LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_rmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.rmem_max", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.wmem_max", &PrintTcpFlags);
 
 
     AsciiTraceHelper ascii;
@@ -470,6 +441,8 @@ int main (int argc, char *argv[])
     Simulator::Run ();
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
+
+	//get the iperf result
 
   return 0;
 }
