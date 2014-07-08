@@ -29,6 +29,24 @@ string SplitLastValue (const std::string& str)
   return temp.str();
 }
 
+string RemoveComma (std::string& str)
+{
+int i = 0;
+std::cout<<"remove comma from "<< str << std::endl;
+std::string str2=str;
+for (i=0; i<3; i++)
+{
+	std::size_t found=str.find(',');
+	if (found!=std::string::npos)
+	{
+	str2 = str.replace(str.find(','),1," ");
+	} else {
+	std::cout<<"no comma found..";
+	}
+}
+return str2;
+}
+
 static void RunIp (Ptr<Node> node, Time at, std::string str)
 {
   DceApplicationHelper process;
@@ -73,7 +91,7 @@ int main (int argc, char *argv[])
 	std::string tcp_mem_user = "4096 8192 8388608";
 	std::string tcp_mem_server = "4096 8192 8388608";
 
-	std::string udp_bw="1m";
+	std::string udp_bw="1M";
 	std::string delay = "2ms";
 	std::string user_bw = "150Mbps";
 	std::string server_bw = "10Gbps";
@@ -113,9 +131,14 @@ int main (int argc, char *argv[])
     stack.Install (c);
     dceManager.Install (c);
 
+	//let's remove the comma
+	tcp_mem_user = RemoveComma(tcp_mem_user);
+	tcp_mem_server = RemoveComma(tcp_mem_server);
+
 	//assume coma has been removed
 	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
 	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
+	std::cout<<"tcp_mem max for user is "<<tcp_mem_user_max<<" and for server is "<<tcp_mem_server_max<<std::endl;
 
         stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
@@ -244,8 +267,9 @@ int main (int argc, char *argv[])
             dce.AddArgument ("1");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
-                        dce.AddArgument (">");
-                        dce.AddArgument ("/temp/iperf-download-result");
+                        //this one is not working..
+                        //dce.AddArgument (">");
+                        //dce.AddArgument ("/temp/iperf-download-result");
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
             ClientApps0.Stop (Seconds (EndTime));
@@ -408,41 +432,47 @@ int main (int argc, char *argv[])
 
     for (int n = 0; n < 3; n++)
     {
-      RunIp (c.Get (n), Seconds (0.2), "link show");
-      RunIp (c.Get (n), Seconds (0.3), "route show table all");
-      RunIp (c.Get (n), Seconds (0.4), "addr list");
+      RunIp (c.Get (n), Seconds (0.2), "sysctl net.ipv4.tcp_available_congestion_control");
+      RunIp (c.Get (n), Seconds (0.3), "sysctl net.ipv4.available_congestion_control");
     }
-
+#if 1
   // print tcp sysctl value
-    //LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1.0),".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
-        LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_rmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.core.rmem_max", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.core.wmem_max", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
+        //LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.ipv4.tcp_rmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.ipv4.tcp_wmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.core.rmem_max", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (0), Seconds (0),
+                                                                ".net.core.wmem_max", &PrintTcpFlags);
 
         //LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_rmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.rmem_max", &PrintTcpFlags);
-    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.wmem_max", &PrintTcpFlags);
-
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (0),
+                                                                ".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (0),
+                                                                ".net.ipv4.tcp_rmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (0),
+                                                                ".net.ipv4.tcp_wmem", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (0),
+                                                                ".net.core.rmem_max", &PrintTcpFlags);
+    LinuxStackHelper::SysctlGet (c.Get (2), Seconds (0),
+                                                                ".net.core.wmem_max", &PrintTcpFlags);
+#endif
 
     AsciiTraceHelper ascii;
-    p2p.EnableAsciiAll (ascii.CreateFileStream ("Kupakupa.tr"));
+    p2p.EnableAsciiAll (ascii.CreateFileStream ("kupakupa.tr"));
     p2p.EnablePcapAll ("kupakupa");
     NS_LOG_INFO ("Run Simulation.");
     std::cout << "simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
-
-
     Simulator::Stop (Seconds (EndTime));
     Simulator::Run ();
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
-
-	//get the iperf result
 
   return 0;
 }
