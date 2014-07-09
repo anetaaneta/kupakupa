@@ -438,7 +438,70 @@ int main (int argc, char *argv[])
 
 
     Simulator::Stop (Seconds (EndTime));
+    
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll();
+    
     Simulator::Run ();
+    monitor->CheckForLostPackets ();
+    Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon.GetClassifier ());
+    std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
+    
+    Time firstSend1,firstSend2;
+    Time lastReceived1,lastReceived2;
+    int64_t avJitter1,avJitter2;
+    
+    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin (); iter != stats.end (); ++iter)
+    {
+    	Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (iter->first);
+    	
+    	// 1 direction flow
+    	if (t.sourceAddress == Ipv4Address("10.1.1.1") && t.destinationAddress == Ipv4Address("10.1.2.2"))
+    	{
+    	  int64_t no=iter->second.rxPackets;
+	  Time sumJitter1=iter->second.jitterSum;
+	  avJitter1= sumJitter1.GetInteger()/no;
+	  firstSend1= iter->second.timeFirstTxPacket;
+	  lastReceived1=iter->second.timeLastRxPacket;
+	  
+    		if (TypeOfConnection=='u')
+    		{
+    			int64_t no=iter->second.rxPackets;
+    			Time sumJitter1=iter->second.jitterSum;
+    			int64_t avJitter1= sumJitter1.GetInteger()/no;
+    		}
+    		if (TypeOfConnection=='w') // calculate download time
+    		{
+    			
+    		}
+    	}
+    	// second direction flow
+    	if (t.sourceAddress == Ipv4Address("10.1.2.2") && t.destinationAddress == Ipv4Address("10.1.1.1"))
+    	{
+          int64_t no=iter->second.rxPackets;
+	  Time sumJitter2=iter->second.jitterSum;
+	  avJitter2= sumJitter2.GetInteger()/no;
+	  firstSend2= iter->second.timeFirstTxPacket;
+	  lastReceived2=iter->second.timeLastRxPacket;
+    	}
+    	
+    }
+    
+    if (TypeOfConnection=='u')
+    {
+    	// calculate average jitter;
+  	Time avJitter = Time((avJitter2+avJitter1)/2);
+  	avJitter.GetMilliSeconds();
+    }
+    if (TypeOfConnection=='w')
+    {
+    	// calucalte elapseTime
+  	Time firstSend = (firstSend1 < firstSend2 ? firstSend1:firstSend2);
+  	Time lastReceived = (lastReceived1 > lastReceived2 ? lastReceived1:lastReceived2);
+  	Time elapseTime = lastReceived-firstSend;
+  	elapseTime.GetSeconds();
+    }
+    monitor->SerializeToXmlFile ("results.xml",true,true);
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
 
