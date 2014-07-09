@@ -480,7 +480,7 @@ int main (int argc, char *argv[])
     {
     	// calculate average jitter;
   	Time avJitter = Time((avJitter2+avJitter1)/2);
-  	avJitter.GetMilliSeconds();
+  	std::cout << "Jitter = "<<avJitter.GetMicroSeconds()<<" mikro seconds\n";
     }
     if (TypeOfConnection=='w')
     {
@@ -488,7 +488,7 @@ int main (int argc, char *argv[])
   	Time firstSend = (firstSend1 < firstSend2 ? firstSend1:firstSend2);
   	Time lastReceived = (lastReceived1 > lastReceived2 ? lastReceived1:lastReceived2);
   	Time elapseTime = lastReceived-firstSend;
-  	elapseTime.GetSeconds();
+  	std::cout << "Download Time = "<<elapseTime.GetSeconds()<<" s\n";
     }
     monitor->SerializeToXmlFile ("results.xml",true,true);
     Simulator::Destroy ();
