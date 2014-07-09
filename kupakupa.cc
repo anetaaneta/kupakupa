@@ -463,17 +463,6 @@ int main (int argc, char *argv[])
 	  avJitter1= sumJitter1.GetInteger()/no;
 	  firstSend1= iter->second.timeFirstTxPacket;
 	  lastReceived1=iter->second.timeLastRxPacket;
-	  
-    		if (TypeOfConnection=='u')
-    		{
-    			int64_t no=iter->second.rxPackets;
-    			Time sumJitter1=iter->second.jitterSum;
-    			int64_t avJitter1= sumJitter1.GetInteger()/no;
-    		}
-    		if (TypeOfConnection=='w') // calculate download time
-    		{
-    			
-    		}
     	}
     	// second direction flow
     	if (t.sourceAddress == Ipv4Address("10.1.2.2") && t.destinationAddress == Ipv4Address("10.1.1.1"))
