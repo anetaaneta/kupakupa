@@ -11,7 +11,8 @@ typedef std::map<std::string,std::string> MessageMap;
 using namespace std;
 
 int main () {
-TiXmlDocument readdoc("inputDCE.xml");
+
+	TiXmlDocument readdoc("inputDCE.xml");
 	bool loadOkay = readdoc.LoadFile();
 	if(!loadOkay)
 	{
@@ -26,7 +27,7 @@ TiXmlDocument readdoc("inputDCE.xml");
 	}
 	int ErrorModel;
 	string typeOfConection,tcp_cc,udp_bw,delay,httpSize;
-	string tcp_rmem_min,tcp_rmem_def,tcp_rmem_max, tcp_wmem_min,tcp_wmem_def,tcp_wmem_max;
+	string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
 	for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
 	{
     string elemName = elem->Value();
@@ -58,8 +59,7 @@ TiXmlDocument readdoc("inputDCE.xml");
 		{
 			TiXmlNode* e = elem->FirstChild();
 			TiXmlText* text = e->ToText();
-			string errorModelS=text->Value();
-			ErrorModel=atoi(errorModelS.c_str());
+			string ErrorModel=text->Value();
 		}
 		if (elemName=="SizeOfHttpFile")
 		{
@@ -67,18 +67,21 @@ TiXmlDocument readdoc("inputDCE.xml");
 			TiXmlText* text = e->ToText();
 			httpSize = text->Value();
 		}
-		if (elemName=="ReadMemory")
+		if (elemName=="UserMemory")
 		{
-			tcp_rmem_min = elem->Attribute("min");
-			tcp_rmem_def = elem->Attribute("default");
-			tcp_rmem_max = elem->Attribute("max");
+			tcp_mem_user_min = elem->Attribute("min");
+			tcp_mem_user_def = elem->Attribute("default");
+			tcp_mem_user_max = elem->Attribute("max");
 		}
-		if (elemName=="WriteMemory")
+		if (elemName=="ServerMemory")
 		{
-			tcp_wmem_min = elem->Attribute("min");
-			tcp_wmem_def = elem->Attribute("default");
-			tcp_wmem_max = elem->Attribute("max");
+			tcp_mem_server_min = elem->Attribute("min");
+			tcp_mem_server_def = elem->Attribute("default");
+			tcp_mem_server_max = elem->Attribute("max");
 		}
 
+		
 	}
+	string tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
+	string tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
 }
