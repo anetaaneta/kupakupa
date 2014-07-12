@@ -6,6 +6,7 @@
 #include "ns3/internet-module.h"
 #include <string>
 #include <sstream>
+#include "ns3/flow-monitor-module.h"
 
 using namespace ns3;
 using namespace std;
