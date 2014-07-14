@@ -311,29 +311,28 @@ int main (int argc, char *argv[])
         {
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
         // Launch iperf udp server on node 0
+
+
         dce.SetBinary ("iperf");
         dce.ResetArguments ();
         dce.ResetEnvironment ();
         dce.AddArgument ("-s");
         dce.AddArgument ("-u");
-        dce.AddArgument ("-P");
-        dce.AddArgument ("1");
         ApplicationContainer SerApps0 = dce.Install (c.Get (0));
         SerApps0.Start (Seconds (1));
         SerApps0.Stop (Seconds (EndTime));
 
         // Launch iperf client on node 2
+
         dce.SetBinary ("iperf");
         dce.ResetArguments ();
         dce.ResetEnvironment ();
         dce.AddArgument ("-c");
-        dce.AddArgument ("-u");
         dce.AddArgument ("10.1.1.1");
-        dce.AddArgument ("-i");
-        dce.AddArgument ("1");
+        dce.AddArgument ("-u");
         dce.AddArgument ("-b");
         dce.AddArgument (udp_bw);
-        dce.AddArgument ("--time");
+        dce.AddArgument ("-t");
         dce.AddArgument (IperfTime);
         ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
         ClientApps0.Start (Seconds (1));
@@ -348,8 +347,6 @@ int main (int argc, char *argv[])
             dce.ResetEnvironment ();
             dce.AddArgument ("-s");
             dce.AddArgument ("-u");
-            dce.AddArgument ("-P");
-            dce.AddArgument ("1");
             ApplicationContainer SerApps0 = dce.Install (c.Get (2));
             SerApps0.Start (Seconds (1));
             SerApps0.Stop (Seconds (EndTime));
@@ -359,13 +356,11 @@ int main (int argc, char *argv[])
             dce.ResetArguments ();
             dce.ResetEnvironment ();
             dce.AddArgument ("-c");
-            dce.AddArgument ("-u");
             dce.AddArgument ("10.1.2.2");
-            dce.AddArgument ("-i");
-            dce.AddArgument ("1");
+            dce.AddArgument ("-u");
             dce.AddArgument ("-b");
             dce.AddArgument (udp_bw);
-            dce.AddArgument ("--time");
+            dce.AddArgument ("-t");
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
             ClientApps0.Start (Seconds (1));
@@ -378,9 +373,7 @@ int main (int argc, char *argv[])
       {
                 ModeOperation=true;
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-        ApplicationContainer SerApps2 = dce.Install (c.Get (2));
-        SerApps2.Start (Seconds (1));
-        SerApps2.Stop (Seconds (SimuTime));
+
         dce.SetBinary ("thttpd");
         dce.ResetArguments ();
         dce.ResetEnvironment ();
@@ -388,11 +381,9 @@ int main (int argc, char *argv[])
         dce.SetEuid (1);
         ApplicationContainer serHttp = dce.Install (c.Get (2));
         serHttp.Start (Seconds (1));
-
-        dce.SetBinary ("wget");
         dce.ResetArguments ();
         dce.ResetEnvironment ();
-        dce.AddArgument ("-r");
+        dce.SetBinary ("wget");
         dce.AddArgument ("http://10.1.2.2/index.html");
         ApplicationContainer clientHttp = dce.Install (c.Get (0));
         clientHttp.Start (Seconds (1));
