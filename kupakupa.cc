@@ -1,11 +1,15 @@
-
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
 #include "ns3/dce-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/internet-module.h"
+#include "ns3/flow-monitor-module.h"
+#include "ns3/flow-monitor-helper.h"
 #include <string>
 #include <sstream>
+#include <vector>
+#include <iostream>
+#include <fstream>
 
 using namespace ns3;
 using namespace std;
@@ -17,6 +21,28 @@ string IntToString (int a)
     ostringstream temp;
     temp<<a;
     return temp.str();
+}
+
+
+void GenerateHtmlFile (int fileSize)
+{
+	std::ofstream myfile;
+	myfile.open ("files-2/index.html");
+
+	myfile << "<http>\n <body>\n";
+	std::vector<char> empty(1024, 0);
+
+	for(int i = 0; i < 1024*fileSize; i++)
+	{
+		if (!myfile.write(&empty[0], empty.size()))
+		{
+			std::cerr << "problem writing to file" << std::endl;
+		}
+	}
+
+	myfile << "Dummy html file\n";
+	myfile << "</body>\n</http>\n";
+	myfile.close();
 }
 
 //fungtion to get the last value in tcp_mem for tcp_mem_max
@@ -67,15 +93,15 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-	CommandLine cmd;
-	char TypeOfConnection = 'p'; // iperf tcp connection
-	bool ModeOperation = true;
+CommandLine cmd;
+char TypeOfConnection = 'p'; // iperf tcp connection
+bool ModeOperation = true;
 
         cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
     cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", ModeOperation);
 
-	/*just in case if user use uppercase*/
-	TypeOfConnection = tolower (TypeOfConnection);
+/*just in case if user use uppercase*/
+TypeOfConnection = tolower (TypeOfConnection);
   switch (TypeOfConnection)
     {
     case 'u': //iperf udp connection
@@ -86,32 +112,44 @@ int main (int argc, char *argv[])
       //return 1;
     }
 
-	double errRate = 0.01;
-	std::string tcp_cc = "reno";
-	std::string tcp_mem_user = "4096 8192 8388608";
-	std::string tcp_mem_server = "4096 8192 8388608";
+double errRate = 0.01;
+std::string tcp_cc = "reno";
+std::string tcp_mem_user = "4096 8192 8388608";
+std::string tcp_mem_server = "4096 8192 8388608";
 
+<<<<<<< HEAD
 	std::string udp_bw="1M";
 	std::string delay = "2ms";
 	std::string user_bw = "150Mbps";
 	std::string server_bw = "10Gbps";
+=======
+std::string udp_bw="10m";
+std::string delay = "2ms";
+std::string user_bw = "150Mbps";
+std::string server_bw = "10Gbps";
+>>>>>>> 962d21d1f8ccb56a1bf0d5be0200acbe564dff3c
 
         int ErrorModel = 1;
         int SimuTime = 20;
+        int htmlSize = 2; // in mega bytes
 
-	cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
-	cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", tcp_mem_user);
-	cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
-	cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
-	cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
+cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
+cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", tcp_mem_user);
+cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
+cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
+cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
 
-	cmd.AddValue ("delay", "Delay.", delay);
-	cmd.AddValue ("errRate", "Error rate.", errRate);
-	cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
-	cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
+cmd.AddValue ("delay", "Delay.", delay);
+cmd.AddValue ("errRate", "Error rate.", errRate);
+cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
+cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
+cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
     cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
     std::string IperfTime = IntToString(SimuTime);
     cmd.Parse (argc, argv);
+
+    mkdir ("files-2",0744);
+    GenerateHtmlFile(htmlSize);
 
 // topologies
     std::cout << "building topologies.." << std::endl;
@@ -461,7 +499,59 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Run Simulation.");
     std::cout << "simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
     Simulator::Stop (Seconds (EndTime));
+    
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll();
+    
     Simulator::Run ();
+    monitor->CheckForLostPackets ();
+    Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon.GetClassifier ());
+    std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
+    
+    Time firstSend1,firstSend2;
+    Time lastReceived1,lastReceived2;
+    int64_t avJitter1,avJitter2;
+    
+    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator iter = stats.begin (); iter != stats.end (); ++iter)
+    {
+    	Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow (iter->first);
+    	
+    	// 1 direction flow
+    	if (t.sourceAddress == Ipv4Address("10.1.1.1") && t.destinationAddress == Ipv4Address("10.1.2.2"))
+    	{
+    	  int64_t no=iter->second.rxPackets;
+	  Time sumJitter1=iter->second.jitterSum;
+	  avJitter1= sumJitter1.GetInteger()/no;
+	  firstSend1= iter->second.timeFirstTxPacket;
+	  lastReceived1=iter->second.timeLastRxPacket;
+    	}
+    	// second direction flow
+    	if (t.sourceAddress == Ipv4Address("10.1.2.2") && t.destinationAddress == Ipv4Address("10.1.1.1"))
+    	{
+          int64_t no=iter->second.rxPackets;
+	  Time sumJitter2=iter->second.jitterSum;
+	  avJitter2= sumJitter2.GetInteger()/no;
+	  firstSend2= iter->second.timeFirstTxPacket;
+	  lastReceived2=iter->second.timeLastRxPacket;
+    	}
+    	
+    }
+    
+    if (TypeOfConnection=='u')
+    {
+    	// calculate average jitter;
+  	Time avJitter = Time((avJitter2+avJitter1)/2);
+  	std::cout << "Jitter = "<<avJitter.GetMicroSeconds()<<" mikro seconds\n";
+    }
+    if (TypeOfConnection=='w')
+    {
+    	// calucalte elapseTime
+  	Time firstSend = (firstSend1 < firstSend2 ? firstSend1:firstSend2);
+  	Time lastReceived = (lastReceived1 > lastReceived2 ? lastReceived1:lastReceived2);
+  	Time elapseTime = lastReceived-firstSend;
+  	std::cout << "Download Time = "<<elapseTime.GetSeconds()<<" s\n";
+    }
+    monitor->SerializeToXmlFile ("results.xml",true,true);
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
 

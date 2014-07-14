@@ -1,20 +1,20 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2007, 2008 University of Washington
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+* Copyright (c) 2007, 2008 University of Washington
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 as
+* published by the Free Software Foundation;
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 #include "point-to-point-channel.h"
 #include "point-to-point-net-device.h"
@@ -30,7 +30,7 @@ namespace ns3 {
 
 NS_OBJECT_ENSURE_REGISTERED (PointToPointChannel);
 
-TypeId 
+TypeId
 PointToPointChannel::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::PointToPointChannel")
@@ -40,22 +40,22 @@ PointToPointChannel::GetTypeId (void)
                    TimeValue (Seconds (0)),
                    MakeTimeAccessor (&PointToPointChannel::m_delay),
                    MakeTimeChecker ())
-	.AddAttribute ("Jitter", "Implement Jitter",
+.AddAttribute ("Jitter", "Implement Jitter",
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_jitter),
                    MakeUintegerChecker<uint16_t> ())
-	.AddAttribute ("alpha", "Set jitter moving average value",
+.AddAttribute ("alpha", "Set jitter moving average value",
                    DoubleValue (0.4),
                    MakeDoubleAccessor (&PointToPointChannel::m_alpha),
                    MakeDoubleChecker<int64_t>())
-	.AddAttribute ("k", "Set gamma distribution k value",
+.AddAttribute ("k", "Set gamma distribution k value",
                    DoubleValue (5.0),
                    MakeDoubleAccessor (&PointToPointChannel::m_k),
                    MakeDoubleChecker<int64_t>())
-	.AddAttribute ("tetha", "Set gamma distribution tetha value",
+.AddAttribute ("tetha", "Set gamma distribution tetha value",
                    DoubleValue (2.0),
                    MakeDoubleAccessor (&PointToPointChannel::m_tetha),
-                   MakeDoubleChecker<int64_t>())				   
+                   MakeDoubleChecker<int64_t>())	
     .AddTraceSource ("TxRxPointToPoint",
                      "Trace source indicating transmission of packet from the PointToPointChannel, used by the Animation interface.",
                      MakeTraceSourceAccessor (&PointToPointChannel::m_txrxPointToPoint))
@@ -64,18 +64,18 @@ PointToPointChannel::GetTypeId (void)
 }
 
 //
-// By default, you get a channel that 
+// By default, you get a channel that
 // has an "infitely" fast transmission speed and zero delay.
 PointToPointChannel::PointToPointChannel()
   :
     Channel (),
     m_delay (Seconds (0.)),
     m_nDevices (0),
-	m_jitter (0),
-	m_alpha (0.4),
-	m_k (5.0),
-	m_tetha (2.0),
-	m_previousDelay (0)
+    m_jitter (0),
+    m_alpha (0.4),
+    m_k (5.0),
+    m_tetha (2.0),
+    m_previousDelay (0)
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -135,7 +135,7 @@ PointToPointChannel::TransmitStart (
   if (rcvTime < m_prevRcvTime)
   {
           rcvTime= m_prevRcvTime;
-		  cur_delay=0;
+cur_delay=0;
   }
   m_previousDelay=cur_delay;
   m_prevRcvTime = rcvTime;
@@ -150,7 +150,7 @@ PointToPointChannel::TransmitStart (
   return true;
 }
 
-uint32_t 
+uint32_t
 PointToPointChannel::GetNDevices (void) const
 {
   NS_LOG_FUNCTION_NOARGS ();
