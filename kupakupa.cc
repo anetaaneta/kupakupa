@@ -200,6 +200,10 @@ cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
 //channel for server to BS
 	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue (delay));
+	p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
+	p2p.SetChannelAttribute ("alpha", DoubleValue (0.3));
+	p2p.SetChannelAttribute ("k", DoubleValue (5));
+	p2p.SetChannelAttribute ("tetha", DoubleValue (2));
 	NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
 //error model options
