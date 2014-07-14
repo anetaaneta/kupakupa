@@ -3,8 +3,8 @@
 #include "ns3/dce-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/internet-module.h"
-#include "ns3/flow-monitor-module.h"
-#include "ns3/flow-monitor-helper.h"
+//#include "ns3/flow-monitor-module.h"
+//#include "ns3/flow-monitor-helper.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -97,7 +97,7 @@ CommandLine cmd;
 char TypeOfConnection = 'p'; // iperf tcp connection
 bool ModeOperation = true;
 
-        cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
+    cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
     cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", ModeOperation);
 
 /*just in case if user use uppercase*/
@@ -117,17 +117,11 @@ std::string tcp_cc = "reno";
 std::string tcp_mem_user = "4096 8192 8388608";
 std::string tcp_mem_server = "4096 8192 8388608";
 
-<<<<<<< HEAD
-	std::string udp_bw="1M";
-	std::string delay = "2ms";
-	std::string user_bw = "150Mbps";
-	std::string server_bw = "10Gbps";
-=======
 std::string udp_bw="10m";
 std::string delay = "2ms";
 std::string user_bw = "150Mbps";
 std::string server_bw = "10Gbps";
->>>>>>> 962d21d1f8ccb56a1bf0d5be0200acbe564dff3c
+
 
         int ErrorModel = 1;
         int SimuTime = 20;
@@ -314,7 +308,7 @@ cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
         }
             else
             {
-                                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
                 dce.SetBinary ("iperf");
                 dce.ResetArguments ();
@@ -500,11 +494,11 @@ cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
     std::cout << "simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
     Simulator::Stop (Seconds (EndTime));
     
-    FlowMonitorHelper flowmon;
-    Ptr<FlowMonitor> monitor = flowmon.InstallAll();
+    //FlowMonitorHelper flowmon;
+    //Ptr<FlowMonitor> monitor = flowmon.InstallAll();
     
     Simulator::Run ();
-    monitor->CheckForLostPackets ();
+   /* monitor->CheckForLostPackets ();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier> (flowmon.GetClassifier ());
     std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats ();
     
@@ -552,6 +546,7 @@ cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
   	std::cout << "Download Time = "<<elapseTime.GetSeconds()<<" s\n";
     }
     monitor->SerializeToXmlFile ("results.xml",true,true);
+    */
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
 
