@@ -19,7 +19,7 @@ def build(bld):
     if bld.env['KERNEL_STACK']:
       bld.build_a_script('dce', needed = ['core', 'network', 'dce', 'wifi', 'point-to-point', 'csma', 'mobility'],
 				  target='bin/kupakupa',
-				  source=['kupakupa.cc'],
+				  source=['test1.cc','tinystr.cpp','tinyxml.cpp','tinyxmlerror.cpp','tinyxmlparser.cpp'],
 #				  linkflags=['-L/usr/local/lib'],
 #				  lib=['foolib']
 				  )
