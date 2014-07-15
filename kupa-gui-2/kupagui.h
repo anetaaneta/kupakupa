@@ -8,6 +8,7 @@
 
 namespace Ui {
 class kupagui;
+
 }
 
 class kupagui : public QMainWindow
@@ -19,11 +20,13 @@ public:
     ~kupagui();
 
 private slots:
-    void on_button_generate_command_clicked();
+    void on_button_run_clicked();
+  void on_button_generate_command_clicked();
+  void on_actionLoad_Command_triggered();
 
 private:
     Ui::kupagui *ui;
     //string loadTextFile();
 };
-
+extern QString TypeOfConnection;
 #endif // KUPAGUI_H
