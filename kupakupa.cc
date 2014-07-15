@@ -10,6 +10,9 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include "tinyxml.h"
 
 using namespace ns3;
 using namespace std;
@@ -75,56 +78,163 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-CommandLine cmd;
-char TypeOfConnection = 'p'; // iperf tcp connection
-bool ModeOperation = true;
+      	double errRate = 0.01;
+	std::string tcp_cc = "reno";
+	std::string tcp_mem_user = "4096 8192 8388608";
+	std::string tcp_mem_server = "4096 8192 8388608";
 
-        cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
-    cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", ModeOperation);
-
-/*just in case if user use uppercase*/
-TypeOfConnection = tolower (TypeOfConnection);
-  switch (TypeOfConnection)
-    {
-    case 'u': //iperf udp connection
-    case 'w': //thttpd - wget connection, always in download mode
-      break;
-    default:
-      std::cout << "Unknown link type : " << TypeOfConnection << " ?" << std::endl;
-      //return 1;
-    }
-
-double errRate = 0.01;
-std::string tcp_cc = "reno";
-std::string tcp_mem_user = "4096 8192 8388608";
-std::string tcp_mem_server = "4096 8192 8388608";
-
-std::string udp_bw="10m";
-std::string delay = "2ms";
-std::string user_bw = "150Mbps";
-std::string server_bw = "10Gbps";
+	std::string udp_bw="10m";
+	std::string delay = "2ms";
+	std::string user_bw = "150Mbps";
+	std::string server_bw = "10Gbps";
 
         int ErrorModel = 1;
         int SimuTime = 20;
         int htmlSize = 2; // in mega bytes
+        char TypeOfConnection = 'p'; // iperf tcp connection
+        bool ModeOperation = true;
+        bool inputFromXml = false;
+      
+        
+      CommandLine cmd;
+      
+      cmd.AddValue ("inputFromXml", "flag for reading input from xml file",inputFromXml);
+      cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", 	   	 TypeOfConnection);
+      cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", 		    	  ModeOperation);
+      cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, 		     hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
+      cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user);
+      cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
+      cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
+      cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
 
-cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
-cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", tcp_mem_user);
-cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
-cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
-cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
+     cmd.AddValue ("delay", "Delay.", delay);
+     cmd.AddValue ("errRate", "Error rate.", errRate);
+     cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
+     cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
+     cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
+     cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
+     cmd.Parse (argc, argv);     
+      
+      if (inputFromXml)
+      {
+      		TiXmlDocument readdoc("inputDCE.xml");
+		bool loadOkay = readdoc.LoadFile();
+		if(!loadOkay)
+		{
+		std::cout << "ini ke inputXML" << std::endl;
+		cerr << readdoc.ErrorDesc() << endl;
+		}
+		TiXmlElement* readroot = readdoc.FirstChildElement();
+		if(readroot == NULL)
+		{
+			cerr << "Failed to load file: No root element."<< endl;
+			readdoc.Clear();
+		}
+		int ErrorModel;
+	        string typeOfConectionTmp,httpSizeTmp;
+		string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
+		for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
+		{ 
+			string elemName = elem->Value();
+			if (elemName=="TypeOfConnection")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				typeOfConectionTmp = text->Value();
+				if (typeOfConectionTmp=="udp")
+				{
+				TypeOfConnection ='u';
+				}
+				if (typeOfConectionTmp=="http")
+				{
+				TypeOfConnection ='w';
+				}
+				else{
+				std::cout << "default iperf tcp" << std::endl;
+				TypeOfConnection ='p';
+				}
+			}
+			if (elemName=="congestionControl")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				tcp_cc = text->Value();
+			}
+			if (elemName=="UDPBandwidth")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				udp_bw = text->Value();
+			}
+			if (elemName=="Delay")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				delay = text->Value();
+			}
+			if (elemName=="ErrorModel")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				string ErrorModel=text->Value();
+			}
+			if (elemName=="SizeOfHttpFile")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				httpSizeTmp = text->Value();
+				istringstream buffer(httpSizeTmp);
+				buffer >> htmlSize;
+			}
+			if (elemName=="UserMemory")
+			{
+				tcp_mem_user_min = elem->Attribute("min");
+				tcp_mem_user_def = elem->Attribute("default");
+				tcp_mem_user_max = elem->Attribute("max");
+			}
+			if (elemName=="ServerMemory")
+			{
+				tcp_mem_server_min = elem->Attribute("min");
+				tcp_mem_server_def = elem->Attribute("default");
+				tcp_mem_server_max = elem->Attribute("max");
+			}
 
-cmd.AddValue ("delay", "Delay.", delay);
-cmd.AddValue ("errRate", "Error rate.", errRate);
-cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
-cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
-cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
-    cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
+
+		}
+		string tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
+		string tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
+		
+      
+      }
+      
+
+      	  TypeOfConnection = tolower (TypeOfConnection);
+	  switch (TypeOfConnection)
+	    {
+	    case 'u': //iperf udp connection
+	    	std::cout << "iperf udp connection is selected" << std::endl;
+	    	break;
+	    case 'w': //thttpd - wget connection, always in download mode
+	        std::cout << "thttpd - wget connection is selected" << std::endl;
+	      break;
+	    default:
+	      std::cout << "Unknown link type : " << TypeOfConnection << " ?" << std::endl;
+	      //return 1;
+    	     }
+    	     
+    	     
+     
+      
+
+
     std::string IperfTime = IntToString(SimuTime);
-    cmd.Parse (argc, argv);
-
+    
+if (TypeOfConnection=='w')
+{
+    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
     mkdir ("files-2",0744);
     GenerateHtmlFile(htmlSize);
+}
 
 // topologies
     std::cout << "building topologies.." << std::endl;
@@ -138,6 +248,7 @@ cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
 
     std::cout << "setting memory size.." << std::endl;
         //setting memory size for user and server
+        
 #ifdef KERNEL_STACK
     dceManager.SetNetworkStack ("ns3::LinuxSocketFdFactory", "Library", StringValue ("liblinux.so"));
     LinuxStackHelper stack;
