@@ -1,0 +1,3 @@
+#!/bin/bash 
+cd /home/aneta/aneta-kupa/source/ns-3-dce/ 
+./waf shell 

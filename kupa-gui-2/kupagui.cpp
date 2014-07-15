@@ -1,7 +1,7 @@
 #include "kupagui.h"
 #include "ui_kupagui.h"
-#include <QFile>
-#include <QTextStream>
+#include "tinyxml.h"
+
 #include <QFileDialog>
 #include <QSaveFile>
 #include <stdio.h>
@@ -11,7 +11,25 @@
 #include <string>
 #include <QMessageBox>
 
+#include <QCoreApplication>
+#include <QFile>
+#include <QStringList>
+#include <QTextStream>
+#include <QXmlStreamReader>
+
 QString TypeOfConnection;
+QString ModeOperation = " --ModeOperation=true";
+QString tcp_mem_user ="";
+QString tcp_mem_server = "";
+QString tcp_cc = "";
+QString SimuTime="";
+QString udp_bw="";
+QString file_size="";
+QString user_bw="";
+QString server_bw="";
+QString error_rate="";
+QString error_model="";
+
 kupagui::kupagui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::kupagui)
@@ -81,7 +99,7 @@ void kupagui::on_button_generate_command_clicked()
         tcp_mem_server = " --tcp_mem_server="+ui->tcp_mem_server_2->text();
             }
         tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
-        file_size = " --file_size="+ui->wget_file_size->text();
+        file_size = " --htmlSize="+ui->wget_file_size->text()+"Mb";
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
     }
 //concatenates all commands
@@ -103,87 +121,93 @@ void kupagui::on_button_generate_command_clicked()
             myfile << theCommand <<"\n";
             //back to current folder
             myfile << "cd $KUPA_HOME";
-            myfile.close();
             system ("chmod +x run-kupakupa.sh");
+            myfile.close();
+
             }
 
 }
 
+
 void kupagui::on_button_run_clicked()
 {
-  system ("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stdout >> /home/aneta/aneta-kupa/source/ns-3-dce/myscripts/kupakupa/output.txt");
-  //std::string connectionType = TypeOfConnection.toUtf8 ().constData ();
-  QChar k = 'u';
-  ui->output_result->insertPlainText (TypeOfConnection);
-  if (k == 'p'){
-      ui->output_result->insertPlainText ("TypeOfConnection is tcp");
-    }
-  else if (k=='u'){
-      ui->output_result->insertPlainText ("TypeOfConnection is udp");
-    }
-  else {
-      ui->output_result->insertPlainText ("TypeOfConnection is wget");
-    }
-  system ("./run-kupakupa.sh");
+    system ("./run-kupakupa.sh");
+
 }
 
 void kupagui::on_actionLoad_Command_triggered()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QString(),
-              tr("XML Files (*.xml)"));
-
-      if (!fileName.isEmpty()) {
-          QFile file(fileName);
-          if (!file.open(QIODevice::ReadOnly)) {
-              QMessageBox::critical(this, tr("Error"), tr("Could not open file"));
-              return;
+  TiXmlDocument readdoc(":/inputDCE.xml");
+  bool loadOkay = readdoc.LoadFile();
+  if(!loadOkay)
+  {
+          std::cerr << readdoc.ErrorDesc(); //<< endl;
+  }
+  TiXmlElement* readroot = readdoc.FirstChildElement();
+  if(readroot == NULL)
+  {
+         std::cerr << "Failed to load file: No root element.";
+                   //<< endl;
+          readdoc.Clear();
+  }
+  //int ErrorModel;
+  QString typeOfConection,tcp_cc,udp_bw,delay,httpSize, tcp_mem_user, tcp_mem_server;
+  QString tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
+  for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
+  {
+  std::string elemName = elem->Value();
+          if (elemName=="TypeOfConnection")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  typeOfConection = text->Value();
           }
-          /*QTextStream in(&file);
-          ui->output_result->setText(in.readAll());
-          file.close();
-          }*/
+          if (elemName=="congestionControl")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  tcp_cc = text->Value();
+          }
+          if (elemName=="UDPBandwidth")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  udp_bw = text->Value();
+          }
+          if (elemName=="Delay")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  delay = text->Value();
+          }
+          if (elemName=="ErrorModel")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  std::string ErrorModel=text->Value();
+          }
+          if (elemName=="SizeOfHttpFile")
+          {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  httpSize = text->Value();
+          }
+          if (elemName=="UserMemory")
+          {
+                  tcp_mem_user_min = elem->Attribute("min");
+                  tcp_mem_user_def = elem->Attribute("default");
+                  tcp_mem_user_max = elem->Attribute("max");
+          }
+          if (elemName=="ServerMemory")
+          {
+                  tcp_mem_server_min = elem->Attribute("min");
+                  tcp_mem_server_def = elem->Attribute("default");
+                  tcp_mem_server_max = elem->Attribute("max");
+          }
 
-      xmlFile = new QFile(file);
-              if (!xmlFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
-                      QMessageBox::critical(this,"Load XML File Problem",
-                      "Couldn't open xmlfile.xml to load settings for download",
-                      QMessageBox::Ok);
-                      return;
-              }
-      xmlReader = new QXmlStreamReader(xmlFile);
 
+  }
+   tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
+   tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
 
-      //Parse the XML until we reach end of it
-      while(!xmlReader->atEnd() && !xmlReader->hasError()) {
-              // Read next element
-              QXmlStreamReader::TokenType token = xmlReader->readNext();
-              //If token is just StartDocument - go to next
-              if(token == QXmlStreamReader::StartDocument) {
-                      continue;
-              }
-              //If token is StartElement - read it
-              if(token == QXmlStreamReader::StartElement) {
-
-                      if(xmlReader->name() == "name") {
-
-                          continue;
-                      }
-
-                      if(xmlReader->name() == "id") {
-                          qDebug() << xmlReader->readElementText();
-                      }
-              }
-      }
-
-      if(xmlReader->hasError()) {
-              QMessageBox::critical(this,
-              "xmlFile.xml Parse Error",xmlReader->errorString(),
-              QMessageBox::Ok);
-              return;
-      }
-
-      //close reader and flush file
-      xmlReader->clear();
-      xmlFile->close();
-        }
 }

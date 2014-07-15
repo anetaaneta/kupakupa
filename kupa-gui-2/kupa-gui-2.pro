@@ -14,9 +14,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        kupagui.cpp
+        kupagui.cpp \
+    tinystr.cpp \
+    tinyxmlparser.cpp \
+    tinyxmlerror.cpp \
+    tinyxml.cpp
 
-HEADERS  += kupagui.h
+HEADERS  += kupagui.h \
+    tinystr.h \
+    tinyxml.h
 
 FORMS    += kupagui.ui
 
