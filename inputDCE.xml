@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <SimulationParameters>
-    <TypeOfConnection>tcp</TypeOfConnection>
+    <TypeOfConnection>iperf-tcp</TypeOfConnection>
     <congestionControl>reno</congestionControl>
     <UDPBandwidth>1m</UDPBandwidth>
     <Delay>2ms</Delay>
