@@ -141,16 +141,19 @@ int main (int argc, char *argv[])
 				TiXmlNode* e = elem->FirstChild();
 				TiXmlText* text = e->ToText();
 				typeOfConectionTmp = text->Value();
-				if (typeOfConectionTmp=="udp")
-				{
-				TypeOfConnection ='u';
-				}
 				if (typeOfConectionTmp=="http")
 				{
 				TypeOfConnection ='w';
 				}
-				else{
-				std::cout << "default iperf tcp" << std::endl;
+				
+				if (typeOfConectionTmp=="iperf-udp")
+				{
+				TypeOfConnection ='u';
+				}
+				
+				if (typeOfConectionTmp=="iperf-tcp")
+				{
+				
 				TypeOfConnection ='p';
 				}
 			}
@@ -216,6 +219,9 @@ int main (int argc, char *argv[])
 	    	break;
 	    case 'w': //thttpd - wget connection, always in download mode
 	        std::cout << "thttpd - wget connection is selected" << std::endl;
+	      break;
+	     case 'p': //thttpd - wget connection, always in download mode
+	        std::cout << "iperf tcp connection is selected" << std::endl;
 	      break;
 	    default:
 	      std::cout << "Unknown link type : " << TypeOfConnection << " ?" << std::endl;
