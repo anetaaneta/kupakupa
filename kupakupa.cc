@@ -12,7 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include "tinyxml.h"
+#include "parseXml.h"
 
 using namespace ns3;
 using namespace std;
@@ -57,6 +57,24 @@ string SplitLastValue (const std::string& str)
   temp << str.substr(found+1);
   return temp.str();
 }
+//to remove comma if user make input with comma
+string RemoveComma (std::string& str) 
+{
+int i = 0;
+std::cout<<"remove comma from "<< str << std::endl;
+std::string str2=str;
+for (i=0; i<3; i++)
+{
+	std::size_t found=str.find(',');
+	if (found!=std::string::npos)
+	{
+	str2 = str.replace(str.find(','),1," ");
+	} else {
+	std::cout<<"no comma found..";
+	}
+}
+return str2;
+}
 
 static void RunIp (Ptr<Node> node, Time at, std::string str)
 {
@@ -99,9 +117,9 @@ int main (int argc, char *argv[])
       CommandLine cmd;
       
       cmd.AddValue ("inputFromXml", "flag for reading input from xml file",inputFromXml);
-      cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", 	   	 TypeOfConnection);
-      cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", 		    	  ModeOperation);
-      cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, diag, highspeed, htcp, 		     hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
+      cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
+      cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", ModeOperation);
+      cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
       cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user);
       cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
       cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
@@ -115,99 +133,11 @@ int main (int argc, char *argv[])
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
      cmd.Parse (argc, argv);     
       
-      if (inputFromXml==true)
+      if (inputFromXml)
       {
-      		TiXmlDocument readdoc("inputDCE.xml");
-		bool loadOkay = readdoc.LoadFile();
-		if(!loadOkay)
-		{
-		std::cout << "ini ke inputXML" << std::endl;
-		cerr << readdoc.ErrorDesc() << endl;
-		}
-		TiXmlElement* readroot = readdoc.FirstChildElement();
-		if(readroot == NULL)
-		{
-			cerr << "Failed to load file: No root element."<< endl;
-			readdoc.Clear();
-		}
-		int ErrorModel;
-	        string typeOfConectionTmp,httpSizeTmp;
-		string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
-		for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
-		{ 
-			string elemName = elem->Value();
-			if (elemName=="TypeOfConnection")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				typeOfConectionTmp = text->Value();
-				if (typeOfConectionTmp=="http")
-				{
-				TypeOfConnection ='w';
-				}
-				
-				if (typeOfConectionTmp=="iperf-udp")
-				{
-				TypeOfConnection ='u';
-				}
-				
-				if (typeOfConectionTmp=="iperf-tcp")
-				{
-				
-				TypeOfConnection ='p';
-				}
-			}
-			if (elemName=="congestionControl")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				tcp_cc = text->Value();
-			}
-			if (elemName=="UDPBandwidth")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				udp_bw = text->Value();
-			}
-			if (elemName=="Delay")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				delay = text->Value();
-			}
-			if (elemName=="ErrorModel")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				string ErrorModel=text->Value();
-			}
-			if (elemName=="SizeOfHttpFile")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				httpSizeTmp = text->Value();
-				istringstream buffer(httpSizeTmp);
-				buffer >> htmlSize;
-			}
-			if (elemName=="UserMemory")
-			{
-				tcp_mem_user_min = elem->Attribute("min");
-				tcp_mem_user_def = elem->Attribute("default");
-				tcp_mem_user_max = elem->Attribute("max");
-			}
-			if (elemName=="ServerMemory")
-			{
-				tcp_mem_server_min = elem->Attribute("min");
-				tcp_mem_server_def = elem->Attribute("default");
-				tcp_mem_server_max = elem->Attribute("max");
-			}
-
-
-		}
-		tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
-		tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
-		
-      
+	string fileName = "inputDCE.xml";	
+	ParseInput parser;
+	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
       }
       
 
@@ -230,9 +160,7 @@ int main (int argc, char *argv[])
     	     
     	     
      
-      
-
-
+     
     std::string IperfTime = IntToString(SimuTime);
     
 if (TypeOfConnection=='w')
@@ -260,15 +188,19 @@ if (TypeOfConnection=='w')
     LinuxStackHelper stack;
     stack.Install (c);
     dceManager.Install (c);
+    
+    	//let's remove the comma
+	tcp_mem_user = RemoveComma(tcp_mem_user);
+	tcp_mem_server = RemoveComma(tcp_mem_server);
 
 	//assume coma has been removed
 	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
 	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
 
-        stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
     stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server);
-        stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server);
 
     stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_mem_user_max);
     stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_mem_user_max);
@@ -404,7 +336,7 @@ if (TypeOfConnection=='w')
         }
             else
             {
-                                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
                 dce.SetBinary ("iperf");
                 dce.ResetArguments ();
@@ -438,53 +370,57 @@ if (TypeOfConnection=='w')
         if (ModeOperation)
         {
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-        // Launch iperf udp server on node 0
-        dce.SetBinary ("iperf");
-        dce.ResetArguments ();
-        dce.ResetEnvironment ();
-        dce.AddArgument ("-s");
-        dce.AddArgument ("-u");
+       	// Launch iperf udp server on node 0
+       	dce.SetBinary ("iperf");
+       	dce.ResetArguments ();
+	dce.ResetEnvironment ();
+       	dce.AddArgument ("-s");
+       	dce.AddArgument ("-u");
+       	dce.AddArgument ("-P");
+       	dce.AddArgument ("1");
+       	ApplicationContainer SerApps0 = dce.Install (c.Get (0));
+       	SerApps0.Start (Seconds (1));
+       	SerApps0.Stop (Seconds (EndTime));
 
-        ApplicationContainer SerApps0 = dce.Install (c.Get (0));
-        SerApps0.Start (Seconds (1));
-        SerApps0.Stop (Seconds (EndTime));
-
-        // Launch iperf client on node 2
-        dce.SetBinary ("iperf");
-        dce.ResetArguments ();
-        dce.ResetEnvironment ();
-        dce.AddArgument ("-c");
-        dce.AddArgument ("10.1.1.1");
-        dce.AddArgument ("-u");
-        dce.AddArgument ("-b");
-        dce.AddArgument (udp_bw);
-        dce.AddArgument ("--time");
-        dce.AddArgument (IperfTime);
-        ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
-        ClientApps0.Start (Seconds (1));
-        ClientApps0.Stop (Seconds (EndTime));
+       	// Launch iperf client on node 2
+       	dce.SetBinary ("iperf");
+       	dce.ResetArguments ();
+       	dce.ResetEnvironment ();
+       	dce.AddArgument ("-c");
+       	dce.AddArgument ("10.1.1.1");
+       	dce.AddArgument ("-u");
+       	dce.AddArgument ("-i");
+       	dce.AddArgument ("1");
+       	dce.AddArgument ("-b");
+       	dce.AddArgument (udp_bw);
+       	dce.AddArgument ("--time");
+       	dce.AddArgument (IperfTime);
+       	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
+       	ClientApps0.Start (Seconds (1));
+       	ClientApps0.Stop (Seconds (EndTime));
         }
         else
             {
              d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            // Launch iperf udp server on node 0
-            dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-s");
-            dce.AddArgument ("-u");
-
-            ApplicationContainer SerApps0 = dce.Install (c.Get (2));
-            SerApps0.Start (Seconds (1));
-            SerApps0.Stop (Seconds (EndTime));
+		// Launch iperf udp server on node 0
+             dce.SetBinary ("iperf");
+             dce.ResetArguments ();
+             dce.ResetEnvironment ();
+             dce.AddArgument ("-s");
+             dce.AddArgument ("-u");
+             dce.AddArgument ("-i");
+             dce.AddArgument ("1");
+             ApplicationContainer SerApps0 = dce.Install (c.Get (2));
+             SerApps0.Start (Seconds (1));
+             SerApps0.Stop (Seconds (EndTime));
 
             // Launch iperf client on node 2
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
-            dce.AddArgument ("-c");
-            dce.AddArgument ("10.1.2.2");
             dce.AddArgument ("-u");
+            dce.AddArgument ("-i");
+            dce.AddArgument ("1");
             dce.AddArgument ("-b");
             dce.AddArgument (udp_bw);
             dce.AddArgument ("--time");
@@ -582,15 +518,14 @@ if (TypeOfConnection=='w')
 
 
     Simulator::Stop (Seconds (EndTime));
-    
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll();
     
     
     Simulator::Run ();
     
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
-
-	//get the iperf result
 
   return 0;
 }
