@@ -303,7 +303,8 @@ check: first
 compiler_rcc_make_all: qrc_kupa-gui-2.cpp
 compiler_rcc_clean:
 	-$(DEL_FILE) qrc_kupa-gui-2.cpp
-qrc_kupa-gui-2.cpp: ../kupa-gui-2/kupa-gui-2.qrc
+qrc_kupa-gui-2.cpp: ../kupa-gui-2/kupa-gui-2.qrc \
+		../kupa-gui-2/inputDCE.xml
 	/usr/lib/x86_64-linux-gnu/qt5/bin/rcc -name kupa-gui-2 ../kupa-gui-2/kupa-gui-2.qrc -o qrc_kupa-gui-2.cpp
 
 compiler_moc_header_make_all: moc_kupagui.cpp
@@ -767,7 +768,10 @@ kupagui.o: ../kupa-gui-2/kupagui.cpp ../kupa-gui-2/kupagui.h \
 		/usr/include/qt5/QtCore/QCoreApplication \
 		/usr/include/qt5/QtCore/QFile \
 		/usr/include/qt5/QtCore/QStringList \
-		/usr/include/qt5/QtCore/QTextStream
+		/usr/include/qt5/QtCore/QTextStream \
+		/usr/include/qt5/QtGui/QDesktopServices \
+		/usr/include/qt5/QtGui/qdesktopservices.h \
+		/usr/include/qt5/QtCore/qstandardpaths.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o kupagui.o ../kupa-gui-2/kupagui.cpp
 
 tinystr.o: ../kupa-gui-2/tinystr.cpp ../kupa-gui-2/tinystr.h

@@ -319,13 +319,14 @@ public:
         menuMenu->addSeparator();
         menuMenu->addAction(actionBye_Bye);
         menuXML->addAction(actionEdit_XML);
-        menuXML->addAction(actionEdit_Path);
         menuHelp->addAction(actionGuide);
+        menuHelp->addSeparator();
         menuHelp->addAction(actionAbout);
 
         retranslateUi(kupagui);
         QObject::connect(button_exit, SIGNAL(clicked()), kupagui, SLOT(close()));
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
+        QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
         tabWidget->setCurrentIndex(0);
         error_model->setCurrentIndex(0);

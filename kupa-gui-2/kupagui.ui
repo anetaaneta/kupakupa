@@ -23,6 +23,12 @@
       <height>291</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;use command editor to make your own command for kupakupa&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;this part is generating command for you to run :)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="title">
      <string>Command Editor</string>
     </property>
@@ -34,6 +40,9 @@
        <width>461</width>
        <height>161</height>
       </rect>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set up your iper or http connection here&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -51,6 +60,9 @@
          <height>17</height>
         </rect>
        </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;client send data to server&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Upload</string>
        </property>
@@ -67,6 +79,9 @@
          <height>17</height>
         </rect>
        </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;client get data from server&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Download</string>
        </property>
@@ -82,6 +97,9 @@
          <width>81</width>
          <height>22</height>
         </rect>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;time to do iperf. simulation will add 10 more seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="maximum">
         <number>9999</number>
@@ -111,6 +129,12 @@
          <width>201</width>
          <height>20</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="inputMask">
         <string/>
@@ -144,6 +168,12 @@
          <height>20</height>
         </rect>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>4096 8192 8388608</string>
        </property>
@@ -172,6 +202,9 @@
          <width>81</width>
          <height>22</height>
         </rect>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reno - default tcp congestion control algorithm&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Other options:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;High Speed TCP&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The algorithm is described in RFC 3649. The main use is for connections with large bandwidth and large RTT (such as Gbit/s and 100 ms RTT).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;H-TCP&lt;/span&gt;&lt;/p&gt;&lt;p&gt;H-TCP was proposed by the Hamilton Institute for transmissions that recover more quickly after a congestion event. It is also designed for links with high bandwidth and RTT.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Scalable TCP&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is another algorithm for WAN links with high bandwidth and RTT. One of its design goals is a quick recovery of the window size after a congestion event. It achieves this goal by resetting the window to a higher value than standard TCP.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP BIC&lt;/span&gt;&lt;/p&gt;&lt;p&gt;BIC is the abbreviation for Binary Increase Congestion control. BIC uses a unique window growth function. In case of packet loss, the window is reduced by a multiplicative factor. The window size just before and after the reduction is then used as parameters for a binary search for the new window size. BIC was used as standard algorithm in the Linux kernel.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP CUBIC&lt;/span&gt;&lt;/p&gt;&lt;p&gt;CUBIC is a less aggressive variant of BIC (meaning, it doesn't steal as much throughput from competing TCP flows as does BIC).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Hybla&lt;/span&gt;&lt;/p&gt;&lt;p&gt;TCP Hybla was proposed in order to transmit data efficiently over satellite links and &amp;quot;defend&amp;quot; the transmission against TCP flows from other origins.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Low Priority (lp)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This is an approach to develop an algorithm that uses excess bandwidth for TCP flows. It can be used for low priority data transfers without &amp;quot;disturbing&amp;quot; other TCP transmissions (which probably don't use TCP Low Priority).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Tahoe/Reno&lt;/span&gt;&lt;/p&gt;&lt;p&gt;These are the classical models used for congestion control. They exhibit the typical slow start of transmissions. The throughput increases gradually until it stays stable. It is decreased as soon as the transfer encounters congestion, then the rate rises again slowly. The window is increased by adding fixed values. TCP Reno uses a multiplicative decrease algorithm for the reduction of window size. TCP Reno is the most widely deployed algorithm.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Vegas&lt;/span&gt;&lt;/p&gt;&lt;p&gt;TCP Vegas introduces the measurement of RTT for evaluating the link quality. It uses additive increases and additive decreases for the congestion window.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Veno&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This variant is optimised for wireless networks, since it was designed to handle random packet loss better. It tries to keep track of the transfer, and guesses if the quality decreases due to congestion or random packet errors.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;TCP Westwood+&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Westwood+ addresses both large bandwidth/RTT values and random packet loss together with dynamically changing network loads. It analyses the state of the transfer by looking at the acknowledgement packets. Westwood+ is a modification of the TCP Reno algorithm.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <item>
         <property name="text">
@@ -332,6 +365,12 @@
          <height>20</height>
         </rect>
        </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>4096 8192 8388608</string>
        </property>
@@ -363,6 +402,12 @@
          <width>201</width>
          <height>20</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;put 3 values in bytes, can be separated by comma or space&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="inputMask">
         <string/>
@@ -733,6 +778,9 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;the command will be generated in this area, as well as the .sh file on source folder&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
    </widget>
    <widget class="QTextEdit" name="output_result">
     <property name="geometry">
@@ -743,6 +791,9 @@
       <height>161</height>
      </rect>
     </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;result box, display all stdout from run and get result button&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
    </widget>
    <widget class="QPushButton" name="button_run">
     <property name="geometry">
@@ -752,6 +803,9 @@
       <width>99</width>
       <height>27</height>
      </rect>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;run the .sh file from source folder and put the stdout on result box&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>RUN!</string>
@@ -765,6 +819,9 @@
       <width>99</width>
       <height>27</height>
      </rect>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;parse desired output to output box&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>get result</string>
@@ -810,13 +867,12 @@
      <string>Options</string>
     </property>
     <addaction name="actionEdit_XML"/>
-    <addaction name="actionEdit_Path"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionGuide"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuMenu"/>
@@ -902,6 +958,22 @@
    <signal>triggered()</signal>
    <receiver>kupagui</receiver>
    <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionGuide</sender>
+   <signal>triggered()</signal>
+   <receiver>kupagui</receiver>
+   <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

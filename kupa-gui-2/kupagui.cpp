@@ -16,6 +16,7 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QXmlStreamReader>
+#include <QDesktopServices>
 
 QString TypeOfConnection = "";
 string theCommand;
@@ -219,7 +220,7 @@ void kupagui::on_button_run_clicked()
 
 void kupagui::on_actionLoad_Command_triggered()
 {
-  /*TiXmlDocument readdoc("inputDCE.xml");
+  /*TiXmlDocument readdoc("./inputDCE.xml");
   bool loadOkay = readdoc.LoadFile();
   if(!loadOkay)
   {
@@ -395,4 +396,19 @@ void kupagui::on_actionSave_Result_triggered()
                   }
               }
 
+}
+
+void kupagui::on_actionEdit_XML_triggered()
+{
+  QDesktopServices::openUrl(QUrl("./inputDCE.xml"));
+}
+
+
+void kupagui::on_actionAbout_triggered()
+{
+  QMessageBox msgBox;
+  msgBox.setText("About the program");
+  msgBox.setInformativeText("more information: email us - dragon21century@gmail.com or zewaldo88@gmail.com");
+  msgBox.setDefaultButton (QMessageBox::Discard);
+  int ret = msgBox.exec();
 }

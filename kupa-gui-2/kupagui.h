@@ -1,4 +1,4 @@
-#ifndef KUPAGUI_H
+//#ifndef KUPAGUI_H
 #define KUPAGUI_H
 
 #include <QMainWindow>
@@ -12,7 +12,7 @@ using namespace std;
 
 namespace Ui {
 class kupagui;
-
+class help;
 }
 
 class kupagui : public QMainWindow
@@ -38,9 +38,11 @@ private slots:
 
     void on_actionSave_Result_triggered();
 
+    void on_actionEdit_XML_triggered();
+
+    void on_actionAbout_triggered();
+
 private:
     Ui::kupagui *ui;
     //string loadTextFile();
 };
-extern QString TypeOfConnection;
-#endif // KUPAGUI_H
