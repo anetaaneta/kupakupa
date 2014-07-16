@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
      cmd.Parse (argc, argv);     
       
-      if (inputFromXml)
+      if (inputFromXml==true)
       {
       		TiXmlDocument readdoc("inputDCE.xml");
 		bool loadOkay = readdoc.LoadFile();
@@ -506,15 +506,13 @@ if (TypeOfConnection=='w')
       {
                 ModeOperation=true;
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-        ApplicationContainer SerApps2 = dce.Install (c.Get (2));
-        SerApps2.Start (Seconds (1));
-        SerApps2.Stop (Seconds (SimuTime));
+
         dce.SetBinary ("thttpd");
         dce.ResetArguments ();
         dce.ResetEnvironment ();
         dce.SetUid (1);
         dce.SetEuid (1);
-        ApplicationContainer serHttp = dce.Install (c.Get (2));
+	ApplicationContainer serHttp = dce.Install (c.Get (2));
         serHttp.Start (Seconds (1));
 
         dce.SetBinary ("wget");

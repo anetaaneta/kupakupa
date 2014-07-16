@@ -303,8 +303,7 @@ check: first
 compiler_rcc_make_all: qrc_kupa-gui-2.cpp
 compiler_rcc_clean:
 	-$(DEL_FILE) qrc_kupa-gui-2.cpp
-qrc_kupa-gui-2.cpp: ../kupa-gui-2/kupa-gui-2.qrc \
-		../kupa-gui-2/inputDCE.xml
+qrc_kupa-gui-2.cpp: ../kupa-gui-2/kupa-gui-2.qrc
 	/usr/lib/x86_64-linux-gnu/qt5/bin/rcc -name kupa-gui-2 ../kupa-gui-2/kupa-gui-2.qrc -o qrc_kupa-gui-2.cpp
 
 compiler_moc_header_make_all: moc_kupagui.cpp
@@ -425,6 +424,8 @@ moc_kupagui.cpp: /usr/include/qt5/QtWidgets/QMainWindow \
 		/usr/include/qt5/QtWidgets/qabstractbutton.h \
 		/usr/include/qt5/QtCore/QXmlStreamReader \
 		/usr/include/qt5/QtCore/qxmlstream.h \
+		../kupa-gui-2/tinyxml.h \
+		../kupa-gui-2/tinystr.h \
 		../kupa-gui-2/kupagui.h
 	/usr/lib/x86_64-linux-gnu/qt5/bin/moc $(DEFINES) $(INCPATH) -I/usr/include/c++/4.8 -I/usr/include/x86_64-linux-gnu/c++/4.8 -I/usr/include/c++/4.8/backward -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../kupa-gui-2/kupagui.h -o moc_kupagui.cpp
 
@@ -562,6 +563,8 @@ main.o: ../kupa-gui-2/main.cpp ../kupa-gui-2/kupagui.h \
 		/usr/include/qt5/QtWidgets/qabstractbutton.h \
 		/usr/include/qt5/QtCore/QXmlStreamReader \
 		/usr/include/qt5/QtCore/qxmlstream.h \
+		../kupa-gui-2/tinyxml.h \
+		../kupa-gui-2/tinystr.h \
 		/usr/include/qt5/QtWidgets/QApplication \
 		/usr/include/qt5/QtWidgets/qapplication.h \
 		/usr/include/qt5/QtCore/qcoreapplication.h \
@@ -687,6 +690,8 @@ kupagui.o: ../kupa-gui-2/kupagui.cpp ../kupa-gui-2/kupagui.h \
 		/usr/include/qt5/QtWidgets/qabstractbutton.h \
 		/usr/include/qt5/QtCore/QXmlStreamReader \
 		/usr/include/qt5/QtCore/qxmlstream.h \
+		../kupa-gui-2/tinyxml.h \
+		../kupa-gui-2/tinystr.h \
 		ui_kupagui.h \
 		/usr/include/qt5/QtCore/QVariant \
 		/usr/include/qt5/QtWidgets/QAction \
@@ -750,8 +755,6 @@ kupagui.o: ../kupa-gui-2/kupagui.cpp ../kupa-gui-2/kupagui.h \
 		/usr/include/qt5/QtWidgets/QToolBar \
 		/usr/include/qt5/QtWidgets/qtoolbar.h \
 		/usr/include/qt5/QtWidgets/QWidget \
-		../kupa-gui-2/tinyxml.h \
-		../kupa-gui-2/tinystr.h \
 		/usr/include/qt5/QtWidgets/QFileDialog \
 		/usr/include/qt5/QtWidgets/qfiledialog.h \
 		/usr/include/qt5/QtCore/qdir.h \

@@ -17,18 +17,11 @@
 #include <QTextStream>
 #include <QXmlStreamReader>
 
-QString TypeOfConnection;
-QString ModeOperation = " --ModeOperation=true";
-QString tcp_mem_user ="";
-QString tcp_mem_server = "";
-QString tcp_cc = "";
-QString SimuTime="";
-QString udp_bw="";
-QString file_size="";
-QString user_bw="";
-QString server_bw="";
-QString error_rate="";
-QString error_model="";
+QString TypeOfConnection = "";
+string theCommand;
+int resultNUmber;
+
+using namespace std;
 
 kupagui::kupagui(QWidget *parent) :
     QMainWindow(parent),
@@ -79,6 +72,7 @@ void kupagui::on_button_generate_command_clicked()
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + SimuTime;
+        resultNUmber = 1;
     }
 /* -----------------------for iperf udp--------------------------- */
     else if (ui->tabWidget->currentIndex()==1){
@@ -87,6 +81,8 @@ void kupagui::on_button_generate_command_clicked()
             ModeOperation = " --ModeOperation=false";
         }
         udp_bw=" --udp_bw="+ui->udp_bw->text();
+        FinalCommand = TypeOfConnection + ModeOperation + udp_bw;
+        resultNUmber = 2;
     }
 
 /* -----------------------for wget-thttpd--------------------------- */
@@ -99,45 +95,92 @@ void kupagui::on_button_generate_command_clicked()
         tcp_mem_server = " --tcp_mem_server="+ui->tcp_mem_server_2->text();
             }
         tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
-        file_size = " --htmlSize="+ui->wget_file_size->text()+"Mb";
+        file_size = " --htmlSize="+ui->wget_file_size->text();
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
+        resultNUmber = 3;
     }
 //concatenates all commands
     FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate;
     ui->final_command->setText(FinalCommand);
 //create new shell file
     FILE * pFile;
-    pFile = fopen ("run-kupakupa.sh", "w");
+    pFile = fopen ("shell-kupakupa.sh", "w");
        if (pFile != NULL){
             std::fstream myfile;
-            myfile.open ("run-kupakupa.sh");
+            myfile.open ("shell-kupakupa.sh");
             myfile << "#!/bin/bash \n";
+            myfile <<"echo "<<resultNUmber;
             myfile << "export KUPA_HOME=`pwd` \n";
 
             myfile << "cd /home/aneta/aneta-kupa/source/ns-3-dce/ \n";
-            myfile << "./waf shell \n";
-            myfile << "./home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
-            std::string theCommand = FinalCommand.toUtf8 ().constData ();
-            myfile << theCommand <<"\n";
+            //myfile << "./waf shell \n";
+            //myfile << "/home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
+            theCommand = FinalCommand.toUtf8 ().constData ();
+            myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
             //back to current folder
             myfile << "cd $KUPA_HOME";
-            system ("chmod +x run-kupakupa.sh");
             myfile.close();
-
+            fclose (pFile);
+            system("chmod +x shell-kupakupa.sh");
             }
+       /*FILE * execFile;
+       execFile = fopen ("run-kupakupa.sh", "w");
+          if (execFile != NULL){
+               std::fstream myfile;
+               myfile.open ("run-kupakupa.sh");
+               myfile << "#!/bin/bash \n";
+               myfile << "/home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
+               theCommand = FinalCommand.toUtf8 ().constData ();
+               myfile << theCommand <<"\n";
+               //back to current folder
+               //myfile << "cd $KUPA_HOME";
+               myfile.close();
+               fclose (execFile);
+               system("chmod +x run-kupakupa.sh");
+               }*/
+
 
 }
 
+string kupagui::GetStdoutFromCommand(string cmd) {
+
+    string data;
+    FILE * stream;
+    const int max_buffer = 256;
+    char buffer[max_buffer];
+    cmd.append(" 2>&1");
+
+    stream = popen(cmd.c_str(), "r");
+    if (stream) {
+    while (!feof(stream))
+    if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
+    pclose(stream);
+    }
+    return data;
+}
 
 void kupagui::on_button_run_clicked()
 {
-    system ("./run-kupakupa.sh");
 
+    string ls = GetStdoutFromCommand("./shell-kupakupa.sh");
+    QString qstr = QString::fromStdString(ls);
+    ui->output_result->setText (qstr);
+    string n = GetStdoutFromCommand ("head -n 2 shel-kupakupa.sh | tail 1");
+    if (n[5]==1 or 2){
+        GetStdoutFromCommand ("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stdout > /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+        GetStdoutFromCommand ("echo "+n+" >> /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+      }
+    else {
+        GetStdoutFromCommand ("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/sterr > /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+        GetStdoutFromCommand ("echo "+n+" >> /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+      }
 }
+
+
 
 void kupagui::on_actionLoad_Command_triggered()
 {
-  TiXmlDocument readdoc(":/inputDCE.xml");
+  /*TiXmlDocument readdoc("inputDCE.xml");
   bool loadOkay = readdoc.LoadFile();
   if(!loadOkay)
   {
@@ -209,5 +252,29 @@ void kupagui::on_actionLoad_Command_triggered()
   }
    tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
    tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
+  */
+}
 
+void kupagui::on_pushButton_clicked()
+{
+
+  string n = GetStdoutFromCommand ("tail -n 1 /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+  //n = n[5];
+  QString q  = QString::fromStdString (n);
+    if (TypeOfConnection.data ()[20]=='p'){
+        ui->output_result->toPlainText ();
+        ui->output_result->setText ("this is tcp connection\n and the last line outputfile is "+q);
+      }
+    else if (TypeOfConnection.data ()[20]=='u'){
+        ui->output_result->toPlainText ();
+        ui->output_result->setText ("this is udp connection and the last line outputfile is "+q);
+      }
+    else if (TypeOfConnection.data ()[20]=='w'){
+        ui->output_result->toPlainText ();
+        ui->output_result->setText ("this is http connection and the last line outputfile is "+q);
+      }
+    else {
+        ui->output_result->toPlainText ();
+        ui->output_result->setText ("this is unknown connection and the last line outputfile is "+q);
+      }
 }

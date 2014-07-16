@@ -93,6 +93,7 @@ public:
     QLineEdit *final_command;
     QTextEdit *output_result;
     QPushButton *button_run;
+    QPushButton *pushButton;
     QMenuBar *menuBar;
     QMenu *menuMenu;
     QMenu *menuXML;
@@ -288,6 +289,9 @@ public:
         button_run = new QPushButton(centralWidget);
         button_run->setObjectName(QStringLiteral("button_run"));
         button_run->setGeometry(QRect(370, 350, 99, 27));
+        pushButton = new QPushButton(centralWidget);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setGeometry(QRect(370, 380, 99, 27));
         kupagui->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(kupagui);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -325,7 +329,7 @@ public:
 
         retranslateUi(kupagui);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
         error_model->setCurrentIndex(0);
 
 
@@ -416,6 +420,7 @@ public:
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
         button_run->setText(QApplication::translate("kupagui", "RUN!", 0));
+        pushButton->setText(QApplication::translate("kupagui", "save result", 0));
         menuMenu->setTitle(QApplication::translate("kupagui", "Menu", 0));
         menuXML->setTitle(QApplication::translate("kupagui", "Options", 0));
         menuHelp->setTitle(QApplication::translate("kupagui", "Help", 0));
