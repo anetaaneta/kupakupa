@@ -23,12 +23,20 @@ public:
     explicit kupagui(QWidget *parent = 0);
     ~kupagui();
     string GetStdoutFromCommand(string cmd);
+    double findTime(string s);
+    double findData (string s);
+    double findDataUdp (string s);
+    double findDataHttp(string s);
+    double findSpeedHttp(string s);
 
 private slots:
     void on_button_run_clicked();
     void on_button_generate_command_clicked();
     void on_actionLoad_Command_triggered();
-    void on_pushButton_clicked();
+    void on_button_getResult_clicked();
+    void on_actionRUN_triggered();
+
+    void on_actionSave_Result_triggered();
 
 private:
     Ui::kupagui *ui;

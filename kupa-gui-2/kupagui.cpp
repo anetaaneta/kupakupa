@@ -19,7 +19,7 @@
 
 QString TypeOfConnection = "";
 string theCommand;
-int resultNUmber;
+int resultNumber;
 
 using namespace std;
 
@@ -36,6 +36,57 @@ kupagui::~kupagui()
 {
     delete ui;
 }
+
+double kupagui::findDataHttp(string s){
+    int a = s.find('[');
+    string c = s.substr(a);
+    int d = c.find('/')-1;
+    c= c.substr(1,d);
+    double data = atof(c.c_str());
+    return data;
+}
+double kupagui::findSpeedHttp(string s){
+    string o="";
+    int a = s.find('(');
+    int b = s.find(')');
+    for (int i=a+1; i<b; i++){
+       o += s[i];
+    }
+    double speed = atof(o.c_str());
+    return speed;
+}
+
+double kupagui::findTime (string s){
+    string o="";
+    int a = s.find('-');
+    int b = s.find("sec");
+    for (int i=a+1; i<b; i++){
+       o += s[i];
+    }
+    double time = atof(o.c_str());
+    return time;
+}
+double kupagui::findData (string s){
+  string o ="";
+      int a = s.find("sec");
+      int b = s.find("Bytes");
+      for (int i=a+3; i<b; i++){
+         o += s[i];
+      }
+      double k = atof(o.c_str());
+      return k;
+}
+double kupagui::findDataUdp(string s){
+     string o ="";
+     unsigned a = s.rfind("sec");
+     int b = s.find("ms");
+     for (int i=a+3; i<b; i++){
+        o += s[i];
+     }
+     double k = atof(o.c_str());
+     return k;
+ }
+
 
 void kupagui::on_button_generate_command_clicked()
 {
@@ -72,7 +123,7 @@ void kupagui::on_button_generate_command_clicked()
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + SimuTime;
-        resultNUmber = 1;
+        resultNumber=1;
     }
 /* -----------------------for iperf udp--------------------------- */
     else if (ui->tabWidget->currentIndex()==1){
@@ -82,7 +133,7 @@ void kupagui::on_button_generate_command_clicked()
         }
         udp_bw=" --udp_bw="+ui->udp_bw->text();
         FinalCommand = TypeOfConnection + ModeOperation + udp_bw;
-        resultNUmber = 2;
+        resultNumber=2;
     }
 
 /* -----------------------for wget-thttpd--------------------------- */
@@ -97,7 +148,7 @@ void kupagui::on_button_generate_command_clicked()
         tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
-        resultNUmber = 3;
+        resultNumber=3;
     }
 //concatenates all commands
     FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate;
@@ -109,7 +160,7 @@ void kupagui::on_button_generate_command_clicked()
             std::fstream myfile;
             myfile.open ("shell-kupakupa.sh");
             myfile << "#!/bin/bash \n";
-            myfile <<"echo "<<resultNUmber;
+            myfile <<"#"<<resultNumber<<"\n";
             myfile << "export KUPA_HOME=`pwd` \n";
 
             myfile << "cd /home/aneta/aneta-kupa/source/ns-3-dce/ \n";
@@ -123,30 +174,13 @@ void kupagui::on_button_generate_command_clicked()
             fclose (pFile);
             system("chmod +x shell-kupakupa.sh");
             }
-       /*FILE * execFile;
-       execFile = fopen ("run-kupakupa.sh", "w");
-          if (execFile != NULL){
-               std::fstream myfile;
-               myfile.open ("run-kupakupa.sh");
-               myfile << "#!/bin/bash \n";
-               myfile << "/home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
-               theCommand = FinalCommand.toUtf8 ().constData ();
-               myfile << theCommand <<"\n";
-               //back to current folder
-               //myfile << "cd $KUPA_HOME";
-               myfile.close();
-               fclose (execFile);
-               system("chmod +x run-kupakupa.sh");
-               }*/
-
-
 }
 
 string kupagui::GetStdoutFromCommand(string cmd) {
 
     string data;
     FILE * stream;
-    const int max_buffer = 256;
+    const int max_buffer = 50000;
     char buffer[max_buffer];
     cmd.append(" 2>&1");
 
@@ -165,14 +199,19 @@ void kupagui::on_button_run_clicked()
     string ls = GetStdoutFromCommand("./shell-kupakupa.sh");
     QString qstr = QString::fromStdString(ls);
     ui->output_result->setText (qstr);
-    string n = GetStdoutFromCommand ("head -n 2 shel-kupakupa.sh | tail 1");
-    if (n[5]==1 or 2){
-        GetStdoutFromCommand ("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stdout > /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
-        GetStdoutFromCommand ("echo "+n+" >> /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+    string n = GetStdoutFromCommand ("head -n 2 shell-kupakupa.sh | tail -n 1");
+    qstr = QString::fromStdString (n);
+    //remove previous output
+    system("rm -f ./stdout-kupa.txt");
+    if (n[1]=='1' or n[1]=='2'){
+        system("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stdout > ./stdout-kupa.txt");
+        ui->output_result->append(qstr);
+        resultNumber=n[1]-48;
       }
     else {
-        GetStdoutFromCommand ("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/sterr > /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
-        GetStdoutFromCommand ("echo "+n+" >> /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
+        system("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stderr > ./stdout-kupa.txt");
+        ui->output_result->append(qstr);
+        resultNumber=n[1]-48;
       }
 }
 
@@ -255,26 +294,105 @@ void kupagui::on_actionLoad_Command_triggered()
   */
 }
 
-void kupagui::on_pushButton_clicked()
+
+void kupagui::on_button_getResult_clicked()
 {
 
-  string n = GetStdoutFromCommand ("tail -n 1 /home/aneta/aneta-kupa/source/ns-3-dce/stdout-kupa.txt");
   //n = n[5];
+  string n = GetStdoutFromCommand ("tail -n 1 ./stdout-kupa.txt");
   QString q  = QString::fromStdString (n);
-    if (TypeOfConnection.data ()[20]=='p'){
+    if (resultNumber==1){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("this is tcp connection\n and the last line outputfile is "+q);
+        ui->output_result->setText ("the last command run is tcp connection\n and the last line outputfile is "+q+"\n");
+        //calculate throughput
+        double tcp_time = findTime (n);
+        double tcp_data = findData (n);
+        double tcp_tp = tcp_data/tcp_time;
+        QString tp = QString::number (tcp_tp);
+        ui->output_result->append ("throughput is");
+        ui->output_result->append (tp);
+        if (n[n.find ("Bytes")-1] =='K'){
+            ui->output_result->append ("KBps");
+          }
+        else if (n[n.find ("Bytes")-1] =='M'){
+            ui->output_result->append ("MBps");
+          }
+        else if (n[n.find ("Bytes")-1]=='G'){
+            ui->output_result->append ("GBps");
+          }
+        else{
+            ui->output_result->append ("Bps");
+          }
+
       }
-    else if (TypeOfConnection.data ()[20]=='u'){
+    else if (resultNumber==2){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("this is udp connection and the last line outputfile is "+q);
+        ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+q);
+        n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
+        double udp_data = findDataUdp(n);
+        QString jitter = QString::number (udp_data);
+        ui->output_result->append ("measured jitter is");
+        ui->output_result->append (jitter);
+        ui->output_result->append ("ms");
       }
-    else if (TypeOfConnection.data ()[20]=='w'){
+    else if (resultNumber==3){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("this is http connection and the last line outputfile is "+q);
+        ui->output_result->setText ("the last command run is http connection and the last line outputfile is "+q);
+        n = GetStdoutFromCommand ("tail -n 5 ./stdout-kupa.txt | head -n 1");
+        double http_data = findDataHttp (n);
+        double http_speed = findSpeedHttp (n);
+        double http_time = http_data/http_speed;
+        if (n[n.find('s')-3]=='K'){
+            http_time = http_time/1000;
+            QString ht = QString::number (http_time);
+            ui->output_result->append ("measured http time is");
+            ui->output_result->append (ht);
+          }
+        else if (n[n.find('s')-3]=='M'){
+            http_time = http_time/1000000;
+            QString ht = QString::number (http_time);
+            ui->output_result->append ("measured http time is");
+            ui->output_result->append (ht);
+          }
+        else if (n[n.find('s')-3]=='G'){
+            http_time = http_time/1000000000;
+            QString ht = QString::number (http_time);
+            ui->output_result->append ("measured http time is");
+            ui->output_result->append (ht);
+          }
+        else {
+            QString ht = QString::number (http_time);
+            ui->output_result->append ("measured http time is");
+            ui->output_result->append (ht);
+          }
+        ui->output_result->append ("ms");
       }
     else {
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("this is unknown connection and the last line outputfile is "+q);
+        ui->output_result->setText ("this is unknown connection. Please run the generated command first!!");
       }
+}
+
+
+void kupagui::on_actionRUN_triggered()
+{
+    on_button_run_clicked ();
+}
+
+void kupagui::on_actionSave_Result_triggered()
+{
+     QString fileName = QFileDialog::getSaveFileName (ui->output_result, tr("Save file"), "./kupakuparesult.txt",
+                                                      tr("Text Files (*.txt)"));
+     if (fileName != "") {
+                  QFile file(fileName);
+                  if (!file.open(QIODevice::WriteOnly)) {
+                      // error message
+                  } else {
+                      QTextStream stream(&file);
+                      stream << ui->output_result->toPlainText();
+                      stream.flush();
+                      file.close();
+                  }
+              }
+
 }

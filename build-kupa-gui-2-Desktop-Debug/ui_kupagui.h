@@ -38,10 +38,8 @@ class Ui_kupagui
 public:
     QAction *actionLoad_Command;
     QAction *actionSave_Command;
-    QAction *actionSave_Command_As;
     QAction *actionRUN;
-    QAction *actionBye_bye;
-    QAction *actionSave_Result_As;
+    QAction *actionSave_Result;
     QAction *actionBye_Bye;
     QAction *actionEdit_XML;
     QAction *actionGuide;
@@ -93,7 +91,8 @@ public:
     QLineEdit *final_command;
     QTextEdit *output_result;
     QPushButton *button_run;
-    QPushButton *pushButton;
+    QPushButton *button_getResult;
+    QPushButton *button_exit;
     QMenuBar *menuBar;
     QMenu *menuMenu;
     QMenu *menuXML;
@@ -110,14 +109,10 @@ public:
         actionLoad_Command->setObjectName(QStringLiteral("actionLoad_Command"));
         actionSave_Command = new QAction(kupagui);
         actionSave_Command->setObjectName(QStringLiteral("actionSave_Command"));
-        actionSave_Command_As = new QAction(kupagui);
-        actionSave_Command_As->setObjectName(QStringLiteral("actionSave_Command_As"));
         actionRUN = new QAction(kupagui);
         actionRUN->setObjectName(QStringLiteral("actionRUN"));
-        actionBye_bye = new QAction(kupagui);
-        actionBye_bye->setObjectName(QStringLiteral("actionBye_bye"));
-        actionSave_Result_As = new QAction(kupagui);
-        actionSave_Result_As->setObjectName(QStringLiteral("actionSave_Result_As"));
+        actionSave_Result = new QAction(kupagui);
+        actionSave_Result->setObjectName(QStringLiteral("actionSave_Result"));
         actionBye_Bye = new QAction(kupagui);
         actionBye_Bye->setObjectName(QStringLiteral("actionBye_Bye"));
         actionEdit_XML = new QAction(kupagui);
@@ -227,8 +222,8 @@ public:
         wget_file_size = new QSpinBox(wget);
         wget_file_size->setObjectName(QStringLiteral("wget_file_size"));
         wget_file_size->setGeometry(QRect(10, 40, 71, 22));
-        wget_file_size->setMaximum(999999999);
-        wget_file_size->setValue(100);
+        wget_file_size->setMaximum(9999);
+        wget_file_size->setValue(2);
         label_17 = new QLabel(wget);
         label_17->setObjectName(QStringLiteral("label_17"));
         label_17->setGeometry(QRect(10, 20, 91, 16));
@@ -289,9 +284,12 @@ public:
         button_run = new QPushButton(centralWidget);
         button_run->setObjectName(QStringLiteral("button_run"));
         button_run->setGeometry(QRect(370, 350, 99, 27));
-        pushButton = new QPushButton(centralWidget);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setGeometry(QRect(370, 380, 99, 27));
+        button_getResult = new QPushButton(centralWidget);
+        button_getResult->setObjectName(QStringLiteral("button_getResult"));
+        button_getResult->setGeometry(QRect(370, 380, 99, 27));
+        button_exit = new QPushButton(centralWidget);
+        button_exit->setObjectName(QStringLiteral("button_exit"));
+        button_exit->setGeometry(QRect(370, 420, 99, 27));
         kupagui->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(kupagui);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -315,11 +313,9 @@ public:
         menuBar->addAction(menuHelp->menuAction());
         menuMenu->addAction(actionLoad_Command);
         menuMenu->addAction(actionSave_Command);
-        menuMenu->addAction(actionSave_Command_As);
         menuMenu->addSeparator();
         menuMenu->addAction(actionRUN);
-        menuMenu->addAction(actionBye_bye);
-        menuMenu->addAction(actionSave_Result_As);
+        menuMenu->addAction(actionSave_Result);
         menuMenu->addSeparator();
         menuMenu->addAction(actionBye_Bye);
         menuXML->addAction(actionEdit_XML);
@@ -328,6 +324,8 @@ public:
         menuHelp->addAction(actionAbout);
 
         retranslateUi(kupagui);
+        QObject::connect(button_exit, SIGNAL(clicked()), kupagui, SLOT(close()));
+        QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
 
         tabWidget->setCurrentIndex(0);
         error_model->setCurrentIndex(0);
@@ -341,10 +339,8 @@ public:
         kupagui->setWindowTitle(QApplication::translate("kupagui", "kupagui", 0));
         actionLoad_Command->setText(QApplication::translate("kupagui", "Load Command", 0));
         actionSave_Command->setText(QApplication::translate("kupagui", "Save Command", 0));
-        actionSave_Command_As->setText(QApplication::translate("kupagui", "Save Command As..", 0));
         actionRUN->setText(QApplication::translate("kupagui", "Run the command", 0));
-        actionBye_bye->setText(QApplication::translate("kupagui", "Save Result", 0));
-        actionSave_Result_As->setText(QApplication::translate("kupagui", "Save Result As..", 0));
+        actionSave_Result->setText(QApplication::translate("kupagui", "Save Result", 0));
         actionBye_Bye->setText(QApplication::translate("kupagui", "Bye Bye!", 0));
         actionEdit_XML->setText(QApplication::translate("kupagui", "Edit XML", 0));
         actionGuide->setText(QApplication::translate("kupagui", "Guide", 0));
@@ -420,7 +416,8 @@ public:
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
         button_run->setText(QApplication::translate("kupagui", "RUN!", 0));
-        pushButton->setText(QApplication::translate("kupagui", "save result", 0));
+        button_getResult->setText(QApplication::translate("kupagui", "get result", 0));
+        button_exit->setText(QApplication::translate("kupagui", "exit", 0));
         menuMenu->setTitle(QApplication::translate("kupagui", "Menu", 0));
         menuXML->setTitle(QApplication::translate("kupagui", "Options", 0));
         menuHelp->setTitle(QApplication::translate("kupagui", "Help", 0));

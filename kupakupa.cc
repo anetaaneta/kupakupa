@@ -444,8 +444,7 @@ if (TypeOfConnection=='w')
         dce.ResetEnvironment ();
         dce.AddArgument ("-s");
         dce.AddArgument ("-u");
-        dce.AddArgument ("-P");
-        dce.AddArgument ("1");
+
         ApplicationContainer SerApps0 = dce.Install (c.Get (0));
         SerApps0.Start (Seconds (1));
         SerApps0.Stop (Seconds (EndTime));
@@ -455,10 +454,8 @@ if (TypeOfConnection=='w')
         dce.ResetArguments ();
         dce.ResetEnvironment ();
         dce.AddArgument ("-c");
-        dce.AddArgument ("-u");
         dce.AddArgument ("10.1.1.1");
-        dce.AddArgument ("-i");
-        dce.AddArgument ("1");
+        dce.AddArgument ("-u");
         dce.AddArgument ("-b");
         dce.AddArgument (udp_bw);
         dce.AddArgument ("--time");
@@ -476,8 +473,7 @@ if (TypeOfConnection=='w')
             dce.ResetEnvironment ();
             dce.AddArgument ("-s");
             dce.AddArgument ("-u");
-            dce.AddArgument ("-P");
-            dce.AddArgument ("1");
+
             ApplicationContainer SerApps0 = dce.Install (c.Get (2));
             SerApps0.Start (Seconds (1));
             SerApps0.Stop (Seconds (EndTime));
@@ -487,10 +483,8 @@ if (TypeOfConnection=='w')
             dce.ResetArguments ();
             dce.ResetEnvironment ();
             dce.AddArgument ("-c");
-            dce.AddArgument ("-u");
             dce.AddArgument ("10.1.2.2");
-            dce.AddArgument ("-i");
-            dce.AddArgument ("1");
+            dce.AddArgument ("-u");
             dce.AddArgument ("-b");
             dce.AddArgument (udp_bw);
             dce.AddArgument ("--time");
@@ -504,7 +498,7 @@ if (TypeOfConnection=='w')
 
     case 'w':
       {
-                ModeOperation=true;
+        ModeOperation=true;
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
 
         dce.SetBinary ("thttpd");
@@ -556,16 +550,16 @@ if (TypeOfConnection=='w')
       break;
     }
 
-    for (int n = 0; n < 3; n++)
+    /*for (int n = 0; n < 3; n++)
     {
       RunIp (c.Get (n), Seconds (0.2), "link show");
       RunIp (c.Get (n), Seconds (0.3), "route show table all");
       RunIp (c.Get (n), Seconds (0.4), "addr list");
-    }
+    }*/
 
   // print tcp sysctl value
     //LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1.0),".net.ipv4.tcp_available_congestion_control", &PrintTcpFlags);
-        LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
+    /*LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
     LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_congestion_control", &PrintTcpFlags);
     LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_rmem", &PrintTcpFlags);
     LinuxStackHelper::SysctlGet (c.Get (0), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
@@ -578,7 +572,7 @@ if (TypeOfConnection=='w')
     LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.ipv4.tcp_wmem", &PrintTcpFlags);
     LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.rmem_max", &PrintTcpFlags);
     LinuxStackHelper::SysctlGet (c.Get (2), Seconds (1),".net.core.wmem_max", &PrintTcpFlags);
-
+	*/
 
     AsciiTraceHelper ascii;
     p2p.EnableAsciiAll (ascii.CreateFileStream ("Kupakupa.tr"));
