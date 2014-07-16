@@ -20,7 +20,7 @@ def build(bld):
       bld.build_a_script('dce', needed = ['core', 'network', 'dce', 'wifi', 'point-to-point', 'csma', 'mobility'],
 				  target='bin/kupakupa',
 
-				  source=['kupakupa.cc', 'tinystr.cpp','tinyxml.cpp','tinyxmlerror.cpp','tinyxmlparser.cpp'],
+				  source=['kupakupa.cc', 'tinystr.cpp','tinyxml.cpp','tinyxmlerror.cpp','tinyxmlparser.cpp','parseXml.cpp'],
 #				  linkflags=['-L/usr/local/lib'],
 #				  lib=['foolib']
 				  )
