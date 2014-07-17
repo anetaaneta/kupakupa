@@ -50,7 +50,8 @@ SOURCES       = ../kupa-gui-2/main.cpp \
 		../kupa-gui-2/tinystr.cpp \
 		../kupa-gui-2/tinyxmlparser.cpp \
 		../kupa-gui-2/tinyxmlerror.cpp \
-		../kupa-gui-2/tinyxml.cpp qrc_kupa-gui-2.cpp \
+		../kupa-gui-2/tinyxml.cpp \
+		../kupa-gui-2/parseXml.cpp qrc_kupa-gui-2.cpp \
 		moc_kupagui.cpp
 OBJECTS       = main.o \
 		kupagui.o \
@@ -58,6 +59,7 @@ OBJECTS       = main.o \
 		tinyxmlparser.o \
 		tinyxmlerror.o \
 		tinyxml.o \
+		parseXml.o \
 		qrc_kupa-gui-2.o \
 		moc_kupagui.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -279,7 +281,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/kupa-gui-21.0.0 || mkdir -p .tmp/kupa-gui-21.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupa-gui-2.qrc .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupagui.h ../kupa-gui-2/tinystr.h ../kupa-gui-2/tinyxml.h .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/main.cpp ../kupa-gui-2/kupagui.cpp ../kupa-gui-2/tinystr.cpp ../kupa-gui-2/tinyxmlparser.cpp ../kupa-gui-2/tinyxmlerror.cpp ../kupa-gui-2/tinyxml.cpp .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupagui.ui .tmp/kupa-gui-21.0.0/ && (cd `dirname .tmp/kupa-gui-21.0.0` && $(TAR) kupa-gui-21.0.0.tar kupa-gui-21.0.0 && $(COMPRESS) kupa-gui-21.0.0.tar) && $(MOVE) `dirname .tmp/kupa-gui-21.0.0`/kupa-gui-21.0.0.tar.gz . && $(DEL_FILE) -r .tmp/kupa-gui-21.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupa-gui-2.qrc .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupagui.h ../kupa-gui-2/tinystr.h ../kupa-gui-2/tinyxml.h ../kupa-gui-2/parseXml.h .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/main.cpp ../kupa-gui-2/kupagui.cpp ../kupa-gui-2/tinystr.cpp ../kupa-gui-2/tinyxmlparser.cpp ../kupa-gui-2/tinyxmlerror.cpp ../kupa-gui-2/tinyxml.cpp ../kupa-gui-2/parseXml.cpp .tmp/kupa-gui-21.0.0/ && $(COPY_FILE) --parents ../kupa-gui-2/kupagui.ui .tmp/kupa-gui-21.0.0/ && (cd `dirname .tmp/kupa-gui-21.0.0` && $(TAR) kupa-gui-21.0.0.tar kupa-gui-21.0.0 && $(COMPRESS) kupa-gui-21.0.0.tar) && $(MOVE) `dirname .tmp/kupa-gui-21.0.0`/kupa-gui-21.0.0.tar.gz . && $(DEL_FILE) -r .tmp/kupa-gui-21.0.0
 
 
 clean:compiler_clean 
@@ -788,6 +790,11 @@ tinyxmlerror.o: ../kupa-gui-2/tinyxmlerror.cpp ../kupa-gui-2/tinyxml.h \
 tinyxml.o: ../kupa-gui-2/tinyxml.cpp ../kupa-gui-2/tinyxml.h \
 		../kupa-gui-2/tinystr.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tinyxml.o ../kupa-gui-2/tinyxml.cpp
+
+parseXml.o: ../kupa-gui-2/parseXml.cpp ../kupa-gui-2/tinyxml.h \
+		../kupa-gui-2/tinystr.h \
+		../kupa-gui-2/parseXml.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o parseXml.o ../kupa-gui-2/parseXml.cpp
 
 qrc_kupa-gui-2.o: qrc_kupa-gui-2.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_kupa-gui-2.o qrc_kupa-gui-2.cpp

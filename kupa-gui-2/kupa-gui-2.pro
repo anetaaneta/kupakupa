@@ -18,11 +18,13 @@ SOURCES += main.cpp\
     tinystr.cpp \
     tinyxmlparser.cpp \
     tinyxmlerror.cpp \
-    tinyxml.cpp
+    tinyxml.cpp \
+    parseXml.cpp
 
 HEADERS  += kupagui.h \
     tinystr.h \
-    tinyxml.h
+    tinyxml.h \
+    parseXml.h
 
 FORMS    += kupagui.ui
 

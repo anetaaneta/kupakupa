@@ -19,6 +19,7 @@
 #include <QDesktopServices>
 
 QString TypeOfConnection = "";
+QString ModeOperation = " --ModeOperation=true";
 string theCommand;
 int resultNumber;
 QString tcp_mem_user ="";
@@ -236,6 +237,150 @@ void kupagui::on_button_run_clicked()
 void kupagui::on_actionLoad_Command_triggered()
 {
 
+
+  TiXmlDocument readdoc("..//..//..//inputDCE.xml");
+  bool loadOkay = readdoc.LoadFile();
+  if(!loadOkay)
+          {
+          cerr << readdoc.ErrorDesc() << endl;
+          }
+  TiXmlElement* readroot = readdoc.FirstChildElement();
+  if(readroot == NULL)
+          {
+          cerr << "Failed to load file: No root element."<< endl;
+          readdoc.Clear();
+          }
+
+          string typeOfConectionTmp,httpSizeTmp;
+          string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
+          ui->output_result->setText ("XML file LOADED!!");
+          for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
+                  {
+                  string elemName = elem->Value();
+                  if (elemName=="TypeOfConnection")
+                          {
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText();
+                          typeOfConectionTmp = text->Value();
+
+                          if (typeOfConectionTmp=="http")
+                                  {
+                                  TypeOfConnection =" --TypeOfConnection=w";
+                                  ui->tabWidget->setCurrentIndex (2);
+                                  }
+
+                          if (typeOfConectionTmp=="iperf-udp")
+                                  {
+                                  TypeOfConnection =" --TypeOfConnection=u";
+                                  ui->tabWidget->setCurrentIndex (1);
+                                  }
+
+                          if (typeOfConectionTmp=="iperf-tcp")
+                                  {
+                                  TypeOfConnection =" --TypeOfConnection=p";
+                                  ui->tabWidget->setCurrentIndex (0);
+                                  }
+                          }
+                  if (elemName=="congestionControl")
+                          {
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText();
+                          tcp_cc = text->Value();
+                          if (typeOfConectionTmp=="http"){
+                              ui->tcp_cc_2->setCurrentText (tcp_cc);
+                            }
+                          if (typeOfConectionTmp="iperf-tcp"){
+                              ui->tcp_cc->setCurrentText (tcp_cc);
+                            }
+                          tcp_cc = " --tcp_cc="+text->Value();
+
+                          }
+                  if (elemName=="UDPBandwidth")
+                          {
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText ();
+                          string udp_bwTemp = text->Value ();
+                          udp_bw = " --udp_bw="+text->Value();
+                          ui->udp_bw->setValue (udp_bwTemp.c_str ());
+                          }
+                  if (elemName=="Delay")
+                          {
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText();
+                          delay = " --delay="+text->Value();
+
+                          }
+                  if (elemName=="ErrorRate")
+                          {
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText();
+                          string errRateTmp = text->Value();
+                          errRate = atof(errRateTmp.c_str());
+                          error_rate=" --errRate="+errRateTmp;
+
+                          }
+                  if (elemName=="JitterParam")
+                          {
+                          string jitterTmp = elem->Attribute("jitter");
+                          if (jitterTmp=="false"){
+                  jitter=0;
+                          }
+                  else{
+                  jitter=1;
+                          }
+                  string alphaTmp = elem->Attribute("alpha");
+                  alpha=atof(alphaTmp.c_str());
+                  string kTmp= elem->Attribute("k");
+                  k=atof(kTmp.c_str());
+                  string tethaTmp = elem->Attribute("tetha");
+                  tetha=atof(tethaTmp.c_str());
+                  }
+
+          if (elemName=="UserBandwidth")
+                  {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  user_bw = text->Value();
+                  }
+          if (elemName=="ServerBandwidth")
+                  {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  server_bw = text->Value();
+                  }
+          if (elemName=="ErrorModel")
+                  {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  string ErrorModelTmp=text->Value();
+                  ErrorModel = atoi(ErrorModelTmp.c_str());
+                  }
+          if (elemName=="SizeOfHttpFile")
+                  {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  httpSizeTmp = text->Value();
+                  htmlSize=atoi(httpSizeTmp.c_str());
+                  }
+          if (elemName=="UserMemory")
+                  {
+                  tcp_mem_user_min = elem->Attribute("min");
+                  tcp_mem_user_def = elem->Attribute("default");
+                  tcp_mem_user_max = elem->Attribute("max");
+                  }
+          if (elemName=="ServerMemory")
+                  {
+                  tcp_mem_server_min = elem->Attribute("min");
+                  tcp_mem_server_def = elem->Attribute("default");
+                  tcp_mem_server_max = elem->Attribute("max");
+                  }
+
+
+          }
+  tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
+  tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
+
+  }
 }
 
 
@@ -353,5 +498,5 @@ void kupagui::on_actionAbout_triggered()
   msgBox.setText("About the program");
   msgBox.setInformativeText("more information: email us - dragon21century@gmail.com or zewaldo88@gmail.com");
   msgBox.setDefaultButton (QMessageBox::Discard);
-  int ret = msgBox.exec();
+  msgBox.exec();
 }

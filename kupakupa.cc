@@ -96,28 +96,34 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-      	double errRate = 0.01;
-	std::string tcp_cc = "reno";
-	std::string tcp_mem_user = "4096 8192 8388608";
-	std::string tcp_mem_server = "4096 8192 8388608";
+      	      double errRate = 0.01;
+std::string tcp_cc = "reno";
+std::string tcp_mem_user = "4096 8192 8388608";
+std::string tcp_mem_server = "4096 8192 8388608";
 
-	std::string udp_bw="10m";
-	std::string delay = "2ms";
-	std::string user_bw = "150Mbps";
-	std::string server_bw = "10Gbps";
+std::string udp_bw="1";
+std::string delay = "2ms";
+std::string user_bw = "150Mbps";
+std::string server_bw = "10Gbps";
 
-        int ErrorModel = 1;
-        int SimuTime = 20;
-        int htmlSize = 2; // in mega bytes
-        char TypeOfConnection = 'p'; // iperf tcp connection
-        bool ModeOperation = true;
-        bool inputFromXml = false;
-      	
+int jitter =1;
+double alpha = 0.3;
+double k = 100;
+double tetha = 2;
+
+       int ErrorModel = 1;
+       int SimuTime = 20;
+       int htmlSize = 2; // in mega bytes
+       char TypeOfConnection = 'p'; // iperf tcp connection
+       bool ModeOperation = true;
+       bool inputFromXml = false;
+     
+      	/*
 	unsigned int chan_jitter = 1;
 	double chan_alpha = 0.3;
 	double chan_tetha = 2;
 	double chan_k = 5;
-        
+        */
       CommandLine cmd;
       
       cmd.AddValue ("inputFromXml", "flag for reading input from xml file",inputFromXml);
@@ -136,20 +142,20 @@ int main (int argc, char *argv[])
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
 
-	cmd.AddValue ("chan_jitter", "jitter in server-BS conection", chan_jitter);
-	cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", chan_alpha);
-	cmd.AddValue ("chan_tetha", "tetha for random distribution in server-BS conection", chan_tetha);
-	cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", chan_k);
+	cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
+	cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
+	cmd.AddValue ("chan_tetha", "tetha for random distribution in server-BS conection", tetha);
+	cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", k);
 	
      cmd.Parse (argc, argv);     
       
-      /*if (inputFromXml)
+      if (inputFromXml)
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
 	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
       }
-      */
+      
 
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -233,14 +239,14 @@ if (TypeOfConnection=='w')
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
 //channel for server to BS
-	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
-	p2p.SetChannelAttribute ("Delay", StringValue (delay));
-	p2p.SetChannelAttribute ("Jitter", UintegerValue (chan_jitter));
-	p2p.SetChannelAttribute ("alpha", DoubleValue (chan_alpha));
-	p2p.SetChannelAttribute ("k", DoubleValue (chan_k));
-	p2p.SetChannelAttribute ("tetha", DoubleValue (chan_tetha));
-	NetDeviceContainer d1d2 = p2p.Install (n1n2);
+p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
+p2p.SetChannelAttribute ("Delay", StringValue (delay));
+p2p.SetChannelAttribute ("Jitter", UintegerValue (jitter));
+p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
+p2p.SetChannelAttribute ("k", DoubleValue (k));
+p2p.SetChannelAttribute ("tetha", DoubleValue (tetha));
 
+NetDeviceContainer d1d2 = p2p.Install (n1n2);
 //error model options
 
 	/*strangely, if em is not set at the begining, it doesn't want to compile.
@@ -402,7 +408,7 @@ if (TypeOfConnection=='w')
        	dce.AddArgument ("-i");
        	dce.AddArgument ("1");
        	dce.AddArgument ("-b");
-       	dce.AddArgument (udp_bw);
+       	dce.AddArgument (udp_bw+"m");
        	dce.AddArgument ("--time");
        	dce.AddArgument (IperfTime);
        	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
@@ -432,7 +438,7 @@ if (TypeOfConnection=='w')
             dce.AddArgument ("-i");
             dce.AddArgument ("1");
             dce.AddArgument ("-b");
-            dce.AddArgument (udp_bw);
+            dce.AddArgument (udp_bw+"m");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (0));

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
+    <width>505</width>
     <height>580</height>
    </rect>
   </property>
@@ -45,7 +45,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set up your iper or http connection here&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="IperfTCP">
       <attribute name="title">
@@ -329,13 +329,13 @@
         </rect>
        </property>
        <property name="maximum">
-        <number>999999999</number>
+        <number>99999999</number>
        </property>
        <property name="singleStep">
-        <number>100</number>
+        <number>1</number>
        </property>
        <property name="value">
-        <number>1000</number>
+        <number>1</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_12">
@@ -349,6 +349,19 @@
        </property>
        <property name="text">
         <string>UDP allocated bandwidth</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_18">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>60</y>
+         <width>67</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Mbps</string>
        </property>
       </widget>
      </widget>
@@ -755,6 +768,73 @@
       <string>Delay (ms)</string>
      </property>
     </widget>
+    <widget class="QDoubleSpinBox" name="alpha_value">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>260</y>
+       <width>69</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>3</number>
+     </property>
+     <property name="maximum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.001000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.300000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="beta_value">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>260</y>
+       <width>69</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>3</number>
+     </property>
+     <property name="value">
+      <double>1.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="k_value">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>260</y>
+       <width>69</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <double>999.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>10.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="jitter_check">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>260</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>jitter</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="button_generate_command">
     <property name="geometry">
@@ -846,7 +926,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>495</width>
+     <width>505</width>
      <height>25</height>
     </rect>
    </property>
