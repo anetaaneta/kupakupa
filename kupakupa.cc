@@ -112,7 +112,11 @@ int main (int argc, char *argv[])
         char TypeOfConnection = 'p'; // iperf tcp connection
         bool ModeOperation = true;
         bool inputFromXml = false;
-      
+      	
+	unsigned int chan_jitter = 1;
+	double chan_alpha = 0.3;
+	double chan_tetha = 2;
+	double chan_k = 5;
         
       CommandLine cmd;
       
@@ -131,15 +135,21 @@ int main (int argc, char *argv[])
      cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
+
+	cmd.AddValue ("chan_jitter", "jitter in server-BS conection", chan_jitter);
+	cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", chan_alpha);
+	cmd.AddValue ("chan_tetha", "tetha for random distribution in server-BS conection", chan_tetha);
+	cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", chan_k);
+	
      cmd.Parse (argc, argv);     
       
-      if (inputFromXml)
+      /*if (inputFromXml)
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
 	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
       }
-      
+      */
 
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -214,7 +224,7 @@ if (TypeOfConnection=='w')
     //silently exit
     return 0;
 #endif
-
+	
     std::cout << "setting link.." << std::endl;
 // channel for user to BS
 	NS_LOG_INFO ("Create channels.");
@@ -225,10 +235,10 @@ if (TypeOfConnection=='w')
 //channel for server to BS
 	p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue (delay));
-	p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
-	p2p.SetChannelAttribute ("alpha", DoubleValue (0.3));
-	p2p.SetChannelAttribute ("k", DoubleValue (5));
-	p2p.SetChannelAttribute ("tetha", DoubleValue (2));
+	p2p.SetChannelAttribute ("Jitter", UintegerValue (chan_jitter));
+	p2p.SetChannelAttribute ("alpha", DoubleValue (chan_alpha));
+	p2p.SetChannelAttribute ("k", DoubleValue (chan_k));
+	p2p.SetChannelAttribute ("tetha", DoubleValue (chan_tetha));
 	NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
 //error model options
@@ -518,8 +528,7 @@ if (TypeOfConnection=='w')
 
 
     Simulator::Stop (Seconds (EndTime));
-    FlowMonitorHelper flowmon;
-    Ptr<FlowMonitor> monitor = flowmon.InstallAll();
+ 
     
     
     Simulator::Run ();

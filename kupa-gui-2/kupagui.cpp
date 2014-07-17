@@ -21,6 +21,21 @@
 QString TypeOfConnection = "";
 string theCommand;
 int resultNumber;
+QString tcp_mem_user ="";
+QString tcp_mem_server = "";
+QString tcp_cc = "";
+QString SimuTime="";
+QString udp_bw="";
+QString file_size="";
+QString error_model="";
+QString user_bw="";
+QString server_bw="";
+QString error_rate="";
+QString chan_jitter="";
+QString chan_alpha="";
+QString chan_tetha="";
+QString chan_k="";
+
 
 using namespace std;
 
@@ -93,17 +108,17 @@ void kupagui::on_button_generate_command_clicked()
 {
     QString FinalCommand = "";
     //QString TypeOfConnection = "";
-    QString ModeOperation = " --ModeOperation=true";
+    /*QString ModeOperation = " --ModeOperation=true";
     QString tcp_mem_user ="";
     QString tcp_mem_server = "";
     QString tcp_cc = "";
     QString SimuTime="";
     QString udp_bw="";
-    QString file_size="";
-    QString user_bw=" --user_bw="+ui->user_bw->text()+"Mbps";
-    QString server_bw=" --server_bw="+ui->server_bw->text()+"Gbps";
-    QString error_rate=" --errRate="+ui->error_rate->text();
-    QString error_model="";
+    QString file_size="";*/
+    user_bw=" --user_bw="+ui->user_bw->text()+"Mbps";
+    server_bw=" --server_bw="+ui->server_bw->text()+"Gbps";
+    error_rate=" --errRate="+ui->error_rate->text();
+    //QString error_model="";
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
     }else{
@@ -220,79 +235,7 @@ void kupagui::on_button_run_clicked()
 
 void kupagui::on_actionLoad_Command_triggered()
 {
-  /*TiXmlDocument readdoc("./inputDCE.xml");
-  bool loadOkay = readdoc.LoadFile();
-  if(!loadOkay)
-  {
-          std::cerr << readdoc.ErrorDesc(); //<< endl;
-  }
-  TiXmlElement* readroot = readdoc.FirstChildElement();
-  if(readroot == NULL)
-  {
-         std::cerr << "Failed to load file: No root element.";
-                   //<< endl;
-          readdoc.Clear();
-  }
-  //int ErrorModel;
-  QString typeOfConection,tcp_cc,udp_bw,delay,httpSize, tcp_mem_user, tcp_mem_server;
-  QString tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
-  for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
-  {
-  std::string elemName = elem->Value();
-          if (elemName=="TypeOfConnection")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  typeOfConection = text->Value();
-          }
-          if (elemName=="congestionControl")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  tcp_cc = text->Value();
-          }
-          if (elemName=="UDPBandwidth")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  udp_bw = text->Value();
-          }
-          if (elemName=="Delay")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  delay = text->Value();
-          }
-          if (elemName=="ErrorModel")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  std::string ErrorModel=text->Value();
-          }
-          if (elemName=="SizeOfHttpFile")
-          {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  httpSize = text->Value();
-          }
-          if (elemName=="UserMemory")
-          {
-                  tcp_mem_user_min = elem->Attribute("min");
-                  tcp_mem_user_def = elem->Attribute("default");
-                  tcp_mem_user_max = elem->Attribute("max");
-          }
-          if (elemName=="ServerMemory")
-          {
-                  tcp_mem_server_min = elem->Attribute("min");
-                  tcp_mem_server_def = elem->Attribute("default");
-                  tcp_mem_server_max = elem->Attribute("max");
-          }
 
-
-  }
-   tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
-   tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
-  */
 }
 
 
