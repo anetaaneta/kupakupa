@@ -28,6 +28,7 @@ public:
     double findDataUdp (string s);
     double findDataHttp(string s);
     double findSpeedHttp(string s);
+    string RemoveComma (std::string& str);
 
 private slots:
     void on_button_run_clicked();
@@ -41,6 +42,8 @@ private slots:
     void on_actionEdit_XML_triggered();
 
     void on_actionAbout_triggered();
+
+    void on_actionSave_Command_triggered();
 
 private:
     Ui::kupagui *ui;

@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QGroupBox>
@@ -64,6 +65,7 @@ public:
     QRadioButton *tcp_upload_2;
     QSpinBox *udp_bw;
     QLabel *label_12;
+    QLabel *label_18;
     QWidget *wget;
     QLineEdit *tcp_mem_user_2;
     QSpinBox *iperf_time_2;
@@ -87,6 +89,10 @@ public:
     QLabel *label_9;
     QLabel *label_10;
     QLabel *label_11;
+    QDoubleSpinBox *alpha_value;
+    QDoubleSpinBox *tetha_value;
+    QDoubleSpinBox *k_value;
+    QCheckBox *jitter_check;
     QPushButton *button_generate_command;
     QLineEdit *final_command;
     QTextEdit *output_result;
@@ -104,7 +110,7 @@ public:
     {
         if (kupagui->objectName().isEmpty())
             kupagui->setObjectName(QStringLiteral("kupagui"));
-        kupagui->resize(495, 580);
+        kupagui->resize(505, 580);
         actionLoad_Command = new QAction(kupagui);
         actionLoad_Command->setObjectName(QStringLiteral("actionLoad_Command"));
         actionSave_Command = new QAction(kupagui);
@@ -182,12 +188,15 @@ public:
         udp_bw = new QSpinBox(IperfUDP);
         udp_bw->setObjectName(QStringLiteral("udp_bw"));
         udp_bw->setGeometry(QRect(130, 60, 121, 22));
-        udp_bw->setMaximum(999999999);
-        udp_bw->setSingleStep(100);
-        udp_bw->setValue(1000);
+        udp_bw->setMaximum(99999999);
+        udp_bw->setSingleStep(1);
+        udp_bw->setValue(1);
         label_12 = new QLabel(IperfUDP);
         label_12->setObjectName(QStringLiteral("label_12"));
         label_12->setGeometry(QRect(130, 40, 181, 16));
+        label_18 = new QLabel(IperfUDP);
+        label_18->setObjectName(QStringLiteral("label_18"));
+        label_18->setGeometry(QRect(260, 60, 67, 17));
         tabWidget->addTab(IperfUDP, QString());
         wget = new QWidget();
         wget->setObjectName(QStringLiteral("wget"));
@@ -272,6 +281,26 @@ public:
         label_11 = new QLabel(groupBox);
         label_11->setObjectName(QStringLiteral("label_11"));
         label_11->setGeometry(QRect(380, 190, 71, 16));
+        alpha_value = new QDoubleSpinBox(groupBox);
+        alpha_value->setObjectName(QStringLiteral("alpha_value"));
+        alpha_value->setGeometry(QRect(260, 260, 69, 27));
+        alpha_value->setDecimals(3);
+        alpha_value->setMaximum(1);
+        alpha_value->setSingleStep(0.001);
+        alpha_value->setValue(0.3);
+        tetha_value = new QDoubleSpinBox(groupBox);
+        tetha_value->setObjectName(QStringLiteral("tetha_value"));
+        tetha_value->setGeometry(QRect(330, 260, 69, 27));
+        tetha_value->setDecimals(3);
+        tetha_value->setValue(1);
+        k_value = new QDoubleSpinBox(groupBox);
+        k_value->setObjectName(QStringLiteral("k_value"));
+        k_value->setGeometry(QRect(400, 260, 69, 27));
+        k_value->setMaximum(999);
+        k_value->setValue(10);
+        jitter_check = new QCheckBox(groupBox);
+        jitter_check->setObjectName(QStringLiteral("jitter_check"));
+        jitter_check->setGeometry(QRect(190, 260, 61, 22));
         button_generate_command = new QPushButton(centralWidget);
         button_generate_command->setObjectName(QStringLiteral("button_generate_command"));
         button_generate_command->setGeometry(QRect(10, 300, 161, 41));
@@ -293,7 +322,7 @@ public:
         kupagui->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(kupagui);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 495, 25));
+        menuBar->setGeometry(QRect(0, 0, 505, 25));
         menuMenu = new QMenu(menuBar);
         menuMenu->setObjectName(QStringLiteral("menuMenu"));
         menuXML = new QMenu(menuBar);
@@ -327,7 +356,7 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(2);
         error_model->setCurrentIndex(0);
 
 
@@ -412,6 +441,7 @@ public:
         tcp_download_2->setText(QApplication::translate("kupagui", "Download", 0));
         tcp_upload_2->setText(QApplication::translate("kupagui", "Upload", 0));
         label_12->setText(QApplication::translate("kupagui", "UDP allocated bandwidth", 0));
+        label_18->setText(QApplication::translate("kupagui", "Mbps", 0));
         tabWidget->setTabText(tabWidget->indexOf(IperfUDP), QApplication::translate("kupagui", "Iperf-UDP", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_user_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -462,6 +492,7 @@ public:
         label_9->setText(QApplication::translate("kupagui", "Error Model", 0));
         label_10->setText(QApplication::translate("kupagui", "Error Rate", 0));
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
+        jitter_check->setText(QApplication::translate("kupagui", "jitter", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
         final_command->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>the command will be generated in this area, as well as the .sh file on source folder</p></body></html>", 0));

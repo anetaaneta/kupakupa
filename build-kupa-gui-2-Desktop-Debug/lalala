@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimulationParameters>
+    <typeOfConnection>iperf-tcp</typeOfConnection>
+    <congestionControl>reno</congestionControl>
+    <UDPBandwidth>1</UDPBandwidth>
+    <Delay>2ms</Delay>
+    <ErrorRate>0.010</ErrorRate>
+    <Errormodel>1</Errormodel>
+    <SizeOfHttpFile>2</SizeOfHttpFile>
+    <UserBandwidth>150</UserBandwidth>
+    <ServerBandwidth>10</ServerBandwidth>
+    <JitterParam jitter="true" alpha="0.300" k="10.00" tetha="1.000"/>
+</SimulationParameters>

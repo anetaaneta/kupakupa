@@ -106,7 +106,7 @@ std::string delay = "2ms";
 std::string user_bw = "150Mbps";
 std::string server_bw = "10Gbps";
 
-int jitter =1;
+int jitter =true;
 double alpha = 0.3;
 double k = 100;
 double tetha = 2;
@@ -408,7 +408,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	dce.AddArgument ("-i");
        	dce.AddArgument ("1");
        	dce.AddArgument ("-b");
-       	dce.AddArgument (udp_bw);
+       	dce.AddArgument (udp_bw+"m");
        	dce.AddArgument ("--time");
        	dce.AddArgument (IperfTime);
        	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));

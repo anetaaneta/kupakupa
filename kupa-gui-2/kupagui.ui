@@ -45,7 +45,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set up your iper or http connection here&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="IperfTCP">
       <attribute name="title">
@@ -790,7 +790,7 @@
       <double>0.300000000000000</double>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="beta_value">
+    <widget class="QDoubleSpinBox" name="tetha_value">
      <property name="geometry">
       <rect>
        <x>330</x>
