@@ -16,7 +16,7 @@ return stringName;
 }
 
 void
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,bool& ModeOperation, double& errRate, int& jitter, double& alpha,double& k,double& tetha,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_server){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,int& SimuTime,bool& ModeOperation, double& errRate, int& jitter, double& alpha,double& k,double& tetha,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_server){
     
 		
 		TiXmlDocument readdoc(fileName.c_str());
@@ -32,7 +32,7 @@ ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc
 			readdoc.Clear();
 		}
 		
-	        string typeOfConectionTmp,httpSizeTmp,modeOperTmp;
+	        string typeOfConectionTmp,httpSizeTmp,modeOperTmp,simuTimeTmp;
 		string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
 		for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
 		{ 
@@ -70,7 +70,24 @@ ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc
 				TiXmlNode* e = elem->FirstChild();
 				TiXmlText* text = e->ToText();
 				udp_bw = text->Value();
+				
 			}
+			
+			if (elemName=="Delay")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				delay = text->Value();
+			}
+			
+			if (elemName=="SimulationTime")
+			{
+				TiXmlNode* e = elem->FirstChild();
+				TiXmlText* text = e->ToText();
+				simuTimeTmp = text->Value();
+				SimuTime=atoi(simuTimeTmp.c_str());
+			}
+			
 		        if (elemName=="ModeOperation")
 			{
 				TiXmlNode* e = elem->FirstChild();
@@ -84,12 +101,8 @@ ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc
 				}
 			}
 			
-			if (elemName=="Delay")
-			{
-				TiXmlNode* e = elem->FirstChild();
-				TiXmlText* text = e->ToText();
-				delay = text->Value();
-			}
+
+			
 			if (elemName=="ErrorRate")
 			{
 				TiXmlNode* e = elem->FirstChild();
@@ -162,4 +175,3 @@ ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc
       
 }
 }
-
