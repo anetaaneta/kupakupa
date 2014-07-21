@@ -158,6 +158,7 @@ void kupagui::on_button_generate_command_clicked()
             ModeOperation = " --ModeOperation=false";
         }
         udp_bw=" --udp_bw="+ui->udp_bw->text();
+        SimuTime =" --SimuTime="+ui->iperf_time_2->text();
         FinalCommand = TypeOfConnection + ModeOperation + udp_bw;
         resultNumber=2;
     }
@@ -335,7 +336,7 @@ void kupagui::on_actionLoad_Command_triggered()
                           }
                   if (elemName=="ModeOperation")
                           {
-                      std::locale loc;
+                          std::locale loc;
                           TiXmlNode* e = elem->FirstChild();
                           TiXmlText* text = e->ToText();
                           string modeOperTmp = text->Value();
@@ -526,7 +527,12 @@ void kupagui::on_button_getResult_clicked()
     else if (resultNumber==2){
         ui->output_result->toPlainText ();
         ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+q);
-        n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
+
+        if (ui->tetha_value->value ()>1 and ui->jitter_check->isChecked ()==true){
+            n = GetStdoutFromCommand ("tail ./stdout-kupa.txt");
+          }else {
+            n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
+          }
         double udp_data = findDataUdp(n);
         QString jitter = QString::number (udp_data);
         ui->output_result->append ("measured jitter is");

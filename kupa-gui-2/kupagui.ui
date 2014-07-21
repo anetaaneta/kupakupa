@@ -45,7 +45,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set up your iper or http connection here&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="IperfTCP">
       <attribute name="title">
@@ -364,6 +364,38 @@
         <string>Mbps</string>
        </property>
       </widget>
+      <widget class="QSpinBox" name="iperf_time_2">
+       <property name="geometry">
+        <rect>
+         <x>370</x>
+         <y>60</y>
+         <width>81</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;time to do iperf. simulation will add 10 more seconds&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>20</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_23">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>40</y>
+         <width>91</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Iperf TIme (s)</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="wget">
       <attribute name="title">
@@ -389,22 +421,6 @@
        </property>
        <property name="maxLength">
         <number>27</number>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="iperf_time_2">
-       <property name="geometry">
-        <rect>
-         <x>360</x>
-         <y>40</y>
-         <width>81</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="value">
-        <number>20</number>
        </property>
       </widget>
       <widget class="QLineEdit" name="tcp_mem_server_2">
@@ -531,19 +547,6 @@
        </property>
        <property name="text">
         <string>tcp_mem_user</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_15">
-       <property name="geometry">
-        <rect>
-         <x>350</x>
-         <y>20</y>
-         <width>91</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Iperf TIme (s)</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_16">
