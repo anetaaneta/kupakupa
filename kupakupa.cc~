@@ -154,7 +154,11 @@ double tetha = 2;
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,ModeOperation,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+<<<<<<< HEAD
+	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,SimuTime,ModeOperation,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+=======
+	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,ModeOperation,errRate,jitter,alpha,k,tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+>>>>>>> 0923fe05d8f37e5972be05dfe5131eda9ff66561
 	}
       
 

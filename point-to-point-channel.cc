@@ -206,8 +206,8 @@ PointToPointChannel::GammaRandomValue()
 
 
   Ptr<GammaRandomVariable> x = CreateObject<GammaRandomVariable> ();
-  x->SetAttribute ("Alpha", DoubleValue (1/m_k));
-  x->SetAttribute ("Beta", DoubleValue (m_tetha));
+  x->SetAttribute ("Alpha", DoubleValue (m_k));
+  x->SetAttribute ("Beta", DoubleValue (1/m_tetha));
   // The expected value for the mean of the values returned by a
   // gammaly distributed random variable is equal to
   //

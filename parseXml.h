@@ -14,4 +14,3 @@ GetLowerCase(string stringName);
 
 };
 }
-

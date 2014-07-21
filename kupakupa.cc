@@ -154,7 +154,7 @@ double tetha = 2;
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw, delay,SimuTime,ModeOperation,errRate,jitter,alpha,k, tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,ModeOperation,errRate,jitter,alpha,k,tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
 	}
       
 
@@ -545,4 +545,5 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
   return 0;
 }
+
 

@@ -17,7 +17,7 @@ return stringName;
 
 void
 ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,int& SimuTime,bool& ModeOperation, double& errRate, int& jitter, double& alpha,double& k,double& tetha,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_server){
-   
+    
 
 TiXmlDocument readdoc(fileName.c_str());
 bool loadOkay = readdoc.LoadFile();
@@ -32,7 +32,7 @@ cerr << "Failed to load file: No root element."<< endl;
 readdoc.Clear();
 }
 
-       string typeOfConectionTmp,httpSizeTmp,modeOperTmp,simuTimeTmp;
+string typeOfConectionTmp,httpSizeTmp,modeOperTmp,simuTimeTmp;
 string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
 for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
 {
@@ -88,7 +88,7 @@ simuTimeTmp = text->Value();
 SimuTime=atoi(simuTimeTmp.c_str());
 }
 
-       if (elemName=="ModeOperation")
+if (elemName=="ModeOperation")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
@@ -112,19 +112,19 @@ errRate = atof(errRateTmp.c_str());
 }
 if (elemName=="JitterParam")
 {
-string jitterTmp = elem->Attribute("jitter");
+string jitterTmp = elem->Attribute("jitter");	
 if (GetLowerCase(jitterTmp)=="false"){
-  jitter=0;
+jitter=0;
 }
 else{
-  jitter=1;
-}
+jitter=1;
+}	
 string alphaTmp = elem->Attribute("alpha");
 alpha=atof(alphaTmp.c_str());
 string kTmp= elem->Attribute("k");
-k=atof(kTmp.c_str());
+k=atof(kTmp.c_str());	
 string tethaTmp = elem->Attribute("tetha");
-tetha=atof(tethaTmp.c_str());
+tetha=atof(tethaTmp.c_str());	
 }
 
 if (elemName=="UserBandwidth")
@@ -138,7 +138,7 @@ if (elemName=="ServerBandwidth")
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 server_bw = text->Value();
-}
+}	
 if (elemName=="ErrorModel")
 {
 TiXmlNode* e = elem->FirstChild();
@@ -151,7 +151,7 @@ if (elemName=="SizeOfHttpFile")
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 httpSizeTmp = text->Value();
-htmlSize=atoi(httpSizeTmp.c_str());
+htmlSize=atoi(httpSizeTmp.c_str());	
 }
 if (elemName=="UserMemory")
 {
@@ -171,7 +171,7 @@ tcp_mem_server_max = elem->Attribute("max");
 tcp_mem_user = tcp_mem_user_min + ","+tcp_mem_user_def+","+tcp_mem_user_max;
 tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
 
-     
-     
+      
+      
 }
 }
