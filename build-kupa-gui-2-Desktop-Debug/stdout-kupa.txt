@@ -5,4 +5,4 @@ UDP buffer size: 32.0 KByte (default)
 ------------------------------------------------------------
 [  3] local 10.1.1.1 port 5001 connected with 10.1.2.2 port 59372
 [ ID] Interval       Transfer     Bandwidth        Jitter   Lost/Total Datagrams
-[  3]  0.0-20.0 sec  2.36 MBytes   990 Kbits/sec   0.000 ms   17/ 1702 (1%)
+[  3]  0.0-20.0 sec  2.36 MBytes   990 Kbits/sec   0.170 ms   17/ 1702 (1%)

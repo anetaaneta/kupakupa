@@ -180,6 +180,7 @@ void kupagui::on_button_generate_command_clicked()
 //concatenates all commands
     FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_k + chan_tetha + chan_jitter;
     ui->final_command->setText(FinalCommand);
+    statusBar()->showMessage(tr("command created"));
 //create new shell file
     FILE * pFile;
     pFile = fopen ("shell-kupakupa.sh", "w");
@@ -205,6 +206,7 @@ void kupagui::on_button_generate_command_clicked()
             fclose (pFile);
             system("chmod +x shell-kupakupa.sh");
             }
+       statusBar()->showMessage(tr("shell file created"));
 }
 
 string kupagui::GetStdoutFromCommand(string cmd) {
@@ -234,6 +236,7 @@ void kupagui::on_button_run_clicked()
     qstr = QString::fromStdString (n);
     //remove previous output
     system("rm -f ./stdout-kupa.txt");
+      statusBar()->showMessage(tr("simulation is done"));
     if (n[1]=='1' or n[1]=='2'){
         GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
         ui->output_result->append(qstr);
@@ -529,7 +532,7 @@ void kupagui::on_button_getResult_clicked()
         ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+q);
 
         if (ui->tetha_value->value ()>1 and ui->jitter_check->isChecked ()==true){
-            n = GetStdoutFromCommand ("tail ./stdout-kupa.txt");
+            n = GetStdoutFromCommand ("tail -n 1 ./stdout-kupa.txt");
           }else {
             n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
           }
@@ -575,6 +578,7 @@ void kupagui::on_button_getResult_clicked()
         ui->output_result->toPlainText ();
         ui->output_result->setText ("this is unknown connection. Please run the generated command first!!");
       }
+    statusBar()->showMessage(tr("result loaded"));
 }
 
 
@@ -599,13 +603,14 @@ void kupagui::on_actionSave_Result_triggered()
                       file.close();
                   }
               }
-
+    statusBar()->showMessage(tr("result saved"));
 }
 
 void kupagui::on_actionEdit_XML_triggered()
 {
   dce_source = ui->dce_source->text ().toUtf8 ().constData ();
   GetStdoutFromCommand ("gedit "+dce_source+"inputDCE.xml");
+  statusBar()->showMessage(tr("opening external program to edit XML"));
 }
 
 
@@ -621,6 +626,7 @@ void kupagui::on_actionAbout_triggered()
             "enjoy :)");
   msgBox.setStandardButtons(QMessageBox::Ok);
   msgBox.exec();
+  statusBar()->showMessage(tr("about page is shown"));
 }
 
 void kupagui::on_actionSave_Command_triggered()
@@ -769,4 +775,5 @@ void kupagui::on_button_changefolder_clicked()
                                                   QFileDialog::ShowDirsOnly
                                                   | QFileDialog::DontResolveSymlinks);
   ui->dce_source->setText (dir);
+  statusBar()->showMessage(tr("DCE source changed"));
 }
