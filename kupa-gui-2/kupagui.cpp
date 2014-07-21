@@ -33,7 +33,7 @@ QString user_bw="";
 QString server_bw="";
 QString error_rate="";
 QString chan_jitter="";
-
+string dce_source;
 
 using namespace std;
 
@@ -117,6 +117,8 @@ void kupagui::on_button_generate_command_clicked()
     server_bw=" --server_bw="+ui->server_bw->text()+"Gbps";
     error_rate=" --errRate="+ui->error_rate->text();
 
+    dce_source = ui->dce_source->text ().toUtf8 ().constData ();
+
     if (ui->jitter_check->isChecked ()==true){
         chan_jitter=" --chan_jitter=1";
       }else{
@@ -125,7 +127,7 @@ void kupagui::on_button_generate_command_clicked()
 
     QString chan_alpha=" --chan_alpha="+ui->alpha_value->text();
     QString chan_tetha=" --chan_tetha="+ui->tetha_value->text ();
-    QString chan_k=" --k="+ui->k_value->text ();
+    QString chan_k=" --chan_k="+ui->k_value->text ();
     //QString error_model="";
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
@@ -187,9 +189,13 @@ void kupagui::on_button_generate_command_clicked()
             myfile <<"#"<<resultNumber<<"\n";
             myfile << "export KUPA_HOME=`pwd` \n";
 
-            myfile << "cd /home/aneta/aneta-kupa/source/ns-3-dce/ \n";
+            myfile << "cd "+dce_source+" \n";
+
+            /*this one will not work and never will. because it create new shell inside a shell.
+            the command after waf shell will not be axecuted, it's considered on different shell environment.*/
             //myfile << "./waf shell \n";
             //myfile << "/home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
+
             theCommand = FinalCommand.toUtf8 ().constData ();
             myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
             //back to current folder
@@ -219,7 +225,7 @@ string kupagui::GetStdoutFromCommand(string cmd) {
 
 void kupagui::on_button_run_clicked()
 {
-
+    dce_source = ui->dce_source->text ().toUtf8 ().constData ();
     string ls = GetStdoutFromCommand("./shell-kupakupa.sh");
     QString qstr = QString::fromStdString(ls);
     ui->output_result->setText (qstr);
@@ -228,12 +234,12 @@ void kupagui::on_button_run_clicked()
     //remove previous output
     system("rm -f ./stdout-kupa.txt");
     if (n[1]=='1' or n[1]=='2'){
-        system("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stdout > ./stdout-kupa.txt");
+        GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
         ui->output_result->append(qstr);
         resultNumber=n[1]-48;
       }
     else {
-        system("cat /home/aneta/aneta-kupa/source/ns-3-dce/files-0/var/log/*/stderr > ./stdout-kupa.txt");
+        GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stderr > ./stdout-kupa.txt");
         ui->output_result->append(qstr);
         resultNumber=n[1]-48;
       }
@@ -243,9 +249,26 @@ void kupagui::on_button_run_clicked()
 
 void kupagui::on_actionLoad_Command_triggered()
 {
+  dce_source = ui->dce_source->text ().toUtf8 ().constData ();
+  const QString source = QString::fromStdString (dce_source);
+  QString filename = QFileDialog::getOpenFileName(this,
+                                 tr("Open Xml"), source+"/inputDCE.xml",
+                                 tr("Xml files (*.xml)"));
 
+  QFile file(filename);
+          if (!file.open(QFile::ReadOnly | QFile::Text))
+  {
+      std::cerr << "Error: Cannot read file " << qPrintable(filename)
+                << ": " << qPrintable(file.errorString())
+                << std::endl;
 
-  TiXmlDocument readdoc("..//..//..//inputDCE.xml");
+  }
+
+  /*QXmlStreamReader Rxml;
+  Rxml.setDevice(&file);
+  Rxml.readNext();*/
+
+  TiXmlDocument readdoc(filename.toUtf8 ().constData ());
   bool loadOkay = readdoc.LoadFile();
   if(!loadOkay)
           {
@@ -310,6 +333,30 @@ void kupagui::on_actionLoad_Command_triggered()
                           //udp_bw = " --udp_bw="+text->Value();
                           ui->udp_bw->setValue (atoi(udp_bwTemp.c_str ()));
                           }
+                  if (elemName=="ModeOperation")
+                          {
+                      std::locale loc;
+                          TiXmlNode* e = elem->FirstChild();
+                          TiXmlText* text = e->ToText();
+                          string modeOperTmp = text->Value();
+                          if (std::tolower(modeOperTmp.c_str (),loc)=="download") {
+                            //ModeOperation = true;
+                            if (typeOfConectionTmp=="http"){
+                                ui->tcp_download_2->setChecked (true);
+                              } else {
+                                ui->tcp_download->setChecked (true);
+                              }
+                            }
+                          if (std::tolower(modeOperTmp.c_str (),loc)=="upload") {
+                            //ModeOperation = false;
+                            if (typeOfConectionTmp=="http"){
+                                ui->tcp_upload_2->setChecked (true);
+                              } else {
+                                ui->tcp_upload->setChecked (true);
+                              }
+                            }
+                          }
+
                   if (elemName=="Delay")
                           {
                           TiXmlNode* e = elem->FirstChild();
@@ -339,18 +386,18 @@ void kupagui::on_actionLoad_Command_triggered()
                           //jitter=1;
                           ui->jitter_check->setChecked (true);
                           }
-                  string alphaTmp = elem->Attribute("alpha");
-                  double alpha=atof(alphaTmp.c_str());
-                  ui->alpha_value->setValue (alpha);
+                          string alphaTmp = elem->Attribute("alpha");
+                          double alpha=atof(alphaTmp.c_str());
+                          ui->alpha_value->setValue (alpha);
 
-                  string kTmp= elem->Attribute("k");
-                  double k=atof(kTmp.c_str());
-                  ui->k_value->setValue (k);
+                          string kTmp= elem->Attribute("k");
+                          double k=atof(kTmp.c_str());
+                          ui->k_value->setValue (k);
 
-                  string tethaTmp = elem->Attribute("tetha");
-                  double tetha=atof(tethaTmp.c_str());
-                  ui->tetha_value->setValue (tetha);
-                  }
+                          string tethaTmp = elem->Attribute("tetha");
+                          double tetha=atof(tethaTmp.c_str());
+                          ui->tetha_value->setValue (tetha);
+                          }
 
           if (elemName=="UserBandwidth")
                   {
@@ -366,7 +413,6 @@ void kupagui::on_actionLoad_Command_triggered()
                   std::string server_bw = text->Value();
                   string v = user_bw.erase (server_bw.find ('G'),4);
                   ui->server_bw->setValue (atoi(v.c_str ()));
-
                   }
           if (elemName=="ErrorModel")
                   {
@@ -387,6 +433,19 @@ void kupagui::on_actionLoad_Command_triggered()
                   std::string httpSizeTmp = text->Value();
                   int htmlSize=atoi(httpSizeTmp.c_str());
                   ui->wget_file_size->setValue (htmlSize);
+                  }
+          if (elemName=="SimuTime")
+                  {
+                  TiXmlNode* e = elem->FirstChild();
+                  TiXmlText* text = e->ToText();
+                  std::string simuTimeTmp = text->Value();
+                  int simuTime=atoi(simuTimeTmp.c_str());
+                  if (typeOfConectionTmp=="iperf-tcp"){
+                      ui->iperf_time->setValue (simuTime);
+                    }else {
+                      ui->iperf_time_2->setValue (simuTime);
+                    }
+
                   }
           if (elemName=="UserMemory")
                   {
@@ -520,7 +579,8 @@ void kupagui::on_actionRUN_triggered()
 
 void kupagui::on_actionSave_Result_triggered()
 {
-     QString fileName = QFileDialog::getSaveFileName (ui->output_result, tr("Save file"), "./kupakuparesult.txt",
+  dce_source = ui->dce_source->text ().toUtf8 ().constData ();
+     QString fileName = QFileDialog::getSaveFileName (ui->output_result, tr("Save file"), QString::fromStdString (dce_source)+"/kupakuparesult.txt",
                                                       tr("Text Files (*.txt)"));
      if (fileName != "") {
                   QFile file(fileName);
@@ -538,7 +598,8 @@ void kupagui::on_actionSave_Result_triggered()
 
 void kupagui::on_actionEdit_XML_triggered()
 {
-  system("gedit /home/aneta/aneta-kupa/source/ns-3-dce/inputDCE.xml");
+  dce_source = ui->dce_source->text ().toUtf8 ().constData ();
+  GetStdoutFromCommand ("gedit "+dce_source+"inputDCE.xml");
 }
 
 
@@ -558,19 +619,22 @@ void kupagui::on_actionAbout_triggered()
 
 void kupagui::on_actionSave_Command_triggered()
 {
+  dce_source = ui->dce_source->text ().toUtf8 ().constData ();
   QString type;
-  QString congestion;
-  int server_param_min;
-  int server_param_def;
-  int server_param_max;
-  int user_param_min;
-  int user_param_def;
-  int user_param_max;
+  QString congestion="reno";
+  int server_param_min=4096;
+  int server_param_def=8192;
+  int server_param_max=8388608;
+  int user_param_min=4096;
+  int user_param_def=8192;
+  int user_param_max=8388608;
   string server_param;
   string user_param;
+  QString mode;
+  QString simuTime;
 
   QString filename = QFileDialog::getSaveFileName(this,
-                                         tr("Save Xml"), ".",
+                                         tr("Save Xml"), QString::fromStdString (dce_source)+"/inputDCE.xml",
                                          tr("Xml files (*.xml)"));
 
   QFile file(filename);
@@ -587,8 +651,12 @@ void kupagui::on_actionSave_Command_triggered()
       congestion=ui->tcp_cc->currentText ().toLower ();
       server_param = ui->tcp_mem_server->text ().toUtf8 ().constData ();
       user_param = ui->tcp_mem_user->text ().toUtf8 ().constData ();
+      mode = ui->tcp_download->isChecked ()?"download":"upload";
+      simuTime = ui->iperf_time->text ();
     } else if (ui->tabWidget->currentIndex ()==1){
       type="iperf-udp";
+      mode = ui->tcp_download_2->isChecked ()? "download":"upload";
+      simuTime = ui->iperf_time_2->text ();
     } else {
       type="http";
       congestion = ui->tcp_cc_2->currentText ().toLower ();
@@ -598,23 +666,28 @@ void kupagui::on_actionSave_Command_triggered()
 
 
 
-  xmlWriter.writeTextElement("typeOfConnection", type);
+  xmlWriter.writeTextElement("TypeOfConnection", type);
   xmlWriter.writeTextElement("congestionControl", congestion);
   xmlWriter.writeTextElement("UDPBandwidth", ui->udp_bw->text ());
-  xmlWriter.writeTextElement ("Delay", ui->delay->text()+"ms");
+  xmlWriter.writeTextElement("ModeOperation", mode);
+  xmlWriter.writeTextElement("Delay", ui->delay->text()+"ms");
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
-  xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
-  xmlWriter.writeTextElement("SizeOfHttpFile", ui->wget_file_size->text());
-  xmlWriter.writeTextElement("UserBandwidth", ui->user_bw->text ());
-  xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ());;
 
   xmlWriter.writeStartElement("JitterParam");
-  xmlWriter.writeAttribute("jitter",ui->jitter_check->isChecked ()?"false":"true");
+  xmlWriter.writeAttribute("jitter",ui->jitter_check->isChecked ()?"true":"false");
   xmlWriter.writeAttribute("alpha",ui->alpha_value->text ());
   xmlWriter.writeAttribute("k",ui->k_value->text ());
   xmlWriter.writeAttribute("tetha",ui->tetha_value->text ());
-  //xmlWriter.writeCharacters ("jitter");
+
   xmlWriter.writeEndElement();
+
+  xmlWriter.writeTextElement("UserBandwidth", ui->user_bw->text ()+"Mbps");
+  xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ()+"Gbps");;
+
+  xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
+  xmlWriter.writeTextElement("SizeOfHttpFile", ui->wget_file_size->text());
+  xmlWriter.writeTextElement("SimuTime", simuTime);
+
 
   if (ui->tabWidget->currentIndex ()==0 or ui->tabWidget->currentIndex ()==2){
       server_param = RemoveComma(server_param);
@@ -642,7 +715,7 @@ void kupagui::on_actionSave_Command_triggered()
             user_param_def=atoi(user_param.substr (first, second-first).c_str ());
             user_param_max = atoi(user_param.substr (second).c_str ());
             }
-
+    }
     xmlWriter.writeStartElement("UserMemory");
     xmlWriter.writeAttribute("min",QString::number (user_param_min));
     xmlWriter.writeAttribute("def",QString::number (user_param_def));
@@ -654,7 +727,7 @@ void kupagui::on_actionSave_Command_triggered()
     xmlWriter.writeAttribute("def",QString::number (server_param_def));
     xmlWriter.writeAttribute("max",QString::number (server_param_max));
     xmlWriter.writeEndElement();
-    }
+
 
   xmlWriter.writeEndElement();
   xmlWriter.writeEndElement();
@@ -681,4 +754,13 @@ for (i=0; i<3; i++)
 }
 std::cout<<str2;
 return str2;
+}
+
+void kupagui::on_button_changefolder_clicked()
+{
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Select your ns-3-dce folder source"),
+                                                  "/home",
+                                                  QFileDialog::ShowDirsOnly
+                                                  | QFileDialog::DontResolveSymlinks);
+  ui->dce_source->setText (dir);
 }

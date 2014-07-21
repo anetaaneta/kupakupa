@@ -45,6 +45,8 @@ private slots:
 
     void on_actionSave_Command_triggered();
 
+    void on_button_changefolder_clicked();
+
 private:
     Ui::kupagui *ui;
     //string loadTextFile();

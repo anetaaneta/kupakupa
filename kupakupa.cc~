@@ -106,7 +106,7 @@ std::string delay = "2ms";
 std::string user_bw = "150Mbps";
 std::string server_bw = "10Gbps";
 
-int jitter =true;
+int jitter =1;
 double alpha = 0.3;
 double k = 100;
 double tetha = 2;

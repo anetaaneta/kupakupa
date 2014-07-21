@@ -30,6 +30,7 @@
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -93,12 +94,18 @@ public:
     QDoubleSpinBox *tetha_value;
     QDoubleSpinBox *k_value;
     QCheckBox *jitter_check;
+    QLabel *label_20;
+    QLabel *label_21;
+    QLabel *label_22;
     QPushButton *button_generate_command;
     QLineEdit *final_command;
     QTextEdit *output_result;
     QPushButton *button_run;
     QPushButton *button_getResult;
     QPushButton *button_exit;
+    QLabel *label_19;
+    QLineEdit *dce_source;
+    QToolButton *button_changefolder;
     QMenuBar *menuBar;
     QMenu *menuMenu;
     QMenu *menuXML;
@@ -110,7 +117,7 @@ public:
     {
         if (kupagui->objectName().isEmpty())
             kupagui->setObjectName(QStringLiteral("kupagui"));
-        kupagui->resize(505, 580);
+        kupagui->resize(505, 620);
         actionLoad_Command = new QAction(kupagui);
         actionLoad_Command->setObjectName(QStringLiteral("actionLoad_Command"));
         actionSave_Command = new QAction(kupagui);
@@ -263,13 +270,13 @@ public:
         error_model->setGeometry(QRect(190, 210, 69, 22));
         error_rate = new QDoubleSpinBox(groupBox);
         error_rate->setObjectName(QStringLiteral("error_rate"));
-        error_rate->setGeometry(QRect(281, 210, 71, 22));
+        error_rate->setGeometry(QRect(280, 210, 71, 22));
         error_rate->setDecimals(3);
         error_rate->setSingleStep(0.001);
         error_rate->setValue(0.01);
         delay = new QSpinBox(groupBox);
         delay->setObjectName(QStringLiteral("delay"));
-        delay->setGeometry(QRect(370, 210, 81, 22));
+        delay->setGeometry(QRect(390, 210, 81, 22));
         delay->setMaximum(99999);
         delay->setValue(2);
         label_9 = new QLabel(groupBox);
@@ -280,7 +287,7 @@ public:
         label_10->setGeometry(QRect(280, 190, 71, 16));
         label_11 = new QLabel(groupBox);
         label_11->setObjectName(QStringLiteral("label_11"));
-        label_11->setGeometry(QRect(380, 190, 71, 16));
+        label_11->setGeometry(QRect(390, 190, 71, 16));
         alpha_value = new QDoubleSpinBox(groupBox);
         alpha_value->setObjectName(QStringLiteral("alpha_value"));
         alpha_value->setGeometry(QRect(260, 260, 69, 27));
@@ -291,7 +298,8 @@ public:
         tetha_value = new QDoubleSpinBox(groupBox);
         tetha_value->setObjectName(QStringLiteral("tetha_value"));
         tetha_value->setGeometry(QRect(330, 260, 69, 27));
-        tetha_value->setDecimals(3);
+        tetha_value->setDecimals(1);
+        tetha_value->setSingleStep(0.5);
         tetha_value->setValue(1);
         k_value = new QDoubleSpinBox(groupBox);
         k_value->setObjectName(QStringLiteral("k_value"));
@@ -301,6 +309,15 @@ public:
         jitter_check = new QCheckBox(groupBox);
         jitter_check->setObjectName(QStringLiteral("jitter_check"));
         jitter_check->setGeometry(QRect(190, 260, 61, 22));
+        label_20 = new QLabel(groupBox);
+        label_20->setObjectName(QStringLiteral("label_20"));
+        label_20->setGeometry(QRect(260, 240, 51, 17));
+        label_21 = new QLabel(groupBox);
+        label_21->setObjectName(QStringLiteral("label_21"));
+        label_21->setGeometry(QRect(330, 240, 67, 17));
+        label_22 = new QLabel(groupBox);
+        label_22->setObjectName(QStringLiteral("label_22"));
+        label_22->setGeometry(QRect(400, 240, 67, 17));
         button_generate_command = new QPushButton(centralWidget);
         button_generate_command->setObjectName(QStringLiteral("button_generate_command"));
         button_generate_command->setGeometry(QRect(10, 300, 161, 41));
@@ -319,6 +336,18 @@ public:
         button_exit = new QPushButton(centralWidget);
         button_exit->setObjectName(QStringLiteral("button_exit"));
         button_exit->setGeometry(QRect(370, 420, 99, 27));
+        label_19 = new QLabel(centralWidget);
+        label_19->setObjectName(QStringLiteral("label_19"));
+        label_19->setGeometry(QRect(10, 530, 81, 17));
+        dce_source = new QLineEdit(centralWidget);
+        dce_source->setObjectName(QStringLiteral("dce_source"));
+        dce_source->setGeometry(QRect(100, 530, 351, 27));
+        dce_source->setInputMask(QStringLiteral(""));
+        dce_source->setMaxLength(32767);
+        dce_source->setFrame(true);
+        button_changefolder = new QToolButton(centralWidget);
+        button_changefolder->setObjectName(QStringLiteral("button_changefolder"));
+        button_changefolder->setGeometry(QRect(460, 530, 24, 25));
         kupagui->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(kupagui);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -356,7 +385,7 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(2);
+        tabWidget->setCurrentIndex(0);
         error_model->setCurrentIndex(0);
 
 
@@ -493,6 +522,9 @@ public:
         label_10->setText(QApplication::translate("kupagui", "Error Rate", 0));
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
         jitter_check->setText(QApplication::translate("kupagui", "jitter", 0));
+        label_20->setText(QApplication::translate("kupagui", "alpha", 0));
+        label_21->setText(QApplication::translate("kupagui", "tetha", 0));
+        label_22->setText(QApplication::translate("kupagui", "k", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
         final_command->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>the command will be generated in this area, as well as the .sh file on source folder</p></body></html>", 0));
@@ -509,6 +541,9 @@ public:
 #endif // QT_NO_WHATSTHIS
         button_getResult->setText(QApplication::translate("kupagui", "get result", 0));
         button_exit->setText(QApplication::translate("kupagui", "exit", 0));
+        label_19->setText(QApplication::translate("kupagui", "DCE Source:", 0));
+        dce_source->setText(QApplication::translate("kupagui", "/home/aneta/aneta-kupa/source/ns-3-dce", 0));
+        button_changefolder->setText(QApplication::translate("kupagui", "...", 0));
         menuMenu->setTitle(QApplication::translate("kupagui", "Menu", 0));
         menuXML->setTitle(QApplication::translate("kupagui", "Options", 0));
         menuHelp->setTitle(QApplication::translate("kupagui", "Help", 0));
