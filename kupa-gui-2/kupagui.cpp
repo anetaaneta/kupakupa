@@ -343,7 +343,7 @@ void kupagui::on_actionLoad_Command_triggered()
                           TiXmlNode* e = elem->FirstChild();
                           TiXmlText* text = e->ToText();
                           string modeOperTmp = text->Value();
-                          if (std::tolower(modeOperTmp.c_str (),loc)=="download") {
+                          if (modeOperTmp=="download") {
                             //ModeOperation = true;
                             if (typeOfConectionTmp=="http"){
                                 ui->tcp_download_2->setChecked (true);
@@ -351,7 +351,7 @@ void kupagui::on_actionLoad_Command_triggered()
                                 ui->tcp_download->setChecked (true);
                               }
                             }
-                          if (std::tolower(modeOperTmp.c_str (),loc)=="upload") {
+                          if (modeOperTmp=="upload") {
                             //ModeOperation = false;
                             if (typeOfConectionTmp=="http"){
                                 ui->tcp_upload_2->setChecked (true);

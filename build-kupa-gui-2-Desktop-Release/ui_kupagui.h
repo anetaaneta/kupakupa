@@ -67,14 +67,14 @@ public:
     QSpinBox *udp_bw;
     QLabel *label_12;
     QLabel *label_18;
+    QSpinBox *iperf_time_2;
+    QLabel *label_23;
     QWidget *wget;
     QLineEdit *tcp_mem_user_2;
-    QSpinBox *iperf_time_2;
     QLineEdit *tcp_mem_server_2;
     QLabel *label_13;
     QComboBox *tcp_cc_2;
     QLabel *label_14;
-    QLabel *label_15;
     QLabel *label_16;
     QSpinBox *wget_file_size;
     QLabel *label_17;
@@ -94,6 +94,9 @@ public:
     QDoubleSpinBox *tetha_value;
     QDoubleSpinBox *k_value;
     QCheckBox *jitter_check;
+    QLabel *label_20;
+    QLabel *label_21;
+    QLabel *label_22;
     QPushButton *button_generate_command;
     QLineEdit *final_command;
     QTextEdit *output_result;
@@ -201,6 +204,14 @@ public:
         label_18 = new QLabel(IperfUDP);
         label_18->setObjectName(QStringLiteral("label_18"));
         label_18->setGeometry(QRect(260, 60, 67, 17));
+        iperf_time_2 = new QSpinBox(IperfUDP);
+        iperf_time_2->setObjectName(QStringLiteral("iperf_time_2"));
+        iperf_time_2->setGeometry(QRect(370, 60, 81, 22));
+        iperf_time_2->setMaximum(9999);
+        iperf_time_2->setValue(20);
+        label_23 = new QLabel(IperfUDP);
+        label_23->setObjectName(QStringLiteral("label_23"));
+        label_23->setGeometry(QRect(360, 40, 91, 16));
         tabWidget->addTab(IperfUDP, QString());
         wget = new QWidget();
         wget->setObjectName(QStringLiteral("wget"));
@@ -208,11 +219,6 @@ public:
         tcp_mem_user_2->setObjectName(QStringLiteral("tcp_mem_user_2"));
         tcp_mem_user_2->setGeometry(QRect(130, 90, 201, 20));
         tcp_mem_user_2->setMaxLength(27);
-        iperf_time_2 = new QSpinBox(wget);
-        iperf_time_2->setObjectName(QStringLiteral("iperf_time_2"));
-        iperf_time_2->setGeometry(QRect(360, 40, 81, 22));
-        iperf_time_2->setMaximum(9999);
-        iperf_time_2->setValue(20);
         tcp_mem_server_2 = new QLineEdit(wget);
         tcp_mem_server_2->setObjectName(QStringLiteral("tcp_mem_server_2"));
         tcp_mem_server_2->setGeometry(QRect(130, 40, 201, 20));
@@ -226,9 +232,6 @@ public:
         label_14 = new QLabel(wget);
         label_14->setObjectName(QStringLiteral("label_14"));
         label_14->setGeometry(QRect(130, 70, 201, 16));
-        label_15 = new QLabel(wget);
-        label_15->setObjectName(QStringLiteral("label_15"));
-        label_15->setGeometry(QRect(350, 20, 91, 20));
         label_16 = new QLabel(wget);
         label_16->setObjectName(QStringLiteral("label_16"));
         label_16->setGeometry(QRect(130, 20, 201, 16));
@@ -267,13 +270,13 @@ public:
         error_model->setGeometry(QRect(190, 210, 69, 22));
         error_rate = new QDoubleSpinBox(groupBox);
         error_rate->setObjectName(QStringLiteral("error_rate"));
-        error_rate->setGeometry(QRect(281, 210, 71, 22));
+        error_rate->setGeometry(QRect(280, 210, 71, 22));
         error_rate->setDecimals(3);
         error_rate->setSingleStep(0.001);
         error_rate->setValue(0.01);
         delay = new QSpinBox(groupBox);
         delay->setObjectName(QStringLiteral("delay"));
-        delay->setGeometry(QRect(370, 210, 81, 22));
+        delay->setGeometry(QRect(390, 210, 81, 22));
         delay->setMaximum(99999);
         delay->setValue(2);
         label_9 = new QLabel(groupBox);
@@ -284,7 +287,7 @@ public:
         label_10->setGeometry(QRect(280, 190, 71, 16));
         label_11 = new QLabel(groupBox);
         label_11->setObjectName(QStringLiteral("label_11"));
-        label_11->setGeometry(QRect(380, 190, 71, 16));
+        label_11->setGeometry(QRect(390, 190, 71, 16));
         alpha_value = new QDoubleSpinBox(groupBox);
         alpha_value->setObjectName(QStringLiteral("alpha_value"));
         alpha_value->setGeometry(QRect(260, 260, 69, 27));
@@ -295,7 +298,8 @@ public:
         tetha_value = new QDoubleSpinBox(groupBox);
         tetha_value->setObjectName(QStringLiteral("tetha_value"));
         tetha_value->setGeometry(QRect(330, 260, 69, 27));
-        tetha_value->setDecimals(3);
+        tetha_value->setDecimals(1);
+        tetha_value->setSingleStep(0.5);
         tetha_value->setValue(1);
         k_value = new QDoubleSpinBox(groupBox);
         k_value->setObjectName(QStringLiteral("k_value"));
@@ -305,6 +309,15 @@ public:
         jitter_check = new QCheckBox(groupBox);
         jitter_check->setObjectName(QStringLiteral("jitter_check"));
         jitter_check->setGeometry(QRect(190, 260, 61, 22));
+        label_20 = new QLabel(groupBox);
+        label_20->setObjectName(QStringLiteral("label_20"));
+        label_20->setGeometry(QRect(260, 240, 51, 17));
+        label_21 = new QLabel(groupBox);
+        label_21->setObjectName(QStringLiteral("label_21"));
+        label_21->setGeometry(QRect(330, 240, 67, 17));
+        label_22 = new QLabel(groupBox);
+        label_22->setObjectName(QStringLiteral("label_22"));
+        label_22->setGeometry(QRect(400, 240, 67, 17));
         button_generate_command = new QPushButton(centralWidget);
         button_generate_command->setObjectName(QStringLiteral("button_generate_command"));
         button_generate_command->setGeometry(QRect(10, 300, 161, 41));
@@ -372,7 +385,7 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
         error_model->setCurrentIndex(0);
 
 
@@ -458,6 +471,10 @@ public:
         tcp_upload_2->setText(QApplication::translate("kupagui", "Upload", 0));
         label_12->setText(QApplication::translate("kupagui", "UDP allocated bandwidth", 0));
         label_18->setText(QApplication::translate("kupagui", "Mbps", 0));
+#ifndef QT_NO_WHATSTHIS
+        iperf_time_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>time to do iperf. simulation will add 10 more seconds</p></body></html>", 0));
+#endif // QT_NO_WHATSTHIS
+        label_23->setText(QApplication::translate("kupagui", "Iperf TIme (s)", 0));
         tabWidget->setTabText(tabWidget->indexOf(IperfUDP), QApplication::translate("kupagui", "Iperf-UDP", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_user_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -492,7 +509,6 @@ public:
          << QApplication::translate("kupagui", "Yeah", 0)
         );
         label_14->setText(QApplication::translate("kupagui", "tcp_mem_user", 0));
-        label_15->setText(QApplication::translate("kupagui", "Iperf TIme (s)", 0));
         label_16->setText(QApplication::translate("kupagui", "tcp_mem_server", 0));
         label_17->setText(QApplication::translate("kupagui", "File Size (Mb)", 0));
         tabWidget->setTabText(tabWidget->indexOf(wget), QApplication::translate("kupagui", "wget", 0));
@@ -509,6 +525,9 @@ public:
         label_10->setText(QApplication::translate("kupagui", "Error Rate", 0));
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
         jitter_check->setText(QApplication::translate("kupagui", "jitter", 0));
+        label_20->setText(QApplication::translate("kupagui", "alpha", 0));
+        label_21->setText(QApplication::translate("kupagui", "tetha", 0));
+        label_22->setText(QApplication::translate("kupagui", "k", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
         final_command->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>the command will be generated in this area, as well as the .sh file on source folder</p></body></html>", 0));
@@ -526,7 +545,7 @@ public:
         button_getResult->setText(QApplication::translate("kupagui", "get result", 0));
         button_exit->setText(QApplication::translate("kupagui", "exit", 0));
         label_19->setText(QApplication::translate("kupagui", "DCE Source:", 0));
-        dce_source->setText(QApplication::translate("kupagui", "/home/aneta/aneta-kupa/source/ns-3-dce/", 0));
+        dce_source->setText(QApplication::translate("kupagui", "/home/aneta/aneta-kupa/source/ns-3-dce", 0));
         button_changefolder->setText(QApplication::translate("kupagui", "...", 0));
         menuMenu->setTitle(QApplication::translate("kupagui", "Menu", 0));
         menuXML->setTitle(QApplication::translate("kupagui", "Options", 0));
