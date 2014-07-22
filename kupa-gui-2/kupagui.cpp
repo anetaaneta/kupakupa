@@ -181,6 +181,7 @@ void kupagui::on_button_generate_command_clicked()
     FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_k + chan_tetha + chan_jitter;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
+    theCommand = FinalCommand.toUtf8 ().constData ();
 //create new shell file
     FILE * pFile;
     pFile = fopen ("shell-kupakupa.sh", "w");
@@ -195,11 +196,10 @@ void kupagui::on_button_generate_command_clicked()
 
             /*this one will not work and never will. because it create new shell inside a shell.
             the command after waf shell will not be axecuted, it's considered on different shell environment.*/
-            //myfile << "./waf shell \n";
-            //myfile << "/home/aneta/aneta-kupa/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa ";
+            myfile << "./waf shell \n";
+            myfile << "./build/myscripts/kupakupa/bin/kupakupa "+theCommand+"\n";
 
-            theCommand = FinalCommand.toUtf8 ().constData ();
-            myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
+            //myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
             //back to current folder
             myfile << "cd $KUPA_HOME";
             myfile.close();
@@ -530,10 +530,9 @@ void kupagui::on_button_getResult_clicked()
     else if (resultNumber==2){
         ui->output_result->toPlainText ();
         ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+q);
-
-        if (ui->tetha_value->value ()>1 and ui->jitter_check->isChecked ()==true){
-            n = GetStdoutFromCommand ("tail -n 1 ./stdout-kupa.txt");
-          }else {
+        int r = n.size ()-2; //last chat should be size -1, but i found it should be -2. interesting..
+        if (n[r]=='r'){
+            //if last sentence contains "out-of-order", we get the result from a line before that
             n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
           }
         double udp_data = findDataUdp(n);
