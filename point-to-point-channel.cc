@@ -1,20 +1,20 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
-* Copyright (c) 2007, 2008 University of Washington
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 as
-* published by the Free Software Foundation;
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (c) 2007, 2008 University of Washington
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "point-to-point-channel.h"
 #include "point-to-point-net-device.h"
@@ -23,6 +23,7 @@
 #include "ns3/simulator.h"
 #include "ns3/log.h"
 #include "ns3/core-module.h"
+#include <iostream>
 
 NS_LOG_COMPONENT_DEFINE ("PointToPointChannel");
 
@@ -30,7 +31,7 @@ namespace ns3 {
 
 NS_OBJECT_ENSURE_REGISTERED (PointToPointChannel);
 
-TypeId
+TypeId 
 PointToPointChannel::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::PointToPointChannel")
@@ -40,22 +41,22 @@ PointToPointChannel::GetTypeId (void)
                    TimeValue (Seconds (0)),
                    MakeTimeAccessor (&PointToPointChannel::m_delay),
                    MakeTimeChecker ())
-.AddAttribute ("Jitter", "Implement Jitter",
+	.AddAttribute ("Jitter", "Implement Jitter",
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_jitter),
                    MakeUintegerChecker<uint16_t> ())
-.AddAttribute ("alpha", "Set jitter moving average value",
+	.AddAttribute ("alpha", "Set jitter moving average value",
                    DoubleValue (0.4),
                    MakeDoubleAccessor (&PointToPointChannel::m_alpha),
                    MakeDoubleChecker<int64_t>())
-.AddAttribute ("k", "Set gamma distribution k value",
+	.AddAttribute ("k", "Set gamma distribution k value",
                    DoubleValue (5.0),
                    MakeDoubleAccessor (&PointToPointChannel::m_k),
                    MakeDoubleChecker<int64_t>())
-.AddAttribute ("tetha", "Set gamma distribution tetha value",
+	.AddAttribute ("tetha", "Set gamma distribution tetha value",
                    DoubleValue (2.0),
                    MakeDoubleAccessor (&PointToPointChannel::m_tetha),
-                   MakeDoubleChecker<int64_t>())	
+                   MakeDoubleChecker<int64_t>())				   
     .AddTraceSource ("TxRxPointToPoint",
                      "Trace source indicating transmission of packet from the PointToPointChannel, used by the Animation interface.",
                      MakeTraceSourceAccessor (&PointToPointChannel::m_txrxPointToPoint))
@@ -64,18 +65,23 @@ PointToPointChannel::GetTypeId (void)
 }
 
 //
-// By default, you get a channel that
+// By default, you get a channel that 
 // has an "infitely" fast transmission speed and zero delay.
 PointToPointChannel::PointToPointChannel()
   :
     Channel (),
     m_delay (Seconds (0.)),
     m_nDevices (0),
-    m_jitter (0),
-    m_alpha (0.4),
-    m_k (5.0),
-    m_tetha (2.0),
-    m_previousDelay (0)
+	m_jitter (0),
+	m_alpha (0.4),
+	m_k (5.0),
+	m_tetha (2.0),
+	m_prevRcvTime(Seconds (0.)),
+	m_prevRcvTime1(Seconds (0.)),
+	m_prevRcvTime2(Seconds (0.)),
+	m_previousDelay (0),
+	m_previousDelay1 (0),
+	m_previousDelay2 (0)
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -126,31 +132,57 @@ PointToPointChannel::TransmitStart (
   }
   else
   {
-  
-  double prevDelay=(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
-  double cur_delay= (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
+  //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+  m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
+  m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
 
+  
+  double prevDelay =(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
+  double cur_delay = (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
+  
+  //std::cout <<"  current delay = "<< Time(cur_delay).GetMilliSeconds() << std::endl;
+  
   Time rcvTime = Simulator::Now()+ Time(cur_delay);
 
-  if (rcvTime < m_prevRcvTime)
+  // preveting reordering
+  if (rcvTime < m_prevRcvTime )
   {
+          /*  
+          std::cout <<" reorder prev = "<< m_prevRcvTime.GetSeconds()<<" current = "<<rcvTime.GetSeconds()<< std::endl;
+          std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
+          std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
+          */
           rcvTime= m_prevRcvTime;
-cur_delay=0;
+          //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
+          cur_delay=(rcvTime-Simulator::Now()).GetDouble();
   }
-  m_previousDelay=cur_delay;
-  m_prevRcvTime = rcvTime;
 
+
+
+  
   Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                   Time(cur_delay), &PointToPointNetDevice::Receive,
                                   m_link[wire].m_dst, p);
   // Call the tx anim callback on the net device
   m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0),Time(cur_delay));
+  
+  //std::cout <<"  received time = "<< rcvTime.GetSeconds()<< std::endl;
+  
+  // store previous delay
+  if (wire==0) {
+	m_previousDelay1=cur_delay;
+	m_prevRcvTime1 = rcvTime;
+  }
+    if (wire==1) {
+	m_previousDelay2=cur_delay;
+	m_prevRcvTime2 = rcvTime;
+  }
 
   }
   return true;
 }
 
-uint32_t
+uint32_t 
 PointToPointChannel::GetNDevices (void) const
 {
   NS_LOG_FUNCTION_NOARGS ();
@@ -207,13 +239,13 @@ PointToPointChannel::GammaRandomValue()
 
   Ptr<GammaRandomVariable> x = CreateObject<GammaRandomVariable> ();
   x->SetAttribute ("Alpha", DoubleValue (m_k));
-  x->SetAttribute ("Beta", DoubleValue (1/m_tetha));
+  x->SetAttribute ("Beta", DoubleValue (m_tetha));
   // The expected value for the mean of the values returned by a
   // gammaly distributed random variable is equal to
   //
   // E[value] = alpha * beta .
   //
-  double value = x->GetValue ()* double(1000000);
+  double value = x->GetValue ()* double(1000000); // in 1ms
   return value;
 }
 
