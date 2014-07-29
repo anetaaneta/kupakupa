@@ -70,7 +70,7 @@ for (i=0; i<3; i++)
 	{
 	str2 = str.replace(str.find(','),1," ");
 	} else {
-	std::cout<<"no comma found..";
+	std::cout<<"no comma found.."<< std::endl;
 	}
 }
 return str2;
