@@ -1,12 +1,14 @@
 <?xml version="1.0" ?>
+<<?xml version="1.0" ?>
 <SimulationParameters>
-    <TypeOfConnection>iperf-udp</TypeOfConnection>
+    <TypeOfConnection>iperf-tcp</TypeOfConnection>
     <congestionControl>reno</congestionControl>
-    <UDPBandwidth>1m</UDPBandwidth>
+    <UDPBandwidth>10m</UDPBandwidth>
     <Delay>2ms</Delay>
-    <ModeOperation>Upload</ModeOperation>
-    <ErrorRate>0.01</ErrorRate>
-    <JitterParam jitter="true" alpha="0.3" k="10" tetha="0.1" />
+    <SimulationTime>40</SimulationTime>
+    <ModeOperation>Download</ModeOperation>
+    <ErrorRate>0</ErrorRate>
+    <JitterParam jitter="true" alpha="0.9" k="30" tetha="10" />
     <UserBandwidth>150Mbps</UserBandwidth>
     <ServerBandwidth>10Gbps</ServerBandwidth>
     <ErrorModel>1</ErrorModel>
