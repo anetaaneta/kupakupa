@@ -165,14 +165,14 @@ public:
         tcp_mem_server = new QLineEdit(IperfTCP);
         tcp_mem_server->setObjectName(QStringLiteral("tcp_mem_server"));
         tcp_mem_server->setGeometry(QRect(130, 40, 201, 20));
-        tcp_mem_server->setMaxLength(50);
+        tcp_mem_server->setMaxLength(200);
         label_2 = new QLabel(IperfTCP);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setGeometry(QRect(130, 20, 201, 16));
         tcp_mem_user = new QLineEdit(IperfTCP);
         tcp_mem_user->setObjectName(QStringLiteral("tcp_mem_user"));
         tcp_mem_user->setGeometry(QRect(130, 90, 201, 20));
-        tcp_mem_user->setMaxLength(50);
+        tcp_mem_user->setMaxLength(200);
         label_3 = new QLabel(IperfTCP);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(130, 70, 201, 16));
@@ -273,7 +273,7 @@ public:
         error_rate->setGeometry(QRect(280, 210, 71, 22));
         error_rate->setDecimals(3);
         error_rate->setSingleStep(0.001);
-        error_rate->setValue(0.01);
+        error_rate->setValue(0.001);
         delay = new QSpinBox(groupBox);
         delay->setObjectName(QStringLiteral("delay"));
         delay->setGeometry(QRect(390, 210, 81, 22));
@@ -385,7 +385,7 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
         error_model->setCurrentIndex(0);
 
 

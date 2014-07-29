@@ -17,6 +17,7 @@
 #include <QTextStream>
 #include <QXmlStreamReader>
 #include <QDesktopServices>
+#include <QDateTime>
 
 QString TypeOfConnection = "";
 QString ModeOperation = " --ModeOperation=true";
@@ -134,6 +135,12 @@ void kupagui::on_button_generate_command_clicked()
     }else{
         error_model=" --ErrorModel=2"; //burst error model
     }
+
+    int min, def, max;
+    std::size_t first, second;
+    first=0;second=0;
+    string mem_user, mem_server;
+
 /* -----------------------for iperf tcp--------------------------- */
     if (ui->tabWidget->currentIndex()==0){
         TypeOfConnection =" --TypeOfConnection=p";
@@ -141,10 +148,34 @@ void kupagui::on_button_generate_command_clicked()
             ModeOperation = " --ModeOperation=false";
         }
         if (ui->tcp_mem_user->displayText().isEmpty() == false){
-        tcp_mem_user = " --tcp_mem_user="+ui->tcp_mem_user->text();
+        mem_user = ui->tcp_mem_user->text ().toUtf8 ().constData ();
+        mem_user = RemoveComma (mem_user);
+
+        first = mem_user.find(' ');
+          if (first!=std::string::npos){
+            min=atoi(mem_user.substr (0,first).c_str ());
+            }
+        second = mem_user.find(' ', first+2);
+          if (second!=std::string::npos){
+            def=atoi(mem_user.substr (first, second-first).c_str ());
+            max= atoi(mem_user.substr (second).c_str ());
+            }
+        tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
             }
         if (ui->tcp_mem_server->displayText().isEmpty() == false){
-        tcp_mem_server = " --tcp_mem_server="+ui->tcp_mem_server->text();
+            mem_server = ui->tcp_mem_server->text ().toUtf8 ().constData ();
+            mem_server = RemoveComma (mem_server);
+
+            first = mem_server.find(' ');
+              if (first!=std::string::npos){
+                min=atoi(mem_server.substr (0,first).c_str ());
+                }
+            second = mem_server.find(' ', first+2);
+              if (second!=std::string::npos){
+                def=atoi(mem_server.substr (first, second-first).c_str ());
+                max= atoi(mem_server.substr (second).c_str ());
+                }
+            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
             }
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
@@ -157,6 +188,7 @@ void kupagui::on_button_generate_command_clicked()
         if (ui->tcp_upload_2->isChecked()==true){
             ModeOperation = " --ModeOperation=false";
         }
+
         udp_bw=" --udp_bw="+ui->udp_bw->text();
         SimuTime =" --SimuTime="+ui->iperf_time_2->text();
         FinalCommand = TypeOfConnection + ModeOperation + udp_bw;
@@ -166,12 +198,38 @@ void kupagui::on_button_generate_command_clicked()
 /* -----------------------for wget-thttpd--------------------------- */
     else if(ui->tabWidget->currentIndex()==2){
         TypeOfConnection =" --TypeOfConnection=w";
-        if (ui->tcp_mem_user->displayText().isEmpty() == false){
-        tcp_mem_user = " --tcp_mem_user="+ui->tcp_mem_user_2->text();
+
+        if (ui->tcp_mem_user_2->displayText().isEmpty() == false){
+        mem_user = ui->tcp_mem_user_2->text ().toUtf8 ().constData ();
+        mem_user = RemoveComma (mem_user);
+
+        first = mem_user.find(' ');
+          if (first!=std::string::npos){
+            min=atoi(mem_user.substr (0,first).c_str ());
             }
-        if (ui->tcp_mem_server->displayText().isEmpty() == false){
-        tcp_mem_server = " --tcp_mem_server="+ui->tcp_mem_server_2->text();
+        second = mem_user.find(' ', first+2);
+          if (second!=std::string::npos){
+            def=atoi(mem_user.substr (first, second-first).c_str ());
+            max= atoi(mem_user.substr (second).c_str ());
             }
+        tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+            }
+        if (ui->tcp_mem_server_2->displayText().isEmpty() == false){
+            mem_server = ui->tcp_mem_server_2->text ().toUtf8 ().constData ();
+            mem_server = RemoveComma (mem_server);
+
+            first = mem_server.find(' ');
+              if (first!=std::string::npos){
+                min=atoi(mem_server.substr (0,first).c_str ());
+                }
+            second = mem_user.find(' ', first+2);
+              if (second!=std::string::npos){
+                def=atoi(mem_server.substr (first, second-first).c_str ());
+                max= atoi(mem_server.substr (second).c_str ());
+                }
+            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+            }
+
         tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
         FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
@@ -196,7 +254,7 @@ void kupagui::on_button_generate_command_clicked()
 
             /*this one will not work and never will. because it create new shell inside a shell.
             the command after waf shell will not be axecuted, it's considered on different shell environment.*/
-            myfile << "./waf shell \n";
+            //myfile << "./waf shell \n";
             myfile << "./build/myscripts/kupakupa/bin/kupakupa "+theCommand+"\n";
 
             //myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
@@ -236,7 +294,7 @@ void kupagui::on_button_run_clicked()
     qstr = QString::fromStdString (n);
     //remove previous output
     system("rm -f ./stdout-kupa.txt");
-      statusBar()->showMessage(tr("simulation is done"));
+    statusBar()->showMessage(tr("simulation is done"));
     if (n[1]=='1' or n[1]=='2'){
         GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
         ui->output_result->append(qstr);
@@ -503,6 +561,13 @@ void kupagui::on_button_getResult_clicked()
   //n = n[5];
   string n = GetStdoutFromCommand ("tail -n 1 ./stdout-kupa.txt");
   QString q  = QString::fromStdString (n);
+  QFile file("out.txt");
+  file.open(QIODevice::ReadWrite | QIODevice::Append |QIODevice::Text);
+  QTextStream out(&file);
+
+  //get time log
+  QDateTime now = QDateTime::currentDateTime();
+
     if (resultNumber==1){
         ui->output_result->toPlainText ();
         ui->output_result->setText ("the last command run is tcp connection\n and the last line outputfile is "+q+"\n");
@@ -513,19 +578,24 @@ void kupagui::on_button_getResult_clicked()
         QString tp = QString::number (tcp_tp);
         ui->output_result->append ("throughput is");
         ui->output_result->append (tp);
+        out << now.toString ()+ "\t"+tp + "\t";
         if (n[n.find ("Bytes")-1] =='K'){
             ui->output_result->append ("KBps");
+            out << "KBps \t";
           }
         else if (n[n.find ("Bytes")-1] =='M'){
             ui->output_result->append ("MBps");
+            out << "MBps \t";
           }
         else if (n[n.find ("Bytes")-1]=='G'){
             ui->output_result->append ("GBps");
+            out << "GBps \t";
           }
         else{
             ui->output_result->append ("Bps");
+            out << "Bps \t";
           }
-
+        out << ui->error_rate->text ()+"\n";
       }
     else if (resultNumber==2){
         ui->output_result->toPlainText ();
@@ -539,6 +609,7 @@ void kupagui::on_button_getResult_clicked()
         QString jitter = QString::number (udp_data);
         ui->output_result->append ("measured jitter is");
         ui->output_result->append (jitter);
+        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->tetha_value->text ()+"\t"+ui->k_value->text ()+"\n";
         ui->output_result->append ("ms");
       }
     else if (resultNumber==3){
@@ -548,35 +619,43 @@ void kupagui::on_button_getResult_clicked()
         double http_data = findDataHttp (n);
         double http_speed = findSpeedHttp (n);
         double http_time = http_data/http_speed;
+
         if (n[n.find('s')-3]=='K'){
             http_time = http_time/1000;
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            out << now.toString () + "\t"+ht + "\t";
           }
         else if (n[n.find('s')-3]=='M'){
             http_time = http_time/1000000;
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+
+            out << now.toString () + "\t"+ht + "\t";
           }
         else if (n[n.find('s')-3]=='G'){
             http_time = http_time/1000000000;
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            out << now.toString () + "\t"+ht + "\t";
           }
         else {
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            out << now.toString () + "\t"+ht + "\t";
           }
         ui->output_result->append ("ms");
+        out << "ms \t" + ui->error_rate->text ()+"\n";
       }
     else {
         ui->output_result->toPlainText ();
         ui->output_result->setText ("this is unknown connection. Please run the generated command first!!");
       }
+    file.close();
     statusBar()->showMessage(tr("result loaded"));
 }
 

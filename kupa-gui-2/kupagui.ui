@@ -45,7 +45,7 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;set up your iper or http connection here&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="IperfTCP">
       <attribute name="title">
@@ -143,7 +143,7 @@
         <string>4096 8192 8388608</string>
        </property>
        <property name="maxLength">
-        <number>50</number>
+        <number>200</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_2">
@@ -178,7 +178,7 @@
         <string>4096 8192 8388608</string>
        </property>
        <property name="maxLength">
-        <number>50</number>
+        <number>200</number>
        </property>
       </widget>
       <widget class="QLabel" name="label_3">
@@ -713,7 +713,7 @@
       <double>0.001000000000000</double>
      </property>
      <property name="value">
-      <double>0.010000000000000</double>
+      <double>0.001000000000000</double>
      </property>
     </widget>
     <widget class="QSpinBox" name="delay">
