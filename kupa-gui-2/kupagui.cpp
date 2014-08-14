@@ -687,7 +687,7 @@ void kupagui::on_actionSave_Result_triggered()
 void kupagui::on_actionEdit_XML_triggered()
 {
   dce_source = ui->dce_source->text ().toUtf8 ().constData ();
-  GetStdoutFromCommand ("gedit "+dce_source+"inputDCE.xml");
+  GetStdoutFromCommand ("gedit "+dce_source+"/inputDCE.xml");
   statusBar()->showMessage(tr("opening external program to edit XML"));
 }
 
