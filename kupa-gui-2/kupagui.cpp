@@ -222,7 +222,7 @@ void kupagui::on_button_generate_command_clicked()
               if (first!=std::string::npos){
                 min=atoi(mem_server.substr (0,first).c_str ());
                 }
-            second = mem_user.find(' ', first+2);
+            second = mem_server.find(' ', first+2);
               if (second!=std::string::npos){
                 def=atoi(mem_server.substr (first, second-first).c_str ());
                 max= atoi(mem_server.substr (second).c_str ());

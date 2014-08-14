@@ -96,20 +96,20 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-      	      double errRate = 0.01;
-std::string tcp_cc = "reno";
-std::string tcp_mem_user = "4096 8192 8388608";
-std::string tcp_mem_server = "4096 8192 8388608";
-
-std::string udp_bw="1";
-std::string delay = "2ms";
-std::string user_bw = "150Mbps";
-std::string server_bw = "10Gbps";
-
-int jitter =1;
-double alpha = 0.3;
-double k = 100;
-double tetha = 2;
+      	double errRate = 0.01;
+	std::string tcp_cc = "reno";
+	std::string tcp_mem_user = "4096 8192 8388608";
+	std::string tcp_mem_server = "4096 8192 8388608";
+	
+	std::string udp_bw="1";
+	std::string delay = "2ms";
+	std::string user_bw = "150Mbps";
+	std::string server_bw = "10Gbps";
+	
+	int jitter =1;
+	double alpha = 0.3;
+	double k = 100;
+	double tetha = 2;
 
        int ErrorModel = 1;
        int SimuTime = 20;
@@ -178,14 +178,7 @@ double tetha = 2;
     	     
      
      
-    std::string IperfTime = IntToString(SimuTime);
-    
-if (TypeOfConnection=='w')
-{
-    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
-    mkdir ("files-2",0744);
-    GenerateHtmlFile(htmlSize);
-}
+  
 
 // topologies
     std::cout << "building topologies.." << std::endl;
@@ -213,7 +206,27 @@ if (TypeOfConnection=='w')
 	//assume coma has been removed
 	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
 	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
+	
+	
+	if (TypeOfConnection=='w')
+	{
+	    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
+	    mkdir ("files-2",0744);
+	    GenerateHtmlFile(htmlSize);
+	    SimuTime=100;
+	    if (htmlSize*1000 > atoi(tcp_mem_user_max.c_str())){
+	    std::cout << "masuk" << std::endl;
+		double tmp2=atof(tcp_mem_user_max.c_str())/(htmlSize*1000);
+		double SimuTimeTmp = (htmlSize*10)/(tmp2)*1.5*(htmlSize/tmp2);
+		SimuTime=(int)SimuTimeTmp;
 
+	    }
+
+	}		
+	std::string IperfTime = IntToString(SimuTime);		
+	
+	
+	
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
     stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server);
@@ -231,7 +244,10 @@ if (TypeOfConnection=='w')
     //silently exit
     return 0;
 #endif
-	
+
+
+
+
     std::cout << "setting link.." << std::endl;
 // channel for user to BS
 	NS_LOG_INFO ("Create channels.");
