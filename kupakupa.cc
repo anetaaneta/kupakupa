@@ -70,7 +70,7 @@ for (i=0; i<3; i++)
 	{
 	str2 = str.replace(str.find(','),1," ");
 	} else {
-	std::cout<<"no comma found.."<< std::endl;
+	std::cout<<"no comma found.."<<std::endl;
 	}
 }
 return str2;
@@ -96,23 +96,25 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-      	double errRate = 0.01;
+	double errRate = 0.01;
 	std::string tcp_cc = "reno";
 	std::string tcp_mem_user = "4096 8192 8388608";
 	std::string tcp_mem_server = "4096 8192 8388608";
-	
+
 	std::string udp_bw="1";
 	std::string delay = "2ms";
 	std::string user_bw = "150Mbps";
 	std::string server_bw = "10Gbps";
-	
+
 	int jitter =1;
 	double alpha = 0.3;
 	double k = 100;
-	double tetha = 2;
-
+	double theta = 2;
+	int monitor = 1;
+	int mode = 0;
+	
        int ErrorModel = 1;
-       int SimuTime = 20;
+       int SimuTime = 50;
        int htmlSize = 2; // in mega bytes
        char TypeOfConnection = 'p'; // iperf tcp connection
        bool ModeOperation = true;
@@ -121,7 +123,7 @@ int main (int argc, char *argv[])
       	/*
 	unsigned int chan_jitter = 1;
 	double chan_alpha = 0.3;
-	double chan_tetha = 2;
+   	double chan_theta = 2;
 	double chan_k = 5;
         */
       CommandLine cmd;
@@ -144,7 +146,7 @@ int main (int argc, char *argv[])
 
 	cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
 	cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
-	cmd.AddValue ("chan_tetha", "tetha for random distribution in server-BS conection", tetha);
+    cmd.AddValue ("chan_theta", "theta for random distribution in server-BS conection", theta);
 	cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", k);
 	
      cmd.Parse (argc, argv);     
@@ -154,7 +156,7 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-	parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,ModeOperation,errRate,jitter,alpha,k,tetha, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,ModeOperation,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
 	}
       
 
@@ -178,7 +180,9 @@ int main (int argc, char *argv[])
     	     
      
      
-  
+    
+    
+
 
 // topologies
     std::cout << "building topologies.." << std::endl;
@@ -207,7 +211,6 @@ int main (int argc, char *argv[])
 	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
 	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
 	
-	
 	if (TypeOfConnection=='w')
 	{
 	    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
@@ -215,18 +218,16 @@ int main (int argc, char *argv[])
 	    GenerateHtmlFile(htmlSize);
 	    SimuTime=100;
 	    if (htmlSize*1000 > atoi(tcp_mem_user_max.c_str())){
-	    std::cout << "masuk" << std::endl;
+	    
 		double tmp2=atof(tcp_mem_user_max.c_str())/(htmlSize*1000);
 		double SimuTimeTmp = (htmlSize*10)/(tmp2)*1.5*(htmlSize/tmp2);
 		SimuTime=(int)SimuTimeTmp;
 
 	    }
 
-	}		
-	std::string IperfTime = IntToString(SimuTime);		
-	
-	
-	
+	}	
+	std::string IperfTime = IntToString(SimuTime);	
+    
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
     stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server);
@@ -244,16 +245,23 @@ int main (int argc, char *argv[])
     //silently exit
     return 0;
 #endif
-
-
-
-
+	
     std::cout << "setting link.." << std::endl;
+
+if (ModeOperation) {
+	int mode = 0;
+}
+if (!ModeOperation) {
+	int mode = 1;
+}
+
 // channel for user to BS
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
+	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
+	p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
 //channel for server to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
@@ -261,8 +269,9 @@ p2p.SetChannelAttribute ("Delay", StringValue (delay));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (jitter));
 p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
 p2p.SetChannelAttribute ("k", DoubleValue (k));
-p2p.SetChannelAttribute ("tetha", DoubleValue (tetha));
-
+p2p.SetChannelAttribute ("theta", DoubleValue (theta));
+p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
+p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
 NetDeviceContainer d1d2 = p2p.Install (n1n2);
 //error model options
 
@@ -447,20 +456,22 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
              SerApps0.Start (Seconds (1));
              SerApps0.Stop (Seconds (EndTime));
 
-            // Launch iperf client on node 2
+            // Launch iperf client on node 2           
             dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-u");
-            dce.AddArgument ("-i");
-            dce.AddArgument ("1");
-            dce.AddArgument ("-b");
-            dce.AddArgument (udp_bw+"m");
-            dce.AddArgument ("--time");
-            dce.AddArgument (IperfTime);
-            ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
-            ClientApps0.Start (Seconds (1));
-            ClientApps0.Stop (Seconds (EndTime));
+       	    dce.ResetArguments ();
+       	    dce.ResetEnvironment ();
+       	    dce.AddArgument ("-c");
+       	    dce.AddArgument ("10.1.2.2");
+       	    dce.AddArgument ("-u");
+       	    dce.AddArgument ("-i");
+       	    dce.AddArgument ("1");
+       	    dce.AddArgument ("-b");
+       	    dce.AddArgument (udp_bw+"m");
+       	    dce.AddArgument ("--time");
+       	    dce.AddArgument (IperfTime);
+       	    ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
+       	    ClientApps0.Start (Seconds (1));
+       	    ClientApps0.Stop (Seconds (EndTime));
                         }
       }
       break;
@@ -561,5 +572,4 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
   return 0;
 }
-
 
