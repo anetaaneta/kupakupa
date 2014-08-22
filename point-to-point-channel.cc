@@ -169,7 +169,7 @@ PointToPointChannel::TransmitStart (
 				        lastReceive.open ("lastReceive.txt");
 				        lastReceive << m_lastRecFlow.GetNanoSeconds();
 				        lastReceive.close();
-				        m_sumPacketFlow+=packetSize;
+				        m_sumPacketFlow+=packetSize-2;
 				        std::ofstream recTotal;
 				        recTotal.open ("recTotal.txt");
 				        recTotal << m_sumPacketFlow;
@@ -229,7 +229,7 @@ PointToPointChannel::TransmitStart (
 				        lastReceive.open ("lastReceive.txt");
 				        lastReceive << m_lastRecFlow.GetNanoSeconds();
 				        lastReceive.close();
-				        m_sumPacketFlow+=packetSize;
+				        m_sumPacketFlow+=packetSize-2;
 				        std::ofstream recTotal;
 				        recTotal.open ("recTotal.txt");
 				        recTotal << m_sumPacketFlow;
