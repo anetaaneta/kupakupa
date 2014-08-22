@@ -132,13 +132,20 @@ private:
   int16_t       m_jitter;
   double        m_alpha;
   double        m_k;
-  double        m_tetha;
+  double        m_theta;
+  int16_t	m_monitor;
+  int16_t	m_mode;
   Time		m_prevRcvTime;
   Time		m_prevRcvTime1;
   Time		m_prevRcvTime2;
   double        m_previousDelay;
   double        m_previousDelay1;
   double        m_previousDelay2;
+  int32_t       m_sumPacketFlow;
+  int16_t	m_noPacketFlow;
+  Time		m_firstRecFlow;
+  Time		m_lastRecFlow;
+  
 
 
 
