@@ -53,10 +53,19 @@ PointToPointChannel::GetTypeId (void)
                    DoubleValue (5.0),
                    MakeDoubleAccessor (&PointToPointChannel::m_k),
                    MakeDoubleChecker<int64_t>())
-	.AddAttribute ("tetha", "Set gamma distribution tetha value",
+        .AddAttribute ("theta", "Set gamma distribution theta value",
                    DoubleValue (2.0),
-                   MakeDoubleAccessor (&PointToPointChannel::m_tetha),
-                   MakeDoubleChecker<int64_t>())				   
+                   MakeDoubleAccessor (&PointToPointChannel::m_theta),
+                   MakeDoubleChecker<int64_t>())
+         .AddAttribute ("monitor", "download or upload mode, 0 set mode to download",
+                   UintegerValue (0),
+                   MakeUintegerAccessor (&PointToPointChannel::m_monitor),
+                   MakeUintegerChecker<uint16_t> ())		
+         .AddAttribute ("mode", "download or upload mode, 0 set mode to download",
+                   UintegerValue (0),
+                   MakeUintegerAccessor (&PointToPointChannel::m_mode),
+                   MakeUintegerChecker<uint16_t> ())
+                   				   
     .AddTraceSource ("TxRxPointToPoint",
                      "Trace source indicating transmission of packet from the PointToPointChannel, used by the Animation interface.",
                      MakeTraceSourceAccessor (&PointToPointChannel::m_txrxPointToPoint))
@@ -72,16 +81,22 @@ PointToPointChannel::PointToPointChannel()
     Channel (),
     m_delay (Seconds (0.)),
     m_nDevices (0),
-	m_jitter (0),
-	m_alpha (0.4),
-	m_k (5.0),
-	m_tetha (2.0),
-	m_prevRcvTime(Seconds (0.)),
-	m_prevRcvTime1(Seconds (0.)),
-	m_prevRcvTime2(Seconds (0.)),
-	m_previousDelay (0),
-	m_previousDelay1 (0),
-	m_previousDelay2 (0)
+    m_jitter (0),
+    m_alpha (0.4),
+    m_k (5.0),
+    m_theta (2.0),
+    m_monitor (0),
+    m_mode (0),
+    m_prevRcvTime(Seconds (0.)),
+    m_prevRcvTime1(Seconds (0.)),
+    m_prevRcvTime2(Seconds (0.)),
+    m_previousDelay (0),
+    m_previousDelay1 (0),
+    m_previousDelay2 (0),
+    m_sumPacketFlow (0),
+    m_noPacketFlow (0),
+    m_firstRecFlow (Seconds (0.)),
+    m_lastRecFlow (Seconds (0.))
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -123,60 +138,141 @@ PointToPointChannel::TransmitStart (
   if (m_jitter==0)
   {
 
-  Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
-                                  txTime+m_delay, &PointToPointNetDevice::Receive,
-                                  m_link[wire].m_dst, p);
+          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                          txTime+m_delay, &PointToPointNetDevice::Receive,
+                                          m_link[wire].m_dst, p);
+                                          
+          // collect througput data
+          if (m_monitor==1) {
+                  if (m_mode==1){
+		          if (wire==0){
+			        int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_noPacketFlow+=1;
+				        if (m_noPacketFlow==1) {
+					        m_firstRecFlow=Simulator::Now();
+					        std::ofstream firstSend;
+					        firstSend.open ("firstSend.txt");
+					        firstSend << m_firstRecFlow.GetNanoSeconds();
+					        firstSend.close();
+				         } 
+		           }
+		         }
+	          }
+
+	          if (m_mode==0){
+		          if (wire==1){
+			        int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_lastRecFlow=Simulator::Now()+txTime+m_delay;
+				        std::ofstream lastReceive;
+				        lastReceive.open ("lastReceive.txt");
+				        lastReceive << m_lastRecFlow.GetNanoSeconds();
+				        lastReceive.close();
+				        m_sumPacketFlow+=packetSize;
+				        std::ofstream recTotal;
+				        recTotal.open ("recTotal.txt");
+				        recTotal << m_sumPacketFlow;
+				        recTotal.close();
+			        }
+		          }
+	         }
+	 } 
   
-  // Call the tx anim callback on the net device
-  m_txrxPointToPoint (p, src, m_link[wire].m_dst, txTime, txTime+m_delay);
+          
+          // Call the tx anim callback on the net device
+          m_txrxPointToPoint (p, src, m_link[wire].m_dst, txTime, txTime+m_delay);
   }
   else
   {
-  //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
-  m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
-  m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
+          //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+          m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
+          m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
 
-  
-  double prevDelay =(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
-  double cur_delay = (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
-  
-  //std::cout <<"  current delay = "<< Time(cur_delay).GetMilliSeconds() << std::endl;
-  
-  Time rcvTime = Simulator::Now()+ Time(cur_delay);
+          
+          double prevDelay =(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
+          double cur_delay = (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
+          
+          //std::cout <<"  current delay = "<< Time(cur_delay).GetMilliSeconds() << std::endl;
+          
+          Time rcvTime = Simulator::Now()+ Time(cur_delay);
 
-  // preveting reordering
-  if (rcvTime < m_prevRcvTime )
-  {
-          /*  
-          std::cout <<" reorder prev = "<< m_prevRcvTime.GetSeconds()<<" current = "<<rcvTime.GetSeconds()<< std::endl;
-          std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
-          std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
-          */
-          rcvTime= m_prevRcvTime;
-          //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
-          cur_delay=(rcvTime-Simulator::Now()).GetDouble();
-  }
+          // preveting reordering
+          if (rcvTime < m_prevRcvTime )
+          {
+                  /*  
+                  std::cout <<" reorder prev = "<< m_prevRcvTime.GetSeconds()<<" current = "<<rcvTime.GetSeconds()<< std::endl;
+                  std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
+                  std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
+                  */
+                  rcvTime= m_prevRcvTime;
+                  //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
+                  cur_delay=(rcvTime-Simulator::Now()).GetDouble();
+          }
 
 
 
-  
-  Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
-                                  Time(cur_delay), &PointToPointNetDevice::Receive,
-                                  m_link[wire].m_dst, p);
-  // Call the tx anim callback on the net device
-  m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0),Time(cur_delay));
-  
-  //std::cout <<"  received time = "<< rcvTime.GetSeconds()<< std::endl;
-  
-  // store previous delay
-  if (wire==0) {
-	m_previousDelay1=cur_delay;
-	m_prevRcvTime1 = rcvTime;
-  }
-    if (wire==1) {
-	m_previousDelay2=cur_delay;
-	m_prevRcvTime2 = rcvTime;
-  }
+          
+          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                          Time(cur_delay), &PointToPointNetDevice::Receive,
+                                          m_link[wire].m_dst, p);
+          
+          
+          // collect througput data
+          if (m_monitor==1) {
+                  if (m_mode==1){
+		          if (wire==0){
+			        int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_lastRecFlow=Simulator::Now()+Time(cur_delay);
+				        std::ofstream lastReceive;
+				        lastReceive.open ("lastReceive.txt");
+				        lastReceive << m_lastRecFlow.GetNanoSeconds();
+				        lastReceive.close();
+				        m_sumPacketFlow+=packetSize;
+				        std::ofstream recTotal;
+				        recTotal.open ("recTotal.txt");
+				        recTotal << m_sumPacketFlow;
+				        recTotal.close();
+			        }
+		          }
+	          }
+
+	          if (m_mode==0){
+		          if (wire==1){
+			        int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_noPacketFlow+=1;
+				        if (m_noPacketFlow==1) {
+					        m_firstRecFlow=Simulator::Now();
+					        std::ofstream firstSend;
+					        firstSend.open ("firstSend.txt");
+					        firstSend << m_firstRecFlow.GetNanoSeconds();
+					        firstSend.close();
+				         } 
+			        }
+		          }
+	        }
+	} 
+          
+          
+          
+          // Call the tx anim callback on the net device
+          m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0),Time(cur_delay));
+          
+          //std::cout <<"  received time = "<< rcvTime.GetSeconds()<< std::endl;
+          
+          // store previous delay
+          if (wire==0) {
+	        m_previousDelay1=cur_delay;
+	        m_prevRcvTime1 = rcvTime;
+	        
+          }
+            if (wire==1) {
+	        m_previousDelay2=cur_delay;
+	        m_prevRcvTime2 = rcvTime;
+	        
+          }
 
   }
   return true;
@@ -239,7 +335,7 @@ PointToPointChannel::GammaRandomValue()
 
   Ptr<GammaRandomVariable> x = CreateObject<GammaRandomVariable> ();
   x->SetAttribute ("Alpha", DoubleValue (m_k));
-  x->SetAttribute ("Beta", DoubleValue (m_tetha));
+  x->SetAttribute ("Beta", DoubleValue (m_theta));
   // The expected value for the mean of the values returned by a
   // gammaly distributed random variable is equal to
   //
