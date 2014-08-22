@@ -793,7 +793,7 @@
       <double>0.300000000000000</double>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="tetha_value">
+    <widget class="QDoubleSpinBox" name="theta_value">
      <property name="geometry">
       <rect>
        <x>330</x>
@@ -828,19 +828,6 @@
       <double>10.000000000000000</double>
      </property>
     </widget>
-    <widget class="QCheckBox" name="jitter_check">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>260</y>
-       <width>61</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>jitter</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_20">
      <property name="geometry">
       <rect>
@@ -864,7 +851,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>tetha</string>
+      <string>theta</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_22">
@@ -878,6 +865,19 @@
      </property>
      <property name="text">
       <string>k</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>260</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Jitter</string>
      </property>
     </widget>
    </widget>

@@ -158,11 +158,11 @@ void kupagui::on_button_generate_command_clicked()
 
     dce_source = ui->dce_source->text ().toUtf8 ().constData ();
 
-    if (ui->jitter_check->isChecked ()==true){
+    //if (ui->jitter_check->isChecked ()==true){
         chan_jitter=" --chan_jitter=1";
-      }else{
+      /*}else{
         chan_jitter=" --chan_jitter=0";
-      }
+      }*/
 
     QString chan_alpha=" --chan_alpha="+ui->alpha_value->text();
     QString chan_theta=" --chan_theta="+ui->theta_value->text ();
@@ -481,11 +481,11 @@ void kupagui::on_actionLoad_Command_triggered()
                           string jitterTmp = elem->Attribute("jitter");
                           if (jitterTmp=="false"){
                           //jitter=0;
-                          ui->jitter_check->setChecked (false);
+                          //ui->jitter_check->setChecked (false);
                           }
                   else{
                           //jitter=1;
-                          ui->jitter_check->setChecked (true);
+                          //ui->jitter_check->setChecked (true);
                           }
                           string alphaTmp = elem->Attribute("alpha");
                           double alpha=atof(alphaTmp.c_str());
@@ -821,7 +821,7 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
 
   xmlWriter.writeStartElement("JitterParam");
-  xmlWriter.writeAttribute("jitter",ui->jitter_check->isChecked ()?"true":"false");
+  xmlWriter.writeAttribute("jitter", "true");
   xmlWriter.writeAttribute("alpha",ui->alpha_value->text ());
   xmlWriter.writeAttribute("k",ui->k_value->text ());
   xmlWriter.writeAttribute("theta",ui->theta_value->text ());

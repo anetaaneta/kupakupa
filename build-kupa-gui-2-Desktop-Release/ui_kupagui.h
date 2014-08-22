@@ -13,7 +13,6 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QGroupBox>
@@ -91,12 +90,12 @@ public:
     QLabel *label_10;
     QLabel *label_11;
     QDoubleSpinBox *alpha_value;
-    QDoubleSpinBox *tetha_value;
+    QDoubleSpinBox *theta_value;
     QDoubleSpinBox *k_value;
-    QCheckBox *jitter_check;
     QLabel *label_20;
     QLabel *label_21;
     QLabel *label_22;
+    QLabel *label_15;
     QPushButton *button_generate_command;
     QLineEdit *final_command;
     QTextEdit *output_result;
@@ -295,20 +294,17 @@ public:
         alpha_value->setMaximum(1);
         alpha_value->setSingleStep(0.001);
         alpha_value->setValue(0.3);
-        tetha_value = new QDoubleSpinBox(groupBox);
-        tetha_value->setObjectName(QStringLiteral("tetha_value"));
-        tetha_value->setGeometry(QRect(330, 260, 69, 27));
-        tetha_value->setDecimals(1);
-        tetha_value->setSingleStep(0.5);
-        tetha_value->setValue(1);
+        theta_value = new QDoubleSpinBox(groupBox);
+        theta_value->setObjectName(QStringLiteral("theta_value"));
+        theta_value->setGeometry(QRect(330, 260, 69, 27));
+        theta_value->setDecimals(1);
+        theta_value->setSingleStep(0.5);
+        theta_value->setValue(1);
         k_value = new QDoubleSpinBox(groupBox);
         k_value->setObjectName(QStringLiteral("k_value"));
         k_value->setGeometry(QRect(400, 260, 69, 27));
         k_value->setMaximum(999);
         k_value->setValue(10);
-        jitter_check = new QCheckBox(groupBox);
-        jitter_check->setObjectName(QStringLiteral("jitter_check"));
-        jitter_check->setGeometry(QRect(190, 260, 61, 22));
         label_20 = new QLabel(groupBox);
         label_20->setObjectName(QStringLiteral("label_20"));
         label_20->setGeometry(QRect(260, 240, 51, 17));
@@ -318,6 +314,9 @@ public:
         label_22 = new QLabel(groupBox);
         label_22->setObjectName(QStringLiteral("label_22"));
         label_22->setGeometry(QRect(400, 240, 67, 17));
+        label_15 = new QLabel(groupBox);
+        label_15->setObjectName(QStringLiteral("label_15"));
+        label_15->setGeometry(QRect(180, 260, 67, 17));
         button_generate_command = new QPushButton(centralWidget);
         button_generate_command->setObjectName(QStringLiteral("button_generate_command"));
         button_generate_command->setGeometry(QRect(10, 300, 161, 41));
@@ -524,10 +523,10 @@ public:
         label_9->setText(QApplication::translate("kupagui", "Error Model", 0));
         label_10->setText(QApplication::translate("kupagui", "Error Rate", 0));
         label_11->setText(QApplication::translate("kupagui", "Delay (ms)", 0));
-        jitter_check->setText(QApplication::translate("kupagui", "jitter", 0));
         label_20->setText(QApplication::translate("kupagui", "alpha", 0));
-        label_21->setText(QApplication::translate("kupagui", "tetha", 0));
+        label_21->setText(QApplication::translate("kupagui", "theta", 0));
         label_22->setText(QApplication::translate("kupagui", "k", 0));
+        label_15->setText(QApplication::translate("kupagui", "Jitter", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
         final_command->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>the command will be generated in this area, as well as the .sh file on source folder</p></body></html>", 0));
