@@ -102,6 +102,44 @@ double kupagui::findDataUdp(string s){
      return k;
  }
 
+void kupagui::printCalcThroughPut(double throughput){
+    if (throughput < 0.1)
+    {
+        throughput=throughput*1000; // in Byte/Sec
+        QString calTp = QString::number (throughput);
+        ui->output_result->append ("\n Calculated throughput is ");
+        ui->output_result->append (calTp);
+        ui->output_result->append (" Bps");
+    }
+    if (throughput <= 100)
+    {
+        QString calTp = QString::number (throughput);
+        ui->output_result->append ("\n Calculated throughput is ");
+        ui->output_result->append (calTp);
+        ui->output_result->append (" kBps");
+    }
+
+    if (throughput > 100)
+    {
+        throughput=throughput/1000; // in MByte/Sec
+        QString calTp = QString::number (throughput);
+        ui->output_result->append ("\n Calculated throughput is ");
+        ui->output_result->append (calTp);
+        ui->output_result->append (" MBps");
+    }
+
+    if (throughput > 100000)
+    {
+        throughput=throughput/1000000; // in GByte/Sec
+
+        QString calTp = QString::number (throughput);
+        ui->output_result->append ("\n Calculated throughput is ");
+        ui->output_result->append (calTp);
+        ui->output_result->append (" GBps");
+    }
+
+}
+
 
 void kupagui::on_button_generate_command_clicked()
 {
@@ -127,7 +165,7 @@ void kupagui::on_button_generate_command_clicked()
       }
 
     QString chan_alpha=" --chan_alpha="+ui->alpha_value->text();
-    QString chan_tetha=" --chan_tetha="+ui->tetha_value->text ();
+    QString chan_theta=" --chan_theta="+ui->theta_value->text ();
     QString chan_k=" --chan_k="+ui->k_value->text ();
     //QString error_model="";
     if (ui->error_model->currentIndex()==0){
@@ -207,7 +245,7 @@ void kupagui::on_button_generate_command_clicked()
           if (first!=std::string::npos){
             min=atoi(mem_user.substr (0,first).c_str ());
             }
-        second = mem_user.find(' ', first+2);
+        second = mem_user.find(' ', first+1);
           if (second!=std::string::npos){
             def=atoi(mem_user.substr (first, second-first).c_str ());
             max= atoi(mem_user.substr (second).c_str ());
@@ -222,7 +260,7 @@ void kupagui::on_button_generate_command_clicked()
               if (first!=std::string::npos){
                 min=atoi(mem_server.substr (0,first).c_str ());
                 }
-            second = mem_server.find(' ', first+2);
+            second = mem_server.find(' ', first+1);
               if (second!=std::string::npos){
                 def=atoi(mem_server.substr (first, second-first).c_str ());
                 max= atoi(mem_server.substr (second).c_str ());
@@ -236,11 +274,12 @@ void kupagui::on_button_generate_command_clicked()
         resultNumber=3;
     }
 //concatenates all commands
-    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_k + chan_tetha + chan_jitter;
+    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_k + chan_theta + chan_jitter;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
     theCommand = FinalCommand.toUtf8 ().constData ();
 //create new shell file
+    dce_source = ui->dce_source->text ().toUtf8 ().constData ();
     FILE * pFile;
     pFile = fopen ("shell-kupakupa.sh", "w");
        if (pFile != NULL){
@@ -250,16 +289,16 @@ void kupagui::on_button_generate_command_clicked()
             myfile <<"#"<<resultNumber<<"\n";
             myfile << "export KUPA_HOME=`pwd` \n";
 
-            myfile << "cd "+dce_source+" \n";
+            //myfile << "cd "+dce_source+" \n";
 
             /*this one will not work and never will. because it create new shell inside a shell.
             the command after waf shell will not be axecuted, it's considered on different shell environment.*/
             //myfile << "./waf shell \n";
-            myfile << "./build/myscripts/kupakupa/bin/kupakupa "+theCommand+"\n";
+            myfile <<dce_source<<"/build/myscripts/kupakupa/bin/kupakupa "+theCommand+"\n";
 
             //myfile <<"./waf --run \"kupakupa "<< theCommand <<"\"\n";
             //back to current folder
-            myfile << "cd $KUPA_HOME";
+            //myfile << "cd $KUPA_HOME";
             myfile.close();
             fclose (pFile);
             system("chmod +x shell-kupakupa.sh");
@@ -456,9 +495,9 @@ void kupagui::on_actionLoad_Command_triggered()
                           double k=atof(kTmp.c_str());
                           ui->k_value->setValue (k);
 
-                          string tethaTmp = elem->Attribute("tetha");
-                          double tetha=atof(tethaTmp.c_str());
-                          ui->tetha_value->setValue (tetha);
+                          string thetaTmp = elem->Attribute("theta");
+                          double theta=atof(thetaTmp.c_str());
+                          ui->theta_value->setValue (theta);
                           }
 
           if (elemName=="UserBandwidth")
@@ -559,11 +598,21 @@ void kupagui::on_button_getResult_clicked()
 {
 
   //n = n[5];
+  dce_source = ui->dce_source->text ().toUtf8 ().constData ();
+  double lastReceive = atof(GetStdoutFromCommand ("cat "+ dce_source+"/lastReceive.txt").c_str());
+  double firstSend = atof(GetStdoutFromCommand ("cat "+ dce_source+"/firstSend.txt").c_str());
+  double totalRec = atof(GetStdoutFromCommand ("cat "+ dce_source+"/recTotal.txt").c_str());
+
+  double throughput= (totalRec/(lastReceive-firstSend))*1000000; // in kByte/sec
+
+
+
   string n = GetStdoutFromCommand ("tail -n 1 ./stdout-kupa.txt");
   QString q  = QString::fromStdString (n);
   QFile file("out.txt");
   file.open(QIODevice::ReadWrite | QIODevice::Append |QIODevice::Text);
   QTextStream out(&file);
+
 
   //get time log
   QDateTime now = QDateTime::currentDateTime();
@@ -595,22 +644,28 @@ void kupagui::on_button_getResult_clicked()
             ui->output_result->append ("Bps");
             out << "Bps \t";
           }
-        out << ui->error_rate->text ()+"\n";
+
+         printCalcThroughPut(throughput);
+         out << ui->error_rate->text ()+"\n";
       }
     else if (resultNumber==2){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+q);
         int r = n.size ()-2; //last chat should be size -1, but i found it should be -2. interesting..
         if (n[r]=='r'){
             //if last sentence contains "out-of-order", we get the result from a line before that
             n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
           }
+        ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+QString::fromStdString (n));
+
         double udp_data = findDataUdp(n);
         QString jitter = QString::number (udp_data);
         ui->output_result->append ("measured jitter is");
         ui->output_result->append (jitter);
-        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->tetha_value->text ()+"\t"+ui->k_value->text ()+"\n";
+        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->theta_value->text ()+"\t"+ui->k_value->text ()+"\n";
         ui->output_result->append ("ms");
+
+         printCalcThroughPut(throughput);
+
       }
     else if (resultNumber==3){
         ui->output_result->toPlainText ();
@@ -650,6 +705,8 @@ void kupagui::on_button_getResult_clicked()
           }
         ui->output_result->append ("ms");
         out << "ms \t" + ui->error_rate->text ()+"\n";
+
+         printCalcThroughPut(throughput);
       }
     else {
         ui->output_result->toPlainText ();
@@ -767,7 +824,7 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeAttribute("jitter",ui->jitter_check->isChecked ()?"true":"false");
   xmlWriter.writeAttribute("alpha",ui->alpha_value->text ());
   xmlWriter.writeAttribute("k",ui->k_value->text ());
-  xmlWriter.writeAttribute("tetha",ui->tetha_value->text ());
+  xmlWriter.writeAttribute("theta",ui->theta_value->text ());
 
   xmlWriter.writeEndElement();
 
