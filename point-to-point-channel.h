@@ -142,9 +142,10 @@ private:
   double        m_previousDelay1;
   double        m_previousDelay2;
   int32_t       m_sumPacketFlow;
-  int16_t	m_noPacketFlow;
+  int64_t	m_noPacketFlow;
   Time		m_firstRecFlow;
   Time		m_lastRecFlow;
+  bool          m_firstPacket;
   
 
 
