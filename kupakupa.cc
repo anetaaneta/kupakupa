@@ -117,7 +117,7 @@ int main (int argc, char *argv[])
        int SimuTime = 50;
        int htmlSize = 2; // in mega bytes
        char TypeOfConnection = 'p'; // iperf tcp connection
-       bool ModeOperation = true;
+       bool downloadMode = true;
        bool inputFromXml = false;
      
       	/*
@@ -130,7 +130,7 @@ int main (int argc, char *argv[])
       
       cmd.AddValue ("inputFromXml", "flag for reading input from xml file",inputFromXml);
       cmd.AddValue ("TypeOfConnection", "Link type: p for iperf-tcp, u for iperf-udp and w for wget-thttpd, default to iperf-tcp", TypeOfConnection);
-      cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", ModeOperation);
+      cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", downloadMode);
       cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
       cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user);
       cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
@@ -144,10 +144,10 @@ int main (int argc, char *argv[])
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
 
-	cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
-	cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
+    cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
+    cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
     cmd.AddValue ("chan_theta", "theta for random distribution in server-BS conection", theta);
-	cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", k);
+    cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", k);
 	
      cmd.Parse (argc, argv);     
       
@@ -156,10 +156,8 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,ModeOperation,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
 	}
-      
-
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
 	    {
@@ -248,11 +246,14 @@ int main (int argc, char *argv[])
 	
     std::cout << "setting link.." << std::endl;
 
-if (ModeOperation) {
-        mode = 0;
+
+if (downloadMode) {
+	std::cout << " Download mode is used "<< std::endl;
+	mode = 0;
 }
-if (!ModeOperation) {
-        mode = 1;
+if (!downloadMode) {
+	std::cout << " Upload mode is used "<< std::endl;
+	int mode = 1;
 }
 
 // channel for user to BS
@@ -266,7 +267,7 @@ if (!ModeOperation) {
 //channel for server to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 p2p.SetChannelAttribute ("Delay", StringValue (delay));
-p2p.SetChannelAttribute ("Jitter", UintegerValue (jitter));
+p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
 p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
 p2p.SetChannelAttribute ("k", DoubleValue (k));
 p2p.SetChannelAttribute ("theta", DoubleValue (theta));
@@ -346,10 +347,11 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     {
     case 'p':
       {
-        if (ModeOperation)
+        if (downloadMode)
             {
             d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            // Launch iperf server on node 0
+            // Launch iperf server on node 0 (mobile device)
+            
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
@@ -370,8 +372,6 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument ("1");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
-                        dce.AddArgument (">");
-                        dce.AddArgument ("/temp/iperf-download-result");
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
             ClientApps0.Stop (Seconds (EndTime));
@@ -380,6 +380,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             {
                 d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
+                // server will receive tcp message
                 dce.SetBinary ("iperf");
                 dce.ResetArguments ();
                 dce.ResetEnvironment ();
@@ -409,7 +410,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
     case 'u':
       {
-        if (ModeOperation)
+        if (downloadMode)
         {
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
        	// Launch iperf udp server on node 0
@@ -478,7 +479,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
     case 'w':
       {
-        ModeOperation=true;
+        downloadMode=true;
         d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
 
         dce.SetBinary ("thttpd");
