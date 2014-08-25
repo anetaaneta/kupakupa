@@ -249,10 +249,10 @@ int main (int argc, char *argv[])
     std::cout << "setting link.." << std::endl;
 
 if (ModeOperation) {
-	int mode = 0;
+        mode = 0;
 }
 if (!ModeOperation) {
-	int mode = 1;
+        mode = 1;
 }
 
 // channel for user to BS
