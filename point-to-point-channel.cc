@@ -145,7 +145,7 @@ PointToPointChannel::TransmitStart (
           // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
-		          if (wire==0){
+		          if (wire==1){
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
 				        m_noPacketFlow+=1;
@@ -221,7 +221,7 @@ PointToPointChannel::TransmitStart (
           // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
-		          if (wire==0){
+		          if (wire==1){
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
 				        m_lastRecFlow=Simulator::Now()+Time(cur_delay);
