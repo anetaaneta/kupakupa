@@ -145,8 +145,8 @@ void kupagui::on_button_generate_command_clicked()
 {
     QString FinalCommand = "";
     //QString TypeOfConnection = "";
-    /*QString ModeOperation = " --ModeOperation=true";
-    QString tcp_mem_user ="";
+    QString ModeOperation = " --ModeOperation=true";
+    /*QString tcp_mem_user ="";
     QString tcp_mem_server = "";
     QString tcp_cc = "";
     QString SimuTime="";
@@ -289,7 +289,7 @@ void kupagui::on_button_generate_command_clicked()
             myfile <<"#"<<resultNumber<<"\n";
             myfile << "export KUPA_HOME=`pwd` \n";
 
-            //myfile << "cd "+dce_source+" \n";
+            myfile << "cd "+dce_source+" \n";
 
             /*this one will not work and never will. because it create new shell inside a shell.
             the command after waf shell will not be axecuted, it's considered on different shell environment.*/
