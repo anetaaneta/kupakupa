@@ -16,7 +16,7 @@ return stringName;
 }
 
 void
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,int& SimuTime,bool& ModeOperation, double& errRate, int& jitter, double& alpha,double& k,double& tetha,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_server){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,int& SimuTime,bool& downloadMode, double& errRate, int& jitter, double& alpha,double& k,double& theta,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_server){
     
 
 TiXmlDocument readdoc(fileName.c_str());
@@ -94,10 +94,10 @@ TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 modeOperTmp = text->Value();
 if (GetLowerCase(modeOperTmp)=="download") {
-ModeOperation = true;
+downloadMode = true;
 }
 if (GetLowerCase(modeOperTmp)=="upload") {
-ModeOperation = false;
+downloadMode = false;
 }
 }
 
@@ -123,8 +123,8 @@ string alphaTmp = elem->Attribute("alpha");
 alpha=atof(alphaTmp.c_str());
 string kTmp= elem->Attribute("k");
 k=atof(kTmp.c_str());	
-string tethaTmp = elem->Attribute("tetha");
-tetha=atof(tethaTmp.c_str());	
+string thetaTmp = elem->Attribute("theta");
+theta=atof(thetaTmp.c_str());
 }
 
 if (elemName=="UserBandwidth")
