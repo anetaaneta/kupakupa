@@ -680,6 +680,7 @@ void kupagui::on_button_getResult_clicked()
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            ui->output_result->append ("s");
             out << now.toString () + "\t"+ht + "\t";
           }
         else if (n[n.find('s')-3]=='M'){
@@ -687,7 +688,7 @@ void kupagui::on_button_getResult_clicked()
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
-
+            ui->output_result->append ("s");
             out << now.toString () + "\t"+ht + "\t";
           }
         else if (n[n.find('s')-3]=='G'){
@@ -695,15 +696,17 @@ void kupagui::on_button_getResult_clicked()
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            ui->output_result->append ("s");
             out << now.toString () + "\t"+ht + "\t";
           }
         else {
             QString ht = QString::number (http_time);
             ui->output_result->append ("measured http time is");
             ui->output_result->append (ht);
+            ui->output_result->append ("s");
             out << now.toString () + "\t"+ht + "\t";
           }
-        ui->output_result->append ("ms");
+
         out << "ms \t" + ui->error_rate->text ()+"\n";
 
          printCalcThroughPut(throughput);
