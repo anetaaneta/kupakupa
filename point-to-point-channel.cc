@@ -96,7 +96,8 @@ PointToPointChannel::PointToPointChannel()
     m_sumPacketFlow (0),
     m_noPacketFlow (0),
     m_firstRecFlow (Seconds (0.)),
-    m_lastRecFlow (Seconds (0.))
+    m_lastRecFlow (Seconds (0.)),
+    m_firstPacket (true)
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -145,11 +146,15 @@ PointToPointChannel::TransmitStart (
           // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
-		          if (wire==1){
+		          if (wire==0){
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
+			               //std::cout << wire <<" nomer = "<< m_noPacketFlow<< std::endl;
 				        m_noPacketFlow+=1;
-				        if (m_noPacketFlow==1) {
+				        if (m_noPacketFlow==1 && m_firstPacket==true) {
+				                //std::cout << wire <<" size = "<< p->GetSize()<< std::endl;
+				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				                m_firstPacket=false;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
 					        firstSend.open ("firstSend.txt");
@@ -221,7 +226,9 @@ PointToPointChannel::TransmitStart (
           // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
-		          if (wire==1){
+                  
+		          if (wire==0){
+		                
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
 				        m_lastRecFlow=Simulator::Now()+Time(cur_delay);
@@ -230,6 +237,7 @@ PointToPointChannel::TransmitStart (
 				        lastReceive << m_lastRecFlow.GetNanoSeconds();
 				        lastReceive.close();
 				        m_sumPacketFlow+=packetSize-2;
+				        
 				        std::ofstream recTotal;
 				        recTotal.open ("recTotal.txt");
 				        recTotal << m_sumPacketFlow;
@@ -243,7 +251,8 @@ PointToPointChannel::TransmitStart (
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
 				        m_noPacketFlow+=1;
-				        if (m_noPacketFlow==1) {
+				        if (m_noPacketFlow==1 && m_firstPacket==true) {
+				                std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
 					        firstSend.open ("firstSend.txt");
@@ -266,11 +275,12 @@ PointToPointChannel::TransmitStart (
           if (wire==0) {
 	        m_previousDelay1=cur_delay;
 	        m_prevRcvTime1 = rcvTime;
-	        
+	        //std::cout <<"  size = "<<  p->GetSize()<< std::endl;
           }
             if (wire==1) {
 	        m_previousDelay2=cur_delay;
 	        m_prevRcvTime2 = rcvTime;
+	        
 	        
           }
 
