@@ -260,7 +260,7 @@ if (!downloadMode) {
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
-	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
+	p2p.SetChannelAttribute ("Delay", StringValue (delay));
 	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
 	p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
