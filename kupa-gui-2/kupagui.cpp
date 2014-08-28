@@ -146,14 +146,29 @@ void kupagui::on_button_generate_command_clicked()
     QString FinalCommand = "";
     //QString TypeOfConnection = "";
     QString ModeOperation = " --ModeOperation=true";
+    QString delay=" --delay="+ui->delay->text()+"ms";
     /*QString tcp_mem_user ="";
     QString tcp_mem_server = "";
     QString tcp_cc = "";
     QString SimuTime="";
     QString udp_bw="";
     QString file_size="";*/
-    user_bw=" --user_bw="+ui->user_bw->text()+"Mbps";
-    server_bw=" --server_bw="+ui->server_bw->text()+"Gbps";
+    QString userBwUnit;
+    if (ui->user_bw_unit->currentIndex()==0) {
+        userBwUnit="Mbps";
+    }
+    else if (ui->user_bw_unit->currentIndex()==1) {
+        userBwUnit="Gbps";
+    }
+    QString serverBwUnit;
+    if (ui->server_bw_unit->currentIndex()==0) {
+        serverBwUnit="Mbps";
+    }
+    else if (ui->server_bw_unit->currentIndex()==1) {
+        serverBwUnit="Gbps";
+    }
+    user_bw=" --user_bw="+ui->user_bw->text()+userBwUnit;
+    server_bw=" --server_bw="+ui->server_bw->text()+serverBwUnit;
     error_rate=" --errRate="+ui->error_rate->text();
 
     dce_source = ui->dce_source->text ().toUtf8 ().constData ();
@@ -217,7 +232,7 @@ void kupagui::on_button_generate_command_clicked()
             }
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
-        FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + SimuTime;
+        FinalCommand = TypeOfConnection + delay + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + SimuTime;
         resultNumber=1;
     }
 /* -----------------------for iperf udp--------------------------- */
@@ -229,7 +244,7 @@ void kupagui::on_button_generate_command_clicked()
 
         udp_bw=" --udp_bw="+ui->udp_bw->text();
         SimuTime =" --SimuTime="+ui->iperf_time_2->text();
-        FinalCommand = TypeOfConnection + ModeOperation + udp_bw;
+        FinalCommand = TypeOfConnection + delay +  ModeOperation + udp_bw;
         resultNumber=2;
     }
 
@@ -270,7 +285,7 @@ void kupagui::on_button_generate_command_clicked()
 
         tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
-        FinalCommand = TypeOfConnection + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
+        FinalCommand = TypeOfConnection + delay +  ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
         resultNumber=3;
     }
 //concatenates all commands
@@ -505,15 +520,34 @@ void kupagui::on_actionLoad_Command_triggered()
                   TiXmlNode* e = elem->FirstChild();
                   TiXmlText* text = e->ToText();
                   std::string user_bw = text->Value();
-                  std::string v = user_bw.erase (user_bw.find ('M'),4);
-                  ui->user_bw->setValue (atoi(v.c_str ()));
+                  if (user_bw.find ('M')!=std::string::npos){
+                      std::string v = user_bw.erase (user_bw.find ('M'),4);
+                      ui->user_bw->setValue (atoi(v.c_str ()));
+                      ui->user_bw_unit->setCurrentIndex (0);
+                  }
+                  if (user_bw.find ('G')!=std::string::npos){
+                      std::string v = user_bw.erase (user_bw.find ('G'),4);
+                      ui->user_bw->setValue (atoi(v.c_str ()));
+                      ui->user_bw_unit->setCurrentIndex (1);
+                  }
+          }
+
+
           if (elemName=="ServerBandwidth")
                   {
                   TiXmlNode* e = elem->FirstChild();
                   TiXmlText* text = e->ToText();
                   std::string server_bw = text->Value();
-                  string v = user_bw.erase (server_bw.find ('G'),4);
-                  ui->server_bw->setValue (atoi(v.c_str ()));
+                  if (server_bw.find ('M')!=std::string::npos){
+                      std::string v = server_bw.erase (server_bw.find ('M'),4);
+                      ui->server_bw->setValue (atoi(v.c_str ()));
+                      ui->server_bw_unit->setCurrentIndex (0);
+                  }
+                  if (server_bw.find ('G')!=std::string::npos){
+                      std::string v = server_bw.erase (server_bw.find ('G'),4);
+                      ui->server_bw->setValue (atoi(v.c_str ()));
+                      ui->server_bw_unit->setCurrentIndex (1);
+                  }
                   }
           if (elemName=="ErrorModel")
                   {
@@ -591,7 +625,7 @@ void kupagui::on_actionLoad_Command_triggered()
   on_button_generate_command_clicked ();
   statusBar()->showMessage(tr("Xml loaded"));
   }
-}
+
 
 
 void kupagui::on_button_getResult_clicked()
@@ -831,8 +865,23 @@ void kupagui::on_actionSave_Command_triggered()
 
   xmlWriter.writeEndElement();
 
-  xmlWriter.writeTextElement("UserBandwidth", ui->user_bw->text ()+"Mbps");
-  xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ()+"Gbps");;
+  QString userBwUnit;
+  if (ui->user_bw_unit->currentIndex()==0) {
+      userBwUnit="Mbps";
+  }
+  else if (ui->user_bw_unit->currentIndex()==1) {
+      userBwUnit="Gbps";
+  }
+  xmlWriter.writeTextElement("UserBandwidth", ui->user_bw->text ()+userBwUnit);
+
+  QString serverBwUnit;
+  if (ui->server_bw_unit->currentIndex()==0) {
+      serverBwUnit="Mbps";
+  }
+  else if (ui->server_bw_unit->currentIndex()==1) {
+      serverBwUnit="Gbps";
+  }
+  xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ()+serverBwUnit);;
 
   xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
   xmlWriter.writeTextElement("SizeOfHttpFile", ui->wget_file_size->text());
