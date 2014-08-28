@@ -303,7 +303,7 @@ public:
         alpha_value->setGeometry(QRect(30, 50, 69, 27));
         alpha_value->setDecimals(3);
         alpha_value->setMaximum(1);
-        alpha_value->setSingleStep(0.001);
+        alpha_value->setSingleStep(0.05);
         alpha_value->setValue(0.3);
         theta_value = new QDoubleSpinBox(groupBox_2);
         theta_value->setObjectName(QStringLiteral("theta_value"));
@@ -315,6 +315,7 @@ public:
         k_value->setObjectName(QStringLiteral("k_value"));
         k_value->setGeometry(QRect(200, 50, 69, 27));
         k_value->setMaximum(999);
+        k_value->setSingleStep(0.5);
         k_value->setValue(1);
         delay = new QDoubleSpinBox(groupBox);
         delay->setObjectName(QStringLiteral("delay"));
