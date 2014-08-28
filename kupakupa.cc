@@ -253,7 +253,7 @@ if (downloadMode) {
 }
 if (!downloadMode) {
 	std::cout << " Upload mode is used "<< std::endl;
-	int mode = 1;
+	mode = 1;
 }
 
 // channel for user to BS
