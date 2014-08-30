@@ -140,6 +140,12 @@ void kupagui::printCalcThroughPut(double throughput){
 
 }
 
+string kupagui::GetLowerCase(string stringName) {
+std::transform(stringName.begin(), stringName.end(), stringName.begin(), ::tolower);
+return stringName;
+
+}
+
 
 void kupagui::on_button_generate_command_clicked()
 {
@@ -238,7 +244,7 @@ void kupagui::on_button_generate_command_clicked()
 /* -----------------------for iperf udp--------------------------- */
     else if (ui->tabWidget->currentIndex()==1){
         TypeOfConnection =" --TypeOfConnection=u";
-        if (ui->tcp_upload_2->isChecked()==true){
+        if (ui->udp_upload->isChecked()==true){
             ModeOperation = " --ModeOperation=false";
         }
 
@@ -409,19 +415,19 @@ void kupagui::on_actionLoad_Command_triggered()
                           TiXmlText* text = e->ToText();
                           typeOfConectionTmp = text->Value();
 
-                          if (typeOfConectionTmp=="http")
+                          if (GetLowerCase(typeOfConectionTmp)=="http")
                                   {
                                   //TypeOfConnection =" --TypeOfConnection=w";
                                   ui->tabWidget->setCurrentIndex (2);
                                   }
 
-                          if (typeOfConectionTmp=="iperf-udp")
+                          if (GetLowerCase(typeOfConectionTmp)=="iperf-udp")
                                   {
                                   //TypeOfConnection =" --TypeOfConnection=u";
                                   ui->tabWidget->setCurrentIndex (1);
                                   }
 
-                          if (typeOfConectionTmp=="iperf-tcp")
+                          if (GetLowerCase(typeOfConectionTmp)=="iperf-tcp")
                                   {
                                   //TypeOfConnection =" --TypeOfConnection=p";
                                   ui->tabWidget->setCurrentIndex (0);
@@ -455,18 +461,18 @@ void kupagui::on_actionLoad_Command_triggered()
                           TiXmlNode* e = elem->FirstChild();
                           TiXmlText* text = e->ToText();
                           string modeOperTmp = text->Value();
-                          if (modeOperTmp=="download") {
+                          if (GetLowerCase(modeOperTmp)=="download") {
                             //ModeOperation = true;
-                            if (typeOfConectionTmp=="http"){
-                                ui->tcp_download_2->setChecked (true);
+                            if (GetLowerCase(typeOfConectionTmp)=="iperf-udp"){
+                                ui->udp_download->setChecked (true);
                               } else {
                                 ui->tcp_download->setChecked (true);
                               }
                             }
-                          if (modeOperTmp=="upload") {
+                          if (GetLowerCase(modeOperTmp)=="upload") {
                             //ModeOperation = false;
-                            if (typeOfConectionTmp=="http"){
-                                ui->tcp_upload_2->setChecked (true);
+                            if (GetLowerCase(typeOfConectionTmp)=="iperf-udp"){
+                                ui->udp_upload->setChecked (true);
                               } else {
                                 ui->tcp_upload->setChecked (true);
                               }
@@ -480,7 +486,7 @@ void kupagui::on_actionLoad_Command_triggered()
                           string d = text->Value ();
                           string v = d.erase (d.find ('m'),2);
                           //delay = " --delay="+text->Value()+"ms";
-                          ui->delay->setValue (atoi (v.c_str ()));
+                          ui->delay->setValue (atof (v.c_str ()));
                           }
                   if (elemName=="ErrorRate")
                           {
@@ -839,7 +845,7 @@ void kupagui::on_actionSave_Command_triggered()
       simuTime = ui->iperf_time->text ();
     } else if (ui->tabWidget->currentIndex ()==1){
       type="iperf-udp";
-      mode = ui->tcp_download_2->isChecked ()? "download":"upload";
+      mode = ui->udp_download->isChecked ()? "download":"upload";
       simuTime = ui->iperf_time_2->text ();
     } else {
       type="http";

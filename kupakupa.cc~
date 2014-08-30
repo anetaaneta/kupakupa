@@ -370,6 +370,8 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument ("10.1.1.1");
             dce.AddArgument ("-i");
             dce.AddArgument ("1");
+            dce.AddArgument ("-w");                
+            dce.AddArgument ("3KB");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));

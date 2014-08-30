@@ -61,8 +61,8 @@ public:
     QComboBox *tcp_cc;
     QLabel *label_4;
     QWidget *IperfUDP;
-    QRadioButton *tcp_download_2;
-    QRadioButton *tcp_upload_2;
+    QRadioButton *udp_download;
+    QRadioButton *udp_upload;
     QSpinBox *udp_bw;
     QLabel *label_12;
     QLabel *label_18;
@@ -184,13 +184,13 @@ public:
         tabWidget->addTab(IperfTCP, QString());
         IperfUDP = new QWidget();
         IperfUDP->setObjectName(QStringLiteral("IperfUDP"));
-        tcp_download_2 = new QRadioButton(IperfUDP);
-        tcp_download_2->setObjectName(QStringLiteral("tcp_download_2"));
-        tcp_download_2->setGeometry(QRect(10, 70, 101, 17));
-        tcp_download_2->setChecked(true);
-        tcp_upload_2 = new QRadioButton(IperfUDP);
-        tcp_upload_2->setObjectName(QStringLiteral("tcp_upload_2"));
-        tcp_upload_2->setGeometry(QRect(10, 40, 82, 17));
+        udp_download = new QRadioButton(IperfUDP);
+        udp_download->setObjectName(QStringLiteral("udp_download"));
+        udp_download->setGeometry(QRect(10, 70, 101, 17));
+        udp_download->setChecked(true);
+        udp_upload = new QRadioButton(IperfUDP);
+        udp_upload->setObjectName(QStringLiteral("udp_upload"));
+        udp_upload->setGeometry(QRect(10, 40, 82, 17));
         udp_bw = new QSpinBox(IperfUDP);
         udp_bw->setObjectName(QStringLiteral("udp_bw"));
         udp_bw->setGeometry(QRect(130, 60, 121, 22));
@@ -224,10 +224,10 @@ public:
         tcp_mem_server_2->setMaxLength(32767);
         label_13 = new QLabel(wget);
         label_13->setObjectName(QStringLiteral("label_13"));
-        label_13->setGeometry(QRect(380, 70, 51, 16));
+        label_13->setGeometry(QRect(360, 20, 51, 16));
         tcp_cc_2 = new QComboBox(wget);
         tcp_cc_2->setObjectName(QStringLiteral("tcp_cc_2"));
-        tcp_cc_2->setGeometry(QRect(360, 90, 81, 22));
+        tcp_cc_2->setGeometry(QRect(360, 40, 81, 22));
         label_14 = new QLabel(wget);
         label_14->setObjectName(QStringLiteral("label_14"));
         label_14->setGeometry(QRect(130, 70, 201, 16));
@@ -411,7 +411,7 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
         error_model->setCurrentIndex(0);
         user_bw_unit->setCurrentIndex(0);
         server_bw_unit->setCurrentIndex(1);
@@ -495,8 +495,8 @@ public:
 #endif // QT_NO_WHATSTHIS
         label_4->setText(QApplication::translate("kupagui", "tcp_cc", 0));
         tabWidget->setTabText(tabWidget->indexOf(IperfTCP), QApplication::translate("kupagui", "Iperf-TCP", 0));
-        tcp_download_2->setText(QApplication::translate("kupagui", "Download", 0));
-        tcp_upload_2->setText(QApplication::translate("kupagui", "Upload", 0));
+        udp_download->setText(QApplication::translate("kupagui", "Download", 0));
+        udp_upload->setText(QApplication::translate("kupagui", "Upload", 0));
         label_12->setText(QApplication::translate("kupagui", "UDP allocated bandwidth", 0));
         label_18->setText(QApplication::translate("kupagui", "Mbps", 0));
 #ifndef QT_NO_WHATSTHIS
