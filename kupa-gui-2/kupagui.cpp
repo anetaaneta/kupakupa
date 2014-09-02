@@ -103,7 +103,7 @@ double kupagui::findDataUdp(string s){
  }
 
 void kupagui::printCalcThroughPut(double throughput){
-    if (throughput < 0.1)
+    if (throughput < 1)
     {
         throughput=throughput*1000; // in Byte/Sec
         QString calTp = QString::number (throughput);
@@ -111,7 +111,7 @@ void kupagui::printCalcThroughPut(double throughput){
         ui->output_result->append (calTp);
         ui->output_result->append (" Bps");
     }
-    if (throughput <= 100)
+    if (throughput < 100)
     {
         QString calTp = QString::number (throughput);
         ui->output_result->append ("\n Calculated throughput is ");
@@ -119,7 +119,7 @@ void kupagui::printCalcThroughPut(double throughput){
         ui->output_result->append (" kBps");
     }
 
-    if (throughput > 100)
+    if (throughput >= 100)
     {
         throughput=throughput/1000; // in MByte/Sec
         QString calTp = QString::number (throughput);
@@ -128,7 +128,7 @@ void kupagui::printCalcThroughPut(double throughput){
         ui->output_result->append (" MBps");
     }
 
-    if (throughput > 100000)
+    if (throughput >= 100000)
     {
         throughput=throughput/1000000; // in GByte/Sec
 
@@ -664,27 +664,62 @@ void kupagui::on_button_getResult_clicked()
         double tcp_time = findTime (n);
         double tcp_data = findData (n);
         double tcp_tp = tcp_data/tcp_time;
-        QString tp = QString::number (tcp_tp);
-        ui->output_result->append ("throughput is");
-        ui->output_result->append (tp);
-        out << now.toString ()+ "\t"+tp + "\t";
+        QString unit;
+
         if (n[n.find ("Bytes")-1] =='K'){
-            ui->output_result->append ("KBps");
-            out << "KBps \t";
+            if (tcp_tp < 1) {
+                tcp_tp=tcp_tp*1000;
+                unit="Bps";
+            }
+            if (tcp_tp < 100) {
+                tcp_tp=tcp_tp;
+                unit="KBps";
+            }
+            if (tcp_tp >= 100) {
+                tcp_tp=tcp_tp/1000;
+                unit="MBps";
+            }
+
+            //out << "KBps \t";
           }
         else if (n[n.find ("Bytes")-1] =='M'){
-            ui->output_result->append ("MBps");
-            out << "MBps \t";
+            if (tcp_tp < 1) {
+                tcp_tp=tcp_tp*1000;
+                unit="KBps";
+            }
+            if (tcp_tp < 100) {
+                tcp_tp=tcp_tp;
+                unit="MBps";
+            }
+            if (tcp_tp >= 100) {
+                tcp_tp=tcp_tp/1000;
+                unit="GBps";
+            }
+            //ui->output_result->append ("MBps");
+            //out << "MBps \t";
           }
         else if (n[n.find ("Bytes")-1]=='G'){
-            ui->output_result->append ("GBps");
-            out << "GBps \t";
+            if (tcp_tp < 1) {
+                tcp_tp=tcp_tp*1000;
+                unit="MBps";
+            }
+            else {
+                tcp_tp=tcp_tp;
+                unit="GBps";
+            }
+            //ui->output_result->append ("GBps");
+            //out << "GBps \t";
           }
         else{
-            ui->output_result->append ("Bps");
-            out << "Bps \t";
+            tcp_tp=tcp_tp;
+            unit="Bps";
           }
-
+         QString tp = QString::number (tcp_tp);
+         ui->output_result->append ("Throughput is");
+         ui->output_result->append (tp);
+         ui->output_result->append (unit);
+         out << now.toString ()+ "\t"+tp + "\t";
+         out << unit << " \t";
          printCalcThroughPut(throughput);
          out << ui->error_rate->text ()+"\n";
       }
