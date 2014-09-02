@@ -643,7 +643,7 @@ void kupagui::on_button_getResult_clicked()
   double firstSend = atof(GetStdoutFromCommand ("cat "+ dce_source+"/firstSend.txt").c_str());
   double totalRec = atof(GetStdoutFromCommand ("cat "+ dce_source+"/recTotal.txt").c_str());
 
-  double throughput= (totalRec/(lastReceive-firstSend))*1000000; // in kByte/sec
+  double throughput= ((totalRec*8)/(lastReceive-firstSend))*1000000; // in kByte/sec
 
 
 
@@ -659,11 +659,11 @@ void kupagui::on_button_getResult_clicked()
 
     if (resultNumber==1){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("the last command run is tcp connection\n and the last line outputfile is "+q+"\n");
+        ui->output_result->setText ("The last command run is tcp connection\n and the last line outputfile is "+q+"\n");
         //calculate throughput
         double tcp_time = findTime (n);
         double tcp_data = findData (n);
-        double tcp_tp = tcp_data/tcp_time;
+        double tcp_tp = (tcp_data*8)/tcp_time;
         QString unit;
 
         if (n[n.find ("Bytes")-1] =='K'){
