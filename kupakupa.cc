@@ -225,6 +225,9 @@ int main (int argc, char *argv[])
 
 	}	
 	std::string IperfTime = IntToString(SimuTime);	
+	
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_mem", "5000 5000 5000");
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_mem", "5000 5000 5000");
     
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
     stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
@@ -236,6 +239,12 @@ int main (int argc, char *argv[])
 
     stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_mem_server_max);
     stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_mem_server_max);
+    
+    stack.SysctlSet (c.Get(0), ".net.core.netdev_max_backlog", "250000");
+    stack.SysctlSet (c.Get(2), ".net.core.netdev_max_backlog", "250000");
+    
+
+    
 
     stack.SysctlSet (c, ".net.ipv4.tcp_congestion_control", tcp_cc);
 #else
@@ -399,6 +408,8 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
                 dce.AddArgument ("10.1.2.2");
                 dce.AddArgument ("-i");                
                 dce.AddArgument ("1");
+                dce.AddArgument ("-w");                
+                dce.AddArgument ("400KB");                          
                 dce.AddArgument ("--time");                
                 dce.AddArgument (IperfTime);
                 ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
@@ -567,7 +578,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     
     
     Simulator::Run ();
-    
+    std::cout << "finish" << std::endl;
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
 
