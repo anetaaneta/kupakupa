@@ -659,7 +659,7 @@ void kupagui::on_button_getResult_clicked()
 
     if (resultNumber==1){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("The last command run is tcp connection\n and the last line outputfile is "+q+"\n");
+        //ui->output_result->setText ("The last command run is tcp connection\n and the last line outputfile is "+q+"\n");
         //calculate throughput
         double tcp_time = findTime (n);
         double tcp_data = findData (n);
@@ -730,7 +730,7 @@ void kupagui::on_button_getResult_clicked()
             //if last sentence contains "out-of-order", we get the result from a line before that
             n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
           }
-        ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+QString::fromStdString (n));
+       //ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+QString::fromStdString (n));
 
         double udp_data = findDataUdp(n);
         QString jitter = QString::number (udp_data);
@@ -744,7 +744,7 @@ void kupagui::on_button_getResult_clicked()
       }
     else if (resultNumber==3){
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("the last command run is http connection and the last line outputfile is "+q);
+        //ui->output_result->setText ("the last command run is http connection and the last line outputfile is "+q);
         n = GetStdoutFromCommand ("tail -n 5 ./stdout-kupa.txt | head -n 1");
         double http_data = findDataHttp (n);
         double http_speed = findSpeedHttp (n);

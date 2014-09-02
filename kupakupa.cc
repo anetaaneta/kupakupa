@@ -350,7 +350,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
-	int EndTime = SimuTime+10;
+	int EndTime = 2*SimuTime;
 
   switch (TypeOfConnection)
     {
@@ -369,7 +369,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument ("1");
             ApplicationContainer SerApps0 = dce.Install (c.Get (0));
             SerApps0.Start (Seconds (1));
-            SerApps0.Stop (Seconds (EndTime));
+            //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
             // Launch iperf client on node 2
             dce.SetBinary ("iperf");
@@ -383,7 +383,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
-            ClientApps0.Stop (Seconds (EndTime));
+            //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
             else
             {
@@ -398,7 +398,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
                 dce.AddArgument ("1");
                 ApplicationContainer SerApps0 = dce.Install (c.Get (2));
                 SerApps0.Start (Seconds (1));
-                SerApps0.Stop (Seconds (EndTime));
+                //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
                 // Launch iperf client on node 0
                 dce.SetBinary ("iperf");
@@ -412,7 +412,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
                 dce.AddArgument (IperfTime);
                 ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
                 ClientApps0.Start (Seconds (1));
-                ClientApps0.Stop (Seconds (EndTime));
+                //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
             }
         }
       break;
@@ -432,7 +432,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	dce.AddArgument ("1");
        	ApplicationContainer SerApps0 = dce.Install (c.Get (0));
        	SerApps0.Start (Seconds (1));
-       	SerApps0.Stop (Seconds (EndTime));
+       	SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
        	// Launch iperf client on node 2
        	dce.SetBinary ("iperf");
@@ -449,7 +449,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	dce.AddArgument (IperfTime);
        	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
        	ClientApps0.Start (Seconds (1));
-       	ClientApps0.Stop (Seconds (EndTime));
+       	ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
         else
             {
@@ -464,7 +464,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
              dce.AddArgument ("1");
              ApplicationContainer SerApps0 = dce.Install (c.Get (2));
              SerApps0.Start (Seconds (1));
-             SerApps0.Stop (Seconds (EndTime));
+             SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
             // Launch iperf client on node 2           
             dce.SetBinary ("iperf");
@@ -481,8 +481,8 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	    dce.AddArgument (IperfTime);
        	    ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
        	    ClientApps0.Start (Seconds (1));
-       	    ClientApps0.Stop (Seconds (EndTime));
-                        }
+       	    ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+            }
       }
       break;
 
@@ -521,7 +521,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument ("1");
             ApplicationContainer SerApps0 = dce.Install (c.Get (0));
             SerApps0.Start (Seconds (1));
-            SerApps0.Stop (Seconds (SimuTime));
+            SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
             // Launch iperf client on node 2
             dce.SetBinary ("iperf");
@@ -535,7 +535,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
-            ClientApps0.Stop (Seconds (SimuTime));
+            ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
       break;
     }

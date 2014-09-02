@@ -4,4 +4,4 @@ TCP window size: 8.00 KByte (default)
 ------------------------------------------------------------
 [  4] local 10.1.1.1 port 5001 connected with 10.1.2.2 port 54414
 [ ID] Interval       Transfer     Bandwidth
-[  4]  0.0-21.0 sec   536 MBytes   214 Mbits/sec
+[  4]  0.0-21.0 sec   178 MBytes  71.1 Mbits/sec
