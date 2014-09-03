@@ -51,7 +51,7 @@ void GenerateHtmlFile (int fileSize)
 //fungtion to get the last value in tcp_mem for tcp_mem_max
 string SplitLastValue (const std::string& str)
 {
-  std::cout << "Splitting: " << str << '\n';
+  //std::cout << "Splitting: " << str << '\n';
   unsigned found = str.find_last_of(" ");
   ostringstream temp;
   temp << str.substr(found+1);
@@ -61,19 +61,18 @@ string SplitLastValue (const std::string& str)
 string RemoveComma (std::string& str) 
 {
 int i = 0;
-std::cout<<"remove comma from "<< str << std::endl;
 std::string str2=str;
 for (i=0; i<3; i++)
 {
 	std::size_t found=str.find(',');
-	if (found!=std::string::npos)
-	{
+	if (found!=std::string::npos) {
 	str2 = str.replace(str.find(','),1," ");
 	} else {
-	std::cout<<"no comma found.."<<std::endl;
+	//std::cout<<"no comma found.."<<std::endl;
 	}
 }
 return str2;
+
 }
 
 static void RunIp (Ptr<Node> node, Time at, std::string str)
@@ -162,13 +161,13 @@ int main (int argc, char *argv[])
 	  switch (TypeOfConnection)
 	    {
 	    case 'u': //iperf udp connection
-	    	std::cout << "iperf udp connection is selected" << std::endl;
+	    	std::cout << "IPERF-UDP connection is selected" << std::endl;
 	    	break;
 	    case 'w': //thttpd - wget connection, always in download mode
-	        std::cout << "thttpd - wget connection is selected" << std::endl;
+	        std::cout << "HTTP connection is selected" << std::endl;
 	      break;
 	     case 'p': //thttpd - wget connection, always in download mode
-	        std::cout << "iperf tcp connection is selected" << std::endl;
+	        std::cout << "IPERF-TCP connection is selected" << std::endl;
 	      break;
 	    default:
 	      std::cout << "Unknown link type : " << TypeOfConnection << " ?" << std::endl;
@@ -183,7 +182,7 @@ int main (int argc, char *argv[])
 
 
 // topologies
-    std::cout << "building topologies.." << std::endl;
+    std::cout << "Building topologies.." << std::endl;
     NS_LOG_INFO ("Create nodes.");
     NodeContainer c;
     c.Create (3);
@@ -192,7 +191,7 @@ int main (int argc, char *argv[])
 
     DceManagerHelper dceManager;
 
-    std::cout << "setting memory size.." << std::endl;
+    std::cout << "Setting memory size.." << std::endl;
         //setting memory size for user and server
         
 #ifdef KERNEL_STACK
@@ -211,7 +210,7 @@ int main (int argc, char *argv[])
 	
 	if (TypeOfConnection=='w')
 	{
-	    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
+	    std::cout << "Generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
 	    mkdir ("files-2",0744);
 	    GenerateHtmlFile(htmlSize);
 	    SimuTime=100;
@@ -253,15 +252,15 @@ int main (int argc, char *argv[])
     return 0;
 #endif
 	
-    std::cout << "setting link.." << std::endl;
+    std::cout << "Setting link.." << std::endl;
 
 
 if (downloadMode) {
-	std::cout << " Download mode is used "<< std::endl;
+	std::cout << "Download mode is used "<< std::endl;
 	mode = 0;
 }
 if (!downloadMode) {
-	std::cout << " Upload mode is used "<< std::endl;
+	std::cout << "Upload mode is used "<< std::endl;
 	mode = 1;
 }
 
@@ -288,33 +287,34 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 	/*strangely, if em is not set at the begining, it doesn't want to compile.
 	therefore, i just put it here as a default object and to make sure it can
 	be build properly*/
-	std::cout << "the error model is "<< ErrorModel <<std::endl;
+	
+	
 	Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
 			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
 			    "ErrorRate", DoubleValue (errRate),
 			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
 			    );
-	std::cout << "building error model..." <<std::endl;
+	std::cout << "Building error model..." <<std::endl;
 
 	if (ErrorModel == 1)
 	{
-		std::cout << "the error model is Rate Error Model"<<std::endl;
+		std::cout << "Rate Error Model is selected"<<std::endl;
 		Ptr<RateErrorModel> em = CreateObjectWithAttributes<RateErrorModel> (
 			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
 			    "ErrorRate", DoubleValue (errRate),
 			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
 			    );
-		std::cout << "building error model completed" <<std::endl;
+		std::cout << "Building error model completed" <<std::endl;
 	}
 	else if (ErrorModel==2)
 	{
-		std::cout << "the error model is Burst Error Model" <<std::endl;
+		std::cout << "Burst Error Model is selected" <<std::endl;
 		Ptr<BurstErrorModel> em = CreateObjectWithAttributes<BurstErrorModel> (
 			    "BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1,Max=4]"),
 			    "BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"),
 			    "ErrorRate", DoubleValue (errRate)
 			    );
-		std::cout << "building error model completed" <<std::endl;
+		std::cout << "Building error model completed" <<std::endl;
 	}
 	else
 	{
@@ -326,7 +326,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
 // IP Address
     NS_LOG_INFO ("Assign IP Addresses.");
-    std::cout << "setting Ip addresses" << std::endl;
+    std::cout << "Setting IP addresses" << std::endl;
     Ipv4AddressHelper ipv4;
     //for client and BS net devices
         ipv4.SetBase ("10.1.1.0", "255.255.255.0");
@@ -336,7 +336,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
         Ipv4InterfaceContainer i1i2 = ipv4.Assign (d1d2);
 
 // Create router nodes, initialize routing database and set up the routing tables in the nodes.
-    std::cout << "creating simple routing table" << std::endl;
+    std::cout << "Creating routing table" << std::endl;
     Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
 #ifdef KERNEL_STACK
@@ -346,7 +346,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
 
 // Application
     NS_LOG_INFO ("Create Applications.");
-    std::cout << "creating applications.." << std::endl;
+    std::cout << "Creating Applications.." << std::endl;
     DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
@@ -432,7 +432,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	dce.AddArgument ("1");
        	ApplicationContainer SerApps0 = dce.Install (c.Get (0));
        	SerApps0.Start (Seconds (1));
-       	SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+       	//SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
        	// Launch iperf client on node 2
        	dce.SetBinary ("iperf");
@@ -449,7 +449,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	dce.AddArgument (IperfTime);
        	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
        	ClientApps0.Start (Seconds (1));
-       	ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+       	//ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
         else
             {
@@ -464,7 +464,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
              dce.AddArgument ("1");
              ApplicationContainer SerApps0 = dce.Install (c.Get (2));
              SerApps0.Start (Seconds (1));
-             SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+             //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
             // Launch iperf client on node 2           
             dce.SetBinary ("iperf");
@@ -481,7 +481,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
        	    dce.AddArgument (IperfTime);
        	    ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
        	    ClientApps0.Start (Seconds (1));
-       	    ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+       	    //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
             }
       }
       break;
@@ -521,7 +521,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument ("1");
             ApplicationContainer SerApps0 = dce.Install (c.Get (0));
             SerApps0.Start (Seconds (1));
-            SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+            //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
             // Launch iperf client on node 2
             dce.SetBinary ("iperf");
@@ -535,7 +535,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
             dce.AddArgument (IperfTime);
             ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
-            ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+            //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
       break;
     }
@@ -568,7 +568,8 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     p2p.EnableAsciiAll (ascii.CreateFileStream ("Kupakupa.tr"));
     p2p.EnablePcapAll ("kupakupa");
     NS_LOG_INFO ("Run Simulation.");
-    std::cout << "simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
+    
+    std::cout << "Simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
 
 
     Simulator::Stop (Seconds (EndTime));
@@ -576,7 +577,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     
     
     Simulator::Run ();
-    std::cout << "finish" << std::endl;
+    std::cout << "Simulation is completed" << std::endl;
     Simulator::Destroy ();
     NS_LOG_INFO ("Done.");
 

@@ -103,40 +103,31 @@ double kupagui::findDataUdp(string s){
  }
 
 void kupagui::printCalcThroughPut(double throughput){
+    QString unit;
     if (throughput < 1)
     {
         throughput=throughput*1000; // in Bit/Sec
         QString calTp = QString::number (throughput);
-        ui->output_result->append ("\n Calculated throughput is ");
-        ui->output_result->append (calTp);
-        ui->output_result->append (" bps");
+        unit="bps";
     }
     if (throughput < 100)
     {
-        QString calTp = QString::number (throughput);
-        ui->output_result->append ("\n Calculated throughput is ");
-        ui->output_result->append (calTp);
-        ui->output_result->append (" Kbps");
+        unit="Kbps";
     }
 
     if (throughput >= 100)
     {
         throughput=throughput/1000; // in Mbit/Sec
-        QString calTp = QString::number (throughput);
-        ui->output_result->append ("\n Calculated throughput is ");
-        ui->output_result->append (calTp);
-        ui->output_result->append (" Mbps");
+        unit="Mbps";
     }
 
     if (throughput >= 100000)
     {
         throughput=throughput/1000000; // in Gbit/Sec
-
-        QString calTp = QString::number (throughput);
-        ui->output_result->append ("\n Calculated throughput is ");
-        ui->output_result->append (calTp);
-        ui->output_result->append (" Gbps");
+        unit="Gbps";
     }
+    QString calTp = QString::number (throughput);
+    ui->output_result->append ("\nCalculated throughput is "+ calTp +" "+unit);
 
 }
 
@@ -659,7 +650,6 @@ void kupagui::on_button_getResult_clicked()
 
     if (resultNumber==1){
         ui->output_result->toPlainText ();
-        //ui->output_result->setText ("The last command run is tcp connection\n and the last line outputfile is "+q+"\n");
         //calculate throughput
         double tcp_time = findTime (n);
         double tcp_data = findData (n);
@@ -714,10 +704,11 @@ void kupagui::on_button_getResult_clicked()
             tcp_tp=tcp_tp;
             unit="bps";
           }
+
          QString tp = QString::number (tcp_tp);
-         ui->output_result->append ("Throughput is");
-         ui->output_result->append (tp);
-         ui->output_result->append (unit);
+         ui->output_result->setText ("IPERF throughput is" + tp + " " +unit );
+         //ui->output_result->append (tp);
+         //ui->output_result->append (unit+"\n");
          out << now.toString ()+ "\t"+tp + "\t";
          out << unit << " \t";
          printCalcThroughPut(throughput);
@@ -730,14 +721,15 @@ void kupagui::on_button_getResult_clicked()
             //if last sentence contains "out-of-order", we get the result from a line before that
             n = GetStdoutFromCommand ("tail -n 2 ./stdout-kupa.txt | head -n 1");
           }
-       //ui->output_result->setText ("the last command run is udp connection and the last line outputfile is "+QString::fromStdString (n));
 
         double udp_data = findDataUdp(n);
         QString jitter = QString::number (udp_data);
-        ui->output_result->append ("measured jitter is");
+
+        ui->output_result->setText ("Measured jitter is" + jitter + " ms");
+        //ui->output_result->append ("measured jitter is");
         ui->output_result->append (jitter);
         out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->theta_value->text ()+"\t"+ui->k_value->text ()+"\n";
-        ui->output_result->append ("ms");
+        //ui->output_result->append ("ms");
 
          printCalcThroughPut(throughput);
 
@@ -745,6 +737,7 @@ void kupagui::on_button_getResult_clicked()
     else if (resultNumber==3){
         ui->output_result->toPlainText ();
         //ui->output_result->setText ("the last command run is http connection and the last line outputfile is "+q);
+
         n = GetStdoutFromCommand ("tail -n 5 ./stdout-kupa.txt | head -n 1");
         double http_data = findDataHttp (n);
         double http_speed = findSpeedHttp (n);
@@ -752,43 +745,27 @@ void kupagui::on_button_getResult_clicked()
 
         if (n[n.find('s')-3]=='K'){
             http_time = http_time/1000;
-            QString ht = QString::number (http_time);
-            ui->output_result->append ("measured http time is");
-            ui->output_result->append (ht);
-            ui->output_result->append ("s");
-            out << now.toString () + "\t"+ht + "\t";
+
           }
         else if (n[n.find('s')-3]=='M'){
             http_time = http_time/1000000;
-            QString ht = QString::number (http_time);
-            ui->output_result->append ("measured http time is");
-            ui->output_result->append (ht);
-            ui->output_result->append ("s");
-            out << now.toString () + "\t"+ht + "\t";
+
           }
         else if (n[n.find('s')-3]=='G'){
             http_time = http_time/1000000000;
-            QString ht = QString::number (http_time);
-            ui->output_result->append ("measured http time is");
-            ui->output_result->append (ht);
-            ui->output_result->append ("s");
-            out << now.toString () + "\t"+ht + "\t";
-          }
-        else {
-            QString ht = QString::number (http_time);
-            ui->output_result->append ("measured http time is");
-            ui->output_result->append (ht);
-            ui->output_result->append ("s");
-            out << now.toString () + "\t"+ht + "\t";
+
           }
 
-        out << "ms \t" + ui->error_rate->text ()+"\n";
+        QString ht = QString::number (http_time);
+        ui->output_result->setText ("Measured download time is " + ht + " s");
+        out << now.toString () + "\t"+ht + "\t";
+        out << "s \t" + ui->error_rate->text ()+"\n";
 
          printCalcThroughPut(throughput);
       }
     else {
         ui->output_result->toPlainText ();
-        ui->output_result->setText ("this is unknown connection. Please run the generated command first!!");
+        ui->output_result->setText ("This is unknown connection. Please run the generated command first!!");
       }
     file.close();
     statusBar()->showMessage(tr("result loaded"));
@@ -980,16 +957,17 @@ void kupagui::on_actionSave_Command_triggered()
 string kupagui::RemoveComma (std::string& str)
 {
 int i = 0;
-std::cout<<"remove comma from "<< str << std::endl;
+//std::cout<<"remove comma from "<< str << std::endl;
 std::string str2=str;
 for (i=0; i<3; i++)
 {
 	std::size_t found=str.find(',');
 	if (found!=std::string::npos)
 	{
+	//std::cout<<"remove comma from "<< str << std::endl;
 	str2 = str.replace(str.find(','),1," ");
 	} else {
-	std::cout<<"no comma found..";
+	//std::cout<<"no comma found..";
 	}
 }
 std::cout<<str2;
