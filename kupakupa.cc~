@@ -65,7 +65,7 @@ int i = 0;
 std::string str2=str;
 for (i=0; i<3; i++)
 {
-	//std::cout << "coma: " << str << '\n';
+	
 	std::size_t found=str.find(',');
 	if (found!=std::string::npos) {
 	str2 = str.replace(str.find(','),1," ");
@@ -97,7 +97,7 @@ PrintTcpFlags (std::string key, std::string value)
 
 int main (int argc, char *argv[])
 {
-	double errRate = 0.01;
+	double errRate = 0.001;
 	std::string tcp_cc = "reno";
 	std::string tcp_mem_user = "4096 8192 8388608";
 	std::string tcp_mem_user_wmem = "4096 8192 8388608";
@@ -114,8 +114,8 @@ int main (int argc, char *argv[])
 
 	int jitter =1;
 	double alpha = 0;
-	double k = 0;
-	double theta = 0;
+	double mean = 0;
+	double variance = 0;
 	int monitor = 1;
 	int mode = 0;
 	
@@ -129,7 +129,7 @@ int main (int argc, char *argv[])
       	/*
 	unsigned int chan_jitter = 1;
 	double chan_alpha = 0.3;
-   	double chan_theta = 2;
+   	double chan_variance = 2;
 	double chan_k = 5;
         */
       CommandLine cmd;
@@ -162,8 +162,8 @@ int main (int argc, char *argv[])
 
     cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
     cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
-    cmd.AddValue ("chan_theta", "theta for random distribution in server-BS conection", theta);
-    cmd.AddValue ("chan_k", "k for random distribution in server-BS conection", k);
+    cmd.AddValue ("chan_variance", "variance for random distribution in server-BS conection", variance);
+    cmd.AddValue ("chan_mean", " Normal random distribution mean in server-BS conection", mean);
 	
      cmd.Parse (argc, argv);     
       
@@ -172,7 +172,7 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,mean,variance, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -296,8 +296,8 @@ p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 p2p.SetChannelAttribute ("Delay", StringValue (delay));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
 p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
-p2p.SetChannelAttribute ("k", DoubleValue (k));
-p2p.SetChannelAttribute ("theta", DoubleValue (theta));
+p2p.SetChannelAttribute ("mean", DoubleValue (mean));
+p2p.SetChannelAttribute ("variance", DoubleValue (variance));
 p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
 p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
 NetDeviceContainer d1d2 = p2p.Install (n1n2);

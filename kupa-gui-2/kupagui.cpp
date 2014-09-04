@@ -1,7 +1,7 @@
 #include "kupagui.h"
 #include "ui_kupagui.h"
 #include "tinyxml.h"
-
+#include "parseXml.h"
 #include <QFileDialog>
 #include <QSaveFile>
 #include <stdio.h>
@@ -172,21 +172,14 @@ void kupagui::on_button_generate_command_clicked()
 
     QString delay;
     QString chan_alpha;
-    QString chan_theta;
-    QString chan_k;
-    if (ui->TypeOfDelay->currentIndex ()==0){
-        chan_alpha=" --chan_alpha=0";
-        chan_theta=" --chan_theta=0";
-        chan_k=" --chan_k=0";
-        delay=" --delay="+ui->delay->text()+"ms";
-     }
-    if (ui->TypeOfDelay->currentIndex ()==1){
-        chan_alpha=" --chan_alpha="+ui->alpha_value->text ();
-        chan_theta=" --chan_theta="+ui->theta_value->text ();
-        chan_k=" --chan_k="+ui->k_value->text ();
-        delay=" --delay=0ms";
-     }
+    QString chan_variance;
+    QString chan_mean;
 
+
+    chan_alpha=" --chan_alpha="+ui->alpha_value->text ();
+    chan_variance=" --chan_variance="+ui->variance_value->text ();
+    chan_mean=" --chan_mean="+ui->mean_value->text ();
+    delay=" --delay=0ms";
 
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
@@ -416,13 +409,13 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_server_rmem=" --tcp_mem_server_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
          }
 
-        tcp_cc = " /home/nama/dce/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa  --TypeOfConnection=p --delay=0ms --ModeOperation=true --tcp_mem_user=8388608,8388608,8388608 --tcp_mem_server=8388608,8388608,8388608 --tcp_cc=reno --SimuTime=10.00 --user_bw=150Mbps --server_bw=10Gbps --ErrorModel=1 --errRate=0.000 --chan_alpha=0.300 --chan_k=1.00 --chan_theta=1.0 --chan_jitter=1--tcp_cc="+ui->tcp_cc_2->currentText().toLower();
+        tcp_cc = " --tcp_cc="+ui->tcp_cc_wget->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
         FinalCommand = TypeOfConnection + delay +  ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + file_size;
         resultNumber=3;
     }
 //concatenates all commands
-    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_k + chan_theta + chan_jitter;
+    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_mean + chan_variance + chan_jitter;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
     theCommand = FinalCommand.toUtf8 ().constData ();
@@ -517,244 +510,91 @@ void kupagui::on_actionLoad_Command_triggered()
   Rxml.setDevice(&file);
   Rxml.readNext();*/
 
-  TiXmlDocument readdoc(filename.toUtf8 ().constData ());
-  bool loadOkay = readdoc.LoadFile();
-  if(!loadOkay)
-          {
-          cerr << readdoc.ErrorDesc() << endl;
-          }
-  TiXmlElement* readroot = readdoc.FirstChildElement();
-  if(readroot == NULL)
-          {
-          cerr << "Failed to load file: No root element."<< endl;
-          readdoc.Clear();
-          }
+  char TypeOfConnection;
+  //string delay;
+  string tcp_cc,udp_bw,delay,server_bw,user_bw;
+  string tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem,tcp_mem_server,tcp_mem_server_wmem,tcp_mem_server_rmem;
+  int jitter,htmlSize,ErrorModel;
+  double alpha,mean,variance,SimuTime,errRate;
+  bool downloadMode;
 
-          string typeOfConectionTmp,httpSizeTmp;
-          string tcp_mem_user_min,tcp_mem_user_def,tcp_mem_user_max, tcp_mem_server_min,tcp_mem_server_def,tcp_mem_server_max;
-          ui->output_result->setText ("XML file LOADED!!");
-          for(TiXmlElement* elem = readroot->FirstChildElement(); elem != NULL; elem = elem->NextSiblingElement())
-                  {
-                  string elemName = elem->Value();
-                  if (elemName=="TypeOfConnection")
-                          {
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText();
-                          typeOfConectionTmp = text->Value();
+  ParseInput parser;
+  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,mean,variance, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+  if (TypeOfConnection=='p'){
+      ui->tabWidget->setCurrentIndex (0);
+      ui->tcp_cc->setCurrentText (QString::fromStdString (tcp_cc));
+      if (downloadMode){
+          ui->tcp_download->setChecked (true);
+        }
+      else {
+           ui->tcp_upload->setChecked (true);
+        }
+      ui->tcp_mem_user->setText (QString::fromStdString (tcp_mem_user));
+      ui->tcp_mem_user_wmem->setText (QString::fromStdString (tcp_mem_user_wmem));
+      ui->tcp_mem_user_rmem->setText (QString::fromStdString (tcp_mem_user_rmem));
 
-                          if (GetLowerCase(typeOfConectionTmp)=="http")
-                                  {
-                                  //TypeOfConnection =" --TypeOfConnection=w";
-                                  ui->tabWidget->setCurrentIndex (2);
-                                  }
+      ui->tcp_mem_server->setText (QString::fromStdString (tcp_mem_server));
+      ui->tcp_mem_server_wmem->setText (QString::fromStdString (tcp_mem_server_wmem));
+      ui->tcp_mem_server_rmem->setText (QString::fromStdString (tcp_mem_server_rmem));
+    }
+  if (TypeOfConnection=='u'){
+      ui->tabWidget->setCurrentIndex (1);
+      ui->udp_bw->setValue (atoi(udp_bw.c_str ()));
+      if (downloadMode){
+          ui->udp_download->setChecked (true);
+        }
+      else {
+           ui->udp_upload->setChecked (true);
+        }
+    }
+  if (TypeOfConnection=='w'){
+      ui->tabWidget->setCurrentIndex (2);
+      ui->tcp_cc_wget->setCurrentText (QString::fromStdString (tcp_cc));
+      ui->tcp_mem_user_wget->setText (QString::fromStdString (tcp_mem_user));
+      ui->tcp_mem_user_wmem_wget->setText (QString::fromStdString (tcp_mem_user_wmem));
+      ui->tcp_mem_user_rmem_wget->setText (QString::fromStdString (tcp_mem_user_rmem));
 
-                          if (GetLowerCase(typeOfConectionTmp)=="iperf-udp")
-                                  {
-                                  //TypeOfConnection =" --TypeOfConnection=u";
-                                  ui->tabWidget->setCurrentIndex (1);
-                                  }
+      ui->tcp_mem_server_wget->setText (QString::fromStdString (tcp_mem_server));
+      ui->tcp_mem_server_wmem_wget->setText (QString::fromStdString (tcp_mem_server_wmem));
+      ui->tcp_mem_server_rmem_wget->setText (QString::fromStdString (tcp_mem_server_rmem));
+    }
 
-                          if (GetLowerCase(typeOfConectionTmp)=="iperf-tcp")
-                                  {
-                                  //TypeOfConnection =" --TypeOfConnection=p";
-                                  ui->tabWidget->setCurrentIndex (0);
-                                  }
-                          }
-                  if (elemName=="congestionControl")
-                          {
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText();
-                          tcp_cc = text->Value();
-                          if (typeOfConectionTmp=="http"){
-                              ui->tcp_cc_2->setCurrentText (tcp_cc);
-                            }
-                          if (typeOfConectionTmp=="iperf-tcp"){
-                              ui->tcp_cc->setCurrentText (tcp_cc);
-                            }
-                          //tcp_cc = " --tcp_cc="+text->Value();
+  if (user_bw.find ('M')!=std::string::npos){
+      std::string v = user_bw.erase (user_bw.find ('M'),4);
+      ui->user_bw->setValue (atoi(v.c_str ()));
+      ui->user_bw_unit->setCurrentIndex (0);
+  }
+  if (user_bw.find ('G')!=std::string::npos){
+      std::string v = user_bw.erase (user_bw.find ('G'),4);
+      ui->user_bw->setValue (atoi(v.c_str ()));
+      ui->user_bw_unit->setCurrentIndex (1);
+  }
 
-                          }
-                  if (elemName=="UDPBandwidth")
-                          {
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText ();
-                          string udp_bwTemp = text->Value ();
-                          //udp_bw = " --udp_bw="+text->Value();
-                          ui->udp_bw->setValue (atoi(udp_bwTemp.c_str ()));
-                          }
-                  if (elemName=="ModeOperation")
-                          {
-                          std::locale loc;
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText();
-                          string modeOperTmp = text->Value();
-                          if (GetLowerCase(modeOperTmp)=="download") {
-                            //ModeOperation = true;
-                            if (GetLowerCase(typeOfConectionTmp)=="iperf-udp"){
-                                ui->udp_download->setChecked (true);
-                              } else {
-                                ui->tcp_download->setChecked (true);
-                              }
-                            }
-                          if (GetLowerCase(modeOperTmp)=="upload") {
-                            //ModeOperation = false;
-                            if (GetLowerCase(typeOfConectionTmp)=="iperf-udp"){
-                                ui->udp_upload->setChecked (true);
-                              } else {
-                                ui->tcp_upload->setChecked (true);
-                              }
-                            }
-                          }
-
-                  if (elemName=="Delay")
-                          {
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText();
-                          string d = text->Value ();
-                          string v = d.erase (d.find ('m'),2);
-                          //delay = " --delay="+text->Value()+"ms";
-                          ui->delay->setValue (atof (v.c_str ()));
-                          }
-                  if (elemName=="ErrorRate")
-                          {
-                          TiXmlNode* e = elem->FirstChild();
-                          TiXmlText* text = e->ToText();
-                          string errRateTmp = text->Value();
-                          double errRate = atof(errRateTmp.c_str());
-                          //error_rate=" --errRate="+errRateTmp;
-                          ui->error_rate->setValue(errRate);
-                          }
-                  if (elemName=="JitterParam")
-                          {
-                          string jitterTmp = elem->Attribute("jitter");
-                          if (jitterTmp=="false"){
-                          //jitter=0;
-                          //ui->jitter_check->setChecked (false);
-                          }
-                  else{
-                          //jitter=1;
-                          //ui->jitter_check->setChecked (true);
-                          }
-                          string alphaTmp = elem->Attribute("alpha");
-                          double alpha=atof(alphaTmp.c_str());
-                          ui->alpha_value->setValue (alpha);
-
-                          string kTmp= elem->Attribute("k");
-                          double k=atof(kTmp.c_str());
-                          ui->k_value->setValue (k);
-
-                          string thetaTmp = elem->Attribute("theta");
-                          double theta=atof(thetaTmp.c_str());
-                          ui->theta_value->setValue (theta);
-                          }
-
-          if (elemName=="UserBandwidth")
-                  {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  std::string user_bw = text->Value();
-                  if (user_bw.find ('M')!=std::string::npos){
-                      std::string v = user_bw.erase (user_bw.find ('M'),4);
-                      ui->user_bw->setValue (atoi(v.c_str ()));
-                      ui->user_bw_unit->setCurrentIndex (0);
-                  }
-                  if (user_bw.find ('G')!=std::string::npos){
-                      std::string v = user_bw.erase (user_bw.find ('G'),4);
-                      ui->user_bw->setValue (atoi(v.c_str ()));
-                      ui->user_bw_unit->setCurrentIndex (1);
-                  }
-          }
+  if (server_bw.find ('M')!=std::string::npos){
+      std::string v = server_bw.erase (server_bw.find ('M'),4);
+      ui->server_bw->setValue (atoi(v.c_str ()));
+      ui->server_bw_unit->setCurrentIndex (0);
+  }
+  if (server_bw.find ('G')!=std::string::npos){
+      std::string v = server_bw.erase (server_bw.find ('G'),4);
+      ui->server_bw->setValue (atoi(v.c_str ()));
+      ui->server_bw_unit->setCurrentIndex (1);
+  }
 
 
-          if (elemName=="ServerBandwidth")
-                  {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  std::string server_bw = text->Value();
-                  if (server_bw.find ('M')!=std::string::npos){
-                      std::string v = server_bw.erase (server_bw.find ('M'),4);
-                      ui->server_bw->setValue (atoi(v.c_str ()));
-                      ui->server_bw_unit->setCurrentIndex (0);
-                  }
-                  if (server_bw.find ('G')!=std::string::npos){
-                      std::string v = server_bw.erase (server_bw.find ('G'),4);
-                      ui->server_bw->setValue (atoi(v.c_str ()));
-                      ui->server_bw_unit->setCurrentIndex (1);
-                  }
-                  }
-          if (elemName=="ErrorModel")
-                  {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  string ErrorModelTmp=text->Value();
-                  //ErrorModel = atoi(ErrorModelTmp.c_str());
-                  if (ErrorModelTmp=="1"){
-                      ui->error_model->setCurrentIndex (0);
-                    } else {
-                      ui->error_model->setCurrentIndex (1);
-                    }
-                  }
-          if (elemName=="SizeOfHttpFile")
-                  {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  std::string httpSizeTmp = text->Value();
-                  int htmlSize=atoi(httpSizeTmp.c_str());
-                  ui->wget_file_size->setValue (htmlSize);
-                  }
-          if (elemName=="SimuTime")
-                  {
-                  TiXmlNode* e = elem->FirstChild();
-                  TiXmlText* text = e->ToText();
-                  std::string simuTimeTmp = text->Value();
-                  int simuTime=atoi(simuTimeTmp.c_str());
-                  if (typeOfConectionTmp=="iperf-tcp"){
-                      ui->iperf_time->setValue (simuTime);
-                    }else {
-                      ui->iperf_time_udp->setValue (simuTime);
-                    }
+  if (ErrorModel==1){
+      ui->error_model->setCurrentIndex (0);
+    }
+  else {
+      ui->error_model->setCurrentIndex (1);
+    }
 
-                  }
-          if (elemName=="UserMemory")
-                  {
-                  tcp_mem_user_min = elem->Attribute("min");
-                  tcp_mem_user_def = elem->Attribute("default");
-                  tcp_mem_user_max = elem->Attribute("max");
+  ui->error_rate->setValue(errRate);
 
-                  QString qtcp_mem_user_min = QString::fromStdString (tcp_mem_user_min);
-                  QString qtcp_mem_user_def = QString::fromStdString (tcp_mem_user_def);
-                  QString qtcp_mem_user_max = QString::fromStdString (tcp_mem_user_max);
+  ui->alpha_value->setValue (alpha);
+  ui->mean_value->setValue (mean);
+  ui->variance_value->setValue (variance);
 
-                  if (typeOfConectionTmp=="http")
-                          {
-                          ui->tcp_mem_user_wget->setText (qtcp_mem_user_min+" "+qtcp_mem_user_def+ " "+qtcp_mem_user_max);
-                          }
-                  if (typeOfConectionTmp=="iperf-tcp")
-                          {
-                           ui->tcp_mem_user->setText (qtcp_mem_user_min+" "+qtcp_mem_user_def+ " "+qtcp_mem_user_max);
-                          }
-                  }
-          if (elemName=="ServerMemory")
-                  {
-                  tcp_mem_server_min = elem->Attribute("min");
-                  tcp_mem_server_def = elem->Attribute("default");
-                  tcp_mem_server_max = elem->Attribute("max");
-
-                  QString qtcp_mem_server_min = QString::fromStdString (tcp_mem_server_min);
-                  QString qtcp_mem_server_def = QString::fromStdString (tcp_mem_server_def);
-                  QString qtcp_mem_server_max = QString::fromStdString (tcp_mem_server_max);
-
-                  if (typeOfConectionTmp=="http")
-                          {
-                          ui->tcp_mem_server_wget->setText (qtcp_mem_server_min+" "+qtcp_mem_server_def+ " "+qtcp_mem_server_max);
-                          }
-                  if (typeOfConectionTmp=="iperf-tcp")
-                          {
-                           ui->tcp_mem_server->setText (qtcp_mem_server_min+" "+qtcp_mem_server_def+ " "+qtcp_mem_server_max);
-                          }
-
-                  }
-          }
   on_button_generate_command_clicked ();
   statusBar()->showMessage(tr("Xml loaded"));
   }
@@ -864,7 +704,7 @@ void kupagui::on_button_getResult_clicked()
         ui->output_result->setText ("Measured jitter is " + jitter + " ms");
         //ui->output_result->append ("measured jitter is");
         //ui->output_result->append (jitter);
-        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->theta_value->text ()+"\t"+ui->k_value->text ()+"\n";
+        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->variance_value->text ()+"\t"+ui->mean_value->text ()+"\n";
         //ui->output_result->append ("ms");
 
          printCalcThroughPut(throughput);
@@ -997,7 +837,7 @@ void kupagui::on_actionSave_Command_triggered()
       simuTime = ui->iperf_time_udp->text ();
     } else {
       type="http";
-      congestion = ui->tcp_cc_2->currentText ().toLower ();
+      congestion = ui->tcp_cc_wget->currentText ().toLower ();
       server_param = ui->tcp_mem_server_wget->text ().toUtf8 ().constData ();
       user_param = ui->tcp_mem_user_wget->text ().toUtf8 ().constData ();
     }
@@ -1008,14 +848,14 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("congestionControl", congestion);
   xmlWriter.writeTextElement("UDPBandwidth", ui->udp_bw->text ());
   xmlWriter.writeTextElement("ModeOperation", mode);
-  xmlWriter.writeTextElement("Delay", ui->delay->text()+"ms");
+  xmlWriter.writeTextElement("Delay", "0ms");
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
 
   xmlWriter.writeStartElement("JitterParam");
   xmlWriter.writeAttribute("jitter", "true");
   xmlWriter.writeAttribute("alpha",ui->alpha_value->text ());
-  xmlWriter.writeAttribute("k",ui->k_value->text ());
-  xmlWriter.writeAttribute("theta",ui->theta_value->text ());
+  xmlWriter.writeAttribute("k",ui->mean_value->text ());
+  xmlWriter.writeAttribute("variance",ui->variance_value->text ());
 
   xmlWriter.writeEndElement();
 

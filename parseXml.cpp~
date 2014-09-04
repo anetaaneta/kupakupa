@@ -16,7 +16,7 @@ return stringName;
 }
 
 void
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,double& SimuTime,bool& downloadMode, double& errRate, int& jitter, double& alpha,double& k,double& theta,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,double& SimuTime,bool& downloadMode, double& errRate, int& jitter, double& alpha,double& mean,double& variance,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
     
 
 TiXmlDocument readdoc(fileName.c_str());
@@ -93,7 +93,7 @@ if (elemName=="SimulationTime")
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 simuTimeTmp = text->Value();
-SimuTime=atoi(simuTimeTmp.c_str());
+SimuTime=atof(simuTimeTmp.c_str());
 }
 
 if (elemName=="ModeOperation")
@@ -129,10 +129,10 @@ jitter=1;
 }	
 string alphaTmp = elem->Attribute("alpha");
 alpha=atof(alphaTmp.c_str());
-string kTmp= elem->Attribute("k");
-k=atof(kTmp.c_str());	
-string thetaTmp = elem->Attribute("theta");
-theta=atof(thetaTmp.c_str());
+string MeanTmp= elem->Attribute("mean");
+mean=atof(MeanTmp.c_str());	
+string varianceTmp = elem->Attribute("variance");
+variance=atof(varianceTmp.c_str());
 }
 
 if (elemName=="UserBandwidth")
