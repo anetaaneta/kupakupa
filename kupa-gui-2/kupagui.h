@@ -30,6 +30,7 @@ public:
     double findSpeedHttp(string s);
     string RemoveComma (std::string& str);
     void printCalcThroughPut(double throughput);
+    string GetLowerCase(string stringName);
 
 private slots:
     void on_button_run_clicked();

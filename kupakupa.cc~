@@ -162,7 +162,7 @@ int main (int argc, char *argv[])
 
     cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
     cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
-    cmd.AddValue ("chan_variance", "variance for normal random distribution in server-BS conection", variance);
+    cmd.AddValue ("chan_variance", "variance for random distribution in server-BS conection", variance);
     cmd.AddValue ("chan_mean", " Normal random distribution mean in server-BS conection", mean);
 	
      cmd.Parse (argc, argv);     
