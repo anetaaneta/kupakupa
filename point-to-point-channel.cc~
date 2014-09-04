@@ -252,7 +252,7 @@ PointToPointChannel::TransmitStart (
 			        if (packetSize >= 100) {
 				        m_noPacketFlow+=1;
 				        if (m_noPacketFlow==1 && m_firstPacket==true) {
-				                std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
 					        firstSend.open ("firstSend.txt");

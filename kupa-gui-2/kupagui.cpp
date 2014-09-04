@@ -24,7 +24,11 @@ QString ModeOperation = " --ModeOperation=true";
 string theCommand;
 int resultNumber;
 QString tcp_mem_user ="";
+QString tcp_mem_user_wmem ="";
+QString tcp_mem_user_rmem ="";
 QString tcp_mem_server = "";
+QString tcp_mem_server_wmem = "";
+QString tcp_mem_server_rmem = "";
 QString tcp_cc = "";
 QString SimuTime="";
 QString udp_bw="";
@@ -141,15 +145,8 @@ return stringName;
 void kupagui::on_button_generate_command_clicked()
 {
     QString FinalCommand = "";
-    //QString TypeOfConnection = "";
+
     QString ModeOperation = " --ModeOperation=true";
-    QString delay=" --delay="+ui->delay->text()+"ms";
-    /*QString tcp_mem_user ="";
-    QString tcp_mem_server = "";
-    QString tcp_cc = "";
-    QString SimuTime="";
-    QString udp_bw="";
-    QString file_size="";*/
     QString userBwUnit;
     if (ui->user_bw_unit->currentIndex()==0) {
         userBwUnit="Mbps";
@@ -170,16 +167,27 @@ void kupagui::on_button_generate_command_clicked()
 
     dce_source = ui->dce_source->text ().toUtf8 ().constData ();
 
-    //if (ui->jitter_check->isChecked ()==true){
-        chan_jitter=" --chan_jitter=1";
-      /*}else{
-        chan_jitter=" --chan_jitter=0";
-      }*/
 
-    QString chan_alpha=" --chan_alpha="+ui->alpha_value->text();
-    QString chan_theta=" --chan_theta="+ui->theta_value->text ();
-    QString chan_k=" --chan_k="+ui->k_value->text ();
-    //QString error_model="";
+    chan_jitter=" --chan_jitter=1";
+
+    QString delay;
+    QString chan_alpha;
+    QString chan_theta;
+    QString chan_k;
+    if (ui->TypeOfDelay->currentIndex ()==0){
+        chan_alpha=" --chan_alpha=0";
+        chan_theta=" --chan_theta=0";
+        chan_k=" --chan_k=0";
+        delay=" --delay="+ui->delay->text()+"ms";
+     }
+    if (ui->TypeOfDelay->currentIndex ()==1){
+        chan_alpha=" --chan_alpha="+ui->alpha_value->text ();
+        chan_theta=" --chan_theta="+ui->theta_value->text ();
+        chan_k=" --chan_k="+ui->k_value->text ();
+        delay=" --delay=0ms";
+     }
+
+
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
     }else{
@@ -189,7 +197,8 @@ void kupagui::on_button_generate_command_clicked()
     int min, def, max;
     std::size_t first, second;
     first=0;second=0;
-    string mem_user, mem_server;
+    string mem_user,wmem_user, rmem_user;
+    string mem_server, wmem_server, rmem_server;
 
 /* -----------------------for iperf tcp--------------------------- */
     if (ui->tabWidget->currentIndex()==0){
@@ -198,38 +207,100 @@ void kupagui::on_button_generate_command_clicked()
             ModeOperation = " --ModeOperation=false";
         }
         if (ui->tcp_mem_user->displayText().isEmpty() == false){
-        mem_user = ui->tcp_mem_user->text ().toUtf8 ().constData ();
-        mem_user = RemoveComma (mem_user);
+            mem_user = ui->tcp_mem_user->text ().toUtf8 ().constData ();
+            mem_user = RemoveComma (mem_user);
 
-        first = mem_user.find(' ');
-          if (first!=std::string::npos){
-            min=atoi(mem_user.substr (0,first).c_str ());
+            first = mem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(mem_user.substr (0,first).c_str ());
             }
-        second = mem_user.find(' ', first+2);
-          if (second!=std::string::npos){
-            def=atoi(mem_user.substr (first, second-first).c_str ());
-            max= atoi(mem_user.substr (second).c_str ());
+            second = mem_user.find(' ', first+2);
+            if (second!=std::string::npos){
+                def=atoi(mem_user.substr (first, second-first).c_str ());
+                max= atoi(mem_user.substr (second).c_str ());
             }
-        tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+            tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+           }
+        if (ui->tcp_mem_user_wmem->displayText().isEmpty() == false){
+            wmem_user = ui->tcp_mem_user_wmem->text ().toUtf8 ().constData ();
+            wmem_user = RemoveComma (wmem_user);
+
+            first = wmem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(wmem_user.substr (0,first).c_str ());
             }
+            second = wmem_user.find(' ', first+2);
+            if (second!=std::string::npos){
+                def=atoi(wmem_user.substr (first, second-first).c_str ());
+                max= atoi(wmem_user.substr (second).c_str ());
+            }
+            tcp_mem_user_wmem=" --tcp_mem_user_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
+        if (ui->tcp_mem_user_rmem->displayText().isEmpty() == false){
+            rmem_user = ui->tcp_mem_user_rmem->text ().toUtf8 ().constData ();
+            rmem_user = RemoveComma (rmem_user);
+            first = rmem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(rmem_user.substr (0,first).c_str ());
+            }
+            second = rmem_user.find(' ', first+2);
+            if (second!=std::string::npos){
+                def=atoi(rmem_user.substr (first, second-first).c_str ());
+                max= atoi(rmem_user.substr (second).c_str ());
+            }
+            tcp_mem_user_rmem=" --tcp_mem_user_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
         if (ui->tcp_mem_server->displayText().isEmpty() == false){
             mem_server = ui->tcp_mem_server->text ().toUtf8 ().constData ();
             mem_server = RemoveComma (mem_server);
 
             first = mem_server.find(' ');
-              if (first!=std::string::npos){
+            if (first!=std::string::npos){
                 min=atoi(mem_server.substr (0,first).c_str ());
-                }
+            }
             second = mem_server.find(' ', first+2);
-              if (second!=std::string::npos){
+            if (second!=std::string::npos){
                 def=atoi(mem_server.substr (first, second-first).c_str ());
                 max= atoi(mem_server.substr (second).c_str ());
-                }
-            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
             }
+            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
+
+        if (ui->tcp_mem_server_wmem->displayText().isEmpty() == false){
+            wmem_server = ui->tcp_mem_server_wmem->text ().toUtf8 ().constData ();
+            wmem_server = RemoveComma (wmem_server);
+
+            first = wmem_server.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(wmem_server.substr (0,first).c_str ());
+            }
+            second = wmem_server.find(' ', first+2);
+            if (second!=std::string::npos){
+                def=atoi(wmem_server.substr (first, second-first).c_str ());
+                max= atoi(wmem_server.substr (second).c_str ());
+            }
+            tcp_mem_server_wmem=" --tcp_mem_server_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+         }
+
+        if (ui->tcp_mem_server_rmem->displayText().isEmpty() == false){
+            rmem_server = ui->tcp_mem_server_rmem->text ().toUtf8 ().constData ();
+            rmem_server = RemoveComma (rmem_server);
+
+            first = rmem_server.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(rmem_server.substr (0,first).c_str ());
+            }
+            second = rmem_server.find(' ', first+2);
+            if (second!=std::string::npos){
+                def=atoi(rmem_server.substr (first, second-first).c_str ());
+                max= atoi(rmem_server.substr (second).c_str ());
+            }
+            tcp_mem_server_rmem=" --tcp_mem_server_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+         }
+
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
-        FinalCommand = TypeOfConnection + delay + ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + SimuTime;
+        FinalCommand = TypeOfConnection + delay + ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + SimuTime;
         resultNumber=1;
     }
 /* -----------------------for iperf udp--------------------------- */
@@ -240,8 +311,8 @@ void kupagui::on_button_generate_command_clicked()
         }
 
         udp_bw=" --udp_bw="+ui->udp_bw->text();
-        SimuTime =" --SimuTime="+ui->iperf_time_2->text();
-        FinalCommand = TypeOfConnection + delay +  ModeOperation + udp_bw;
+        SimuTime =" --SimuTime="+ui->iperf_time_udp->text();
+        FinalCommand = TypeOfConnection + delay +  ModeOperation + udp_bw + SimuTime;
         resultNumber=2;
     }
 
@@ -249,40 +320,105 @@ void kupagui::on_button_generate_command_clicked()
     else if(ui->tabWidget->currentIndex()==2){
         TypeOfConnection =" --TypeOfConnection=w";
 
-        if (ui->tcp_mem_user_2->displayText().isEmpty() == false){
-        mem_user = ui->tcp_mem_user_2->text ().toUtf8 ().constData ();
-        mem_user = RemoveComma (mem_user);
+        if (ui->tcp_mem_user_wget->displayText().isEmpty() == false){
+            mem_user = ui->tcp_mem_user_wget->text ().toUtf8 ().constData ();
+            mem_user = RemoveComma (mem_user);
 
-        first = mem_user.find(' ');
-          if (first!=std::string::npos){
-            min=atoi(mem_user.substr (0,first).c_str ());
+            first = mem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(mem_user.substr (0,first).c_str ());
             }
-        second = mem_user.find(' ', first+1);
-          if (second!=std::string::npos){
-            def=atoi(mem_user.substr (first, second-first).c_str ());
-            max= atoi(mem_user.substr (second).c_str ());
+            second = mem_user.find(' ', first+1);
+            if (second!=std::string::npos){
+                def=atoi(mem_user.substr (first, second-first).c_str ());
+                max= atoi(mem_user.substr (second).c_str ());
             }
-        tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+            tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
+
+        if (ui->tcp_mem_user_wmem_wget->displayText().isEmpty() == false){
+            wmem_user = ui->tcp_mem_user_wmem_wget->text ().toUtf8 ().constData ();
+            wmem_user = RemoveComma (wmem_user);
+
+            first = wmem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(wmem_user.substr (0,first).c_str ());
             }
-        if (ui->tcp_mem_server_2->displayText().isEmpty() == false){
-            mem_server = ui->tcp_mem_server_2->text ().toUtf8 ().constData ();
+            second = wmem_user.find(' ', first+1);
+            if (second!=std::string::npos){
+                def=atoi(wmem_user.substr (first, second-first).c_str ());
+                max= atoi(wmem_user.substr (second).c_str ());
+            }
+            tcp_mem_user_wmem=" --tcp_mem_user_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
+
+        if (ui->tcp_mem_user_rmem_wget->displayText().isEmpty() == false){
+            rmem_user = ui->tcp_mem_user_rmem_wget->text ().toUtf8 ().constData ();
+            rmem_user = RemoveComma (rmem_user);
+
+            first = rmem_user.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(rmem_user.substr (0,first).c_str ());
+            }
+            second = rmem_user.find(' ', first+1);
+            if (second!=std::string::npos){
+                def=atoi(rmem_user.substr (first, second-first).c_str ());
+                max= atoi(rmem_user.substr (second).c_str ());
+            }
+            tcp_mem_user_rmem=" --tcp_mem_user_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+        }
+
+        if (ui->tcp_mem_server_wget->displayText().isEmpty() == false){
+            mem_server = ui->tcp_mem_server_wget->text ().toUtf8 ().constData ();
             mem_server = RemoveComma (mem_server);
 
             first = mem_server.find(' ');
-              if (first!=std::string::npos){
+            if (first!=std::string::npos){
                 min=atoi(mem_server.substr (0,first).c_str ());
-                }
+            }
             second = mem_server.find(' ', first+1);
-              if (second!=std::string::npos){
+            if (second!=std::string::npos){
                 def=atoi(mem_server.substr (first, second-first).c_str ());
                 max= atoi(mem_server.substr (second).c_str ());
-                }
-            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
             }
+            tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+         }
 
-        tcp_cc = " --tcp_cc="+ui->tcp_cc_2->currentText().toLower();
+        if (ui->tcp_mem_server_wmem_wget->displayText().isEmpty() == false){
+            wmem_server = ui->tcp_mem_server_wmem_wget->text ().toUtf8 ().constData ();
+            wmem_server = RemoveComma (wmem_server);
+
+            first = wmem_server.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(wmem_server.substr (0,first).c_str ());
+            }
+            second = wmem_server.find(' ', first+1);
+            if (second!=std::string::npos){
+                def=atoi(wmem_server.substr (first, second-first).c_str ());
+                max= atoi(wmem_server.substr (second).c_str ());
+            }
+            tcp_mem_server_wmem=" --tcp_mem_server_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+         }
+
+        if (ui->tcp_mem_server_rmem_wget->displayText().isEmpty() == false){
+            rmem_server = ui->tcp_mem_server_rmem_wget->text ().toUtf8 ().constData ();
+            rmem_server = RemoveComma (rmem_server);
+
+            first = rmem_server.find(' ');
+            if (first!=std::string::npos){
+                min=atoi(rmem_server.substr (0,first).c_str ());
+            }
+            second = rmem_server.find(' ', first+1);
+            if (second!=std::string::npos){
+                def=atoi(rmem_server.substr (first, second-first).c_str ());
+                max= atoi(rmem_server.substr (second).c_str ());
+            }
+            tcp_mem_server_rmem=" --tcp_mem_server_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
+         }
+
+        tcp_cc = " /home/nama/dce/source/ns-3-dce/build/myscripts/kupakupa/bin/kupakupa  --TypeOfConnection=p --delay=0ms --ModeOperation=true --tcp_mem_user=8388608,8388608,8388608 --tcp_mem_server=8388608,8388608,8388608 --tcp_cc=reno --SimuTime=10.00 --user_bw=150Mbps --server_bw=10Gbps --ErrorModel=1 --errRate=0.000 --chan_alpha=0.300 --chan_k=1.00 --chan_theta=1.0 --chan_jitter=1--tcp_cc="+ui->tcp_cc_2->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
-        FinalCommand = TypeOfConnection + delay +  ModeOperation +tcp_mem_user + tcp_mem_server + tcp_cc + file_size;
+        FinalCommand = TypeOfConnection + delay +  ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + file_size;
         resultNumber=3;
     }
 //concatenates all commands
@@ -575,7 +711,7 @@ void kupagui::on_actionLoad_Command_triggered()
                   if (typeOfConectionTmp=="iperf-tcp"){
                       ui->iperf_time->setValue (simuTime);
                     }else {
-                      ui->iperf_time_2->setValue (simuTime);
+                      ui->iperf_time_udp->setValue (simuTime);
                     }
 
                   }
@@ -591,7 +727,7 @@ void kupagui::on_actionLoad_Command_triggered()
 
                   if (typeOfConectionTmp=="http")
                           {
-                          ui->tcp_mem_user_2->setText (qtcp_mem_user_min+" "+qtcp_mem_user_def+ " "+qtcp_mem_user_max);
+                          ui->tcp_mem_user_wget->setText (qtcp_mem_user_min+" "+qtcp_mem_user_def+ " "+qtcp_mem_user_max);
                           }
                   if (typeOfConectionTmp=="iperf-tcp")
                           {
@@ -610,7 +746,7 @@ void kupagui::on_actionLoad_Command_triggered()
 
                   if (typeOfConectionTmp=="http")
                           {
-                          ui->tcp_mem_server_2->setText (qtcp_mem_server_min+" "+qtcp_mem_server_def+ " "+qtcp_mem_server_max);
+                          ui->tcp_mem_server_wget->setText (qtcp_mem_server_min+" "+qtcp_mem_server_def+ " "+qtcp_mem_server_max);
                           }
                   if (typeOfConectionTmp=="iperf-tcp")
                           {
@@ -706,7 +842,7 @@ void kupagui::on_button_getResult_clicked()
           }
 
          QString tp = QString::number (tcp_tp);
-         ui->output_result->setText ("IPERF throughput is" + tp + " " +unit );
+         ui->output_result->setText ("IPERF throughput is " + tp + " " +unit );
          //ui->output_result->append (tp);
          //ui->output_result->append (unit+"\n");
          out << now.toString ()+ "\t"+tp + "\t";
@@ -725,9 +861,9 @@ void kupagui::on_button_getResult_clicked()
         double udp_data = findDataUdp(n);
         QString jitter = QString::number (udp_data);
 
-        ui->output_result->setText ("Measured jitter is" + jitter + " ms");
+        ui->output_result->setText ("Measured jitter is " + jitter + " ms");
         //ui->output_result->append ("measured jitter is");
-        ui->output_result->append (jitter);
+        //ui->output_result->append (jitter);
         out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->theta_value->text ()+"\t"+ui->k_value->text ()+"\n";
         //ui->output_result->append ("ms");
 
@@ -858,12 +994,12 @@ void kupagui::on_actionSave_Command_triggered()
     } else if (ui->tabWidget->currentIndex ()==1){
       type="iperf-udp";
       mode = ui->udp_download->isChecked ()? "download":"upload";
-      simuTime = ui->iperf_time_2->text ();
+      simuTime = ui->iperf_time_udp->text ();
     } else {
       type="http";
       congestion = ui->tcp_cc_2->currentText ().toLower ();
-      server_param = ui->tcp_mem_server_2->text ().toUtf8 ().constData ();
-      user_param = ui->tcp_mem_user_2->text ().toUtf8 ().constData ();
+      server_param = ui->tcp_mem_server_wget->text ().toUtf8 ().constData ();
+      user_param = ui->tcp_mem_user_wget->text ().toUtf8 ().constData ();
     }
 
 

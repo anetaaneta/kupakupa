@@ -19,7 +19,7 @@ using namespace std;
 NS_LOG_COMPONENT_DEFINE ("kupakupa");
 
 //function to turn interger to string for iperf input
-string IntToString (int a)
+string DoubleToString (double a)
 {
     ostringstream temp;
     temp<<a;
@@ -60,10 +60,12 @@ string SplitLastValue (const std::string& str)
 //to remove comma if user make input with comma
 string RemoveComma (std::string& str) 
 {
+//std::cout << "test : " << str << '\n';
 int i = 0;
 std::string str2=str;
 for (i=0; i<3; i++)
 {
+	//std::cout << "coma: " << str << '\n';
 	std::size_t found=str.find(',');
 	if (found!=std::string::npos) {
 	str2 = str.replace(str.find(','),1," ");
@@ -98,7 +100,12 @@ int main (int argc, char *argv[])
 	double errRate = 0.01;
 	std::string tcp_cc = "reno";
 	std::string tcp_mem_user = "4096 8192 8388608";
+	std::string tcp_mem_user_wmem = "4096 8192 8388608";
+	std::string tcp_mem_user_rmem = "4096 8192 8388608";
+	
 	std::string tcp_mem_server = "4096 8192 8388608";
+	std::string tcp_mem_server_wmem = "4096 8192 8388608";
+	std::string tcp_mem_server_rmem = "4096 8192 8388608";
 
 	std::string udp_bw="1";
 	std::string delay = "2ms";
@@ -106,14 +113,14 @@ int main (int argc, char *argv[])
 	std::string server_bw = "10Gbps";
 
 	int jitter =1;
-	double alpha = 0.3;
-	double k = 100;
-	double theta = 2;
+	double alpha = 0;
+	double k = 0;
+	double theta = 0;
 	int monitor = 1;
 	int mode = 0;
 	
        int ErrorModel = 1;
-       int SimuTime = 50;
+       double SimuTime = 50;
        int htmlSize = 2; // in mega bytes
        char TypeOfConnection = 'p'; // iperf tcp connection
        bool downloadMode = true;
@@ -132,7 +139,17 @@ int main (int argc, char *argv[])
       cmd.AddValue ("ModeOperation", "If true it's download mode for UE, else will do upload. http will always do download", downloadMode);
       cmd.AddValue ("tcp_cc", "TCP congestion control algorithm. Default is reno. Other options: bic, cubic, highspeed, htcp, hybla, illinois, lp, probe, scalable, vegas, veno, westwood, yeah", tcp_cc);
       cmd.AddValue ("tcp_mem_user", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user);
+      
+      cmd.AddValue ("tcp_mem_user_wmem", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user_wmem);
+      
+      cmd.AddValue ("tcp_mem_user_rmem", "put 3 values (min, default, max) separaed by comma for tcp_mem in user, range 4096-16000000", 		     tcp_mem_user_rmem);
+      
       cmd.AddValue ("tcp_mem_server", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server);
+      
+     cmd.AddValue ("tcp_mem_server_wmem", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server_wmem);
+            
+     cmd.AddValue ("tcp_mem_server_rmem", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server_rmem);
+                  
       cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
       cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
 
@@ -155,19 +172,19 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_server);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,k,theta, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
 	    {
 	    case 'u': //iperf udp connection
-	    	std::cout << "iperf udp connection is selected" << std::endl;
+	    	std::cout << "IPERF-UDP connection is selected" << std::endl;
 	    	break;
 	    case 'w': //thttpd - wget connection, always in download mode
-	        std::cout << "thttpd - wget connection is selected" << std::endl;
+	        std::cout << "HTTP connection is selected" << std::endl;
 	      break;
 	     case 'p': //thttpd - wget connection, always in download mode
-	        std::cout << "iperf tcp connection is selected" << std::endl;
+	        std::cout << "IPERF-TCP connection is selected" << std::endl;
 	      break;
 	    default:
 	      std::cout << "Unknown link type : " << TypeOfConnection << " ?" << std::endl;
@@ -202,49 +219,51 @@ int main (int argc, char *argv[])
     
     	//let's remove the comma
 	tcp_mem_user = RemoveComma(tcp_mem_user);
+	tcp_mem_user_wmem = RemoveComma(tcp_mem_user_wmem);
+	tcp_mem_user_rmem = RemoveComma(tcp_mem_user_rmem);
+	
 	tcp_mem_server = RemoveComma(tcp_mem_server);
-
+	tcp_mem_server_wmem = RemoveComma(tcp_mem_server_wmem);
+	tcp_mem_server_rmem = RemoveComma(tcp_mem_server_rmem);
+	
 	//assume coma has been removed
-	std::string tcp_mem_user_max = SplitLastValue(tcp_mem_user);
-	std::string tcp_mem_server_max = SplitLastValue(tcp_mem_server);
+	std::string tcp_mem_user_max_wmem = SplitLastValue(tcp_mem_server_wmem);
+	std::string tcp_mem_user_max_rmem = SplitLastValue(tcp_mem_server_rmem);
+	
+	std::string tcp_mem_server_max_wmem = SplitLastValue(tcp_mem_server_wmem);
+	std::string tcp_mem_server_max_rmem = SplitLastValue(tcp_mem_server_rmem);
 	
 	if (TypeOfConnection=='w')
 	{
-	    std::cout << "generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
+	    std::cout << "Generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
 	    mkdir ("files-2",0744);
 	    GenerateHtmlFile(htmlSize);
 	    SimuTime=100;
-	    if (htmlSize*1000 > atoi(tcp_mem_user_max.c_str())){
+	    if (htmlSize*1000 > atoi(tcp_mem_user_max_wmem.c_str())){
 	    
-		double tmp2=atof(tcp_mem_user_max.c_str())/(htmlSize*1000);
-		double SimuTimeTmp = (htmlSize*10)/(tmp2)*1.5*(htmlSize/tmp2);
-		SimuTime=(int)SimuTimeTmp;
+		double tmp2=atof(tcp_mem_user_max_wmem.c_str())/(htmlSize*1000);
+		SimuTime = (htmlSize*10)/(tmp2)*1.5*(htmlSize/tmp2);
+		
 
 	    }
 
-	}	
-	std::string IperfTime = IntToString(SimuTime);	
+	}
+		
+    std::string IperfTime = DoubleToString(SimuTime);	
 	
-    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_mem", "5000 5000 5000");
-    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_mem", "5000 5000 5000");
-    
-    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user);
-    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user);
-    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server);
-    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server);
-
-    stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_mem_user_max);
-    stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_mem_user_max);
-
-    stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_mem_server_max);
-    stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_mem_server_max);
-    
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_mem", tcp_mem_user);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user_wmem);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user_rmem);
+    stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_mem_user_max_wmem);
+    stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_mem_user_max_rmem);
     stack.SysctlSet (c.Get(0), ".net.core.netdev_max_backlog", "250000");
+        
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_mem", tcp_mem_server);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server_wmem);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server_rmem);
+    stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_mem_server_max_wmem);
+    stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_mem_server_max_rmem);
     stack.SysctlSet (c.Get(2), ".net.core.netdev_max_backlog", "250000");
-    
-
-    
-
     stack.SysctlSet (c, ".net.ipv4.tcp_congestion_control", tcp_cc);
 #else
     NS_LOG_ERROR ("Linux kernel stack for DCE is not available. build with dce-linux module.");
@@ -268,9 +287,9 @@ if (!downloadMode) {
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
-	p2p.SetChannelAttribute ("Delay", StringValue (delay));
+	p2p.SetChannelAttribute ("Delay", StringValue ("0"));
 	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
-	p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
+	p2p.SetChannelAttribute ("mode",UintegerValue (mode));
 	NetDeviceContainer d0d1 = p2p.Install (n0n1);
 //channel for server to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
@@ -350,7 +369,15 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
-	int EndTime = 2*SimuTime;
+	int EndTime;
+	//std::cout << "simutime"<<SimuTime<< std::endl;
+	//std::cout << "simutime"<<IperfTime<< std::endl;
+	if (SimuTime<=20) {
+	   EndTime=30;	
+	}
+	else {
+	 EndTime = 2*SimuTime;
+	 }
 
   switch (TypeOfConnection)
     {
@@ -569,7 +596,7 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     p2p.EnablePcapAll ("kupakupa");
     NS_LOG_INFO ("Run Simulation.");
     
-    std::cout << "Simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
+    //std::cout << "Simulation will take about "<< (SimuTime) <<"seconds." << std::endl;
 
 
     Simulator::Stop (Seconds (EndTime));
