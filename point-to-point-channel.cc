@@ -49,13 +49,13 @@ PointToPointChannel::GetTypeId (void)
                    DoubleValue (0.4),
                    MakeDoubleAccessor (&PointToPointChannel::m_alpha),
                    MakeDoubleChecker<int64_t>())
-	.AddAttribute ("k", "Set gamma distribution k value",
+	.AddAttribute ("mean", "Set normal distribution mean value",
                    DoubleValue (5.0),
-                   MakeDoubleAccessor (&PointToPointChannel::m_k),
+                   MakeDoubleAccessor (&PointToPointChannel::m_mean),
                    MakeDoubleChecker<int64_t>())
-        .AddAttribute ("theta", "Set gamma distribution theta value",
+        .AddAttribute ("variance", "Set normal distribution variance value",
                    DoubleValue (2.0),
-                   MakeDoubleAccessor (&PointToPointChannel::m_theta),
+                   MakeDoubleAccessor (&PointToPointChannel::m_variance),
                    MakeDoubleChecker<int64_t>())
          .AddAttribute ("monitor", "download or upload mode, 0 set mode to download",
                    UintegerValue (0),
@@ -83,8 +83,8 @@ PointToPointChannel::PointToPointChannel()
     m_nDevices (0),
     m_jitter (0),
     m_alpha (0.4),
-    m_k (5.0),
-    m_theta (2.0),
+    m_mean (5.0),
+    m_variance (2.0),
     m_monitor (0),
     m_mode (0),
     m_prevRcvTime(Seconds (0.)),
@@ -191,7 +191,7 @@ PointToPointChannel::TransmitStart (
   }
   else
   {
-        if (m_k==0 && m_theta==0) {
+       /* if (m_mean==0 && m_variance==0) {
         
              Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                           m_delay, &PointToPointNetDevice::Receive,
@@ -238,18 +238,18 @@ PointToPointChannel::TransmitStart (
 	         }
               
              }  
-        }
+        } */
         
-        else {
+       // else {
           //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
           m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
           m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
 
           
-          double prevDelay =(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
-          double cur_delay = (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
+          double prevDelay =(m_previousDelay==0)? NormalRandomValue():m_previousDelay;
+          double cur_delay = (1-m_alpha)*prevDelay+m_alpha*NormalRandomValue();
           
-          //std::cout << wire <<"  current delay = "<< Time(cur_delay).GetMicroSeconds() << std::endl;
+          std::cout << wire <<"  current delay = "<< Time(cur_delay).GetMicroSeconds() << std::endl;
           
           Time rcvTime = Simulator::Now()+ Time(cur_delay);
 
@@ -334,7 +334,7 @@ PointToPointChannel::TransmitStart (
 	        
 	        
           }
-    }
+    //}
   }
   return true;
 }
@@ -390,19 +390,22 @@ PointToPointChannel::IsInitialized (void) const
   return true;
 }
 double
-PointToPointChannel::GammaRandomValue()
+PointToPointChannel::NormalRandomValue()
 {
 
 
-  Ptr<GammaRandomVariable> x = CreateObject<GammaRandomVariable> ();
-  x->SetAttribute ("Alpha", DoubleValue (m_k));
-  x->SetAttribute ("Beta", DoubleValue (m_theta));
+  Ptr<NormalRandomVariable> x = CreateObject<NormalRandomVariable> ();
+  x->SetAttribute ("Mean", DoubleValue (m_mean));
+  x->SetAttribute ("Variance", DoubleValue (m_variance));
   // The expected value for the mean of the values returned by a
   // gammaly distributed random variable is equal to
   //
   // E[value] = alpha * beta .
   //
   double value = x->GetValue ()* double(1000000); // in 1ms
+  if (value<0) {
+        value =0;
+  }
   return value;
 }
 

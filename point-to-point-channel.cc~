@@ -138,11 +138,12 @@ PointToPointChannel::TransmitStart (
   uint32_t wire = src == m_link[0].m_src ? 0 : 1;
   if (m_jitter==0)
   {
-
+  
           Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                           txTime+m_delay, &PointToPointNetDevice::Receive,
                                           m_link[wire].m_dst, p);
                                           
+                                                   
           // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
@@ -190,6 +191,56 @@ PointToPointChannel::TransmitStart (
   }
   else
   {
+        if (m_k==0 && m_theta==0) {
+        
+             Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                          m_delay, &PointToPointNetDevice::Receive,
+                                          m_link[wire].m_dst, p);
+              m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0),m_delay);
+              
+              //std::cout << wire <<"  static delay = "<< m_delay.GetMicroSeconds() << std::endl;
+              if (m_monitor==1) {
+                  if (m_mode==1){
+		          if (wire==0){
+		                int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_lastRecFlow=Simulator::Now()+m_delay;
+				        std::ofstream lastReceive;
+				        lastReceive.open ("lastReceive.txt");
+				        lastReceive << m_lastRecFlow.GetNanoSeconds();
+				        lastReceive.close();
+				        m_sumPacketFlow+=packetSize-2;
+				        
+				        std::ofstream recTotal;
+				        recTotal.open ("recTotal.txt");
+				        recTotal << m_sumPacketFlow;
+				        recTotal.close();
+			        }
+		          }
+	          }
+	          
+
+	          if (m_mode==0){
+		          if (wire==1){
+			        int32_t packetSize = p->GetSize();
+			        if (packetSize >= 100) {
+				        m_noPacketFlow+=1;
+				        if (m_noPacketFlow==1 && m_firstPacket==true) {
+				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+					        m_firstRecFlow=Simulator::Now();
+					        std::ofstream firstSend;
+					        firstSend.open ("firstSend.txt");
+					        firstSend << m_firstRecFlow.GetNanoSeconds();
+					        firstSend.close();
+				         } 
+			        }
+		          }
+	         }
+              
+             }  
+        }
+        
+        else {
           //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
           m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
           m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
@@ -198,7 +249,7 @@ PointToPointChannel::TransmitStart (
           double prevDelay =(m_previousDelay==0)? GammaRandomValue():m_previousDelay;
           double cur_delay = (1-m_alpha)*prevDelay+m_alpha*GammaRandomValue();
           
-          //std::cout <<"  current delay = "<< Time(cur_delay).GetMilliSeconds() << std::endl;
+          //std::cout << wire <<"  current delay = "<< Time(cur_delay).GetMicroSeconds() << std::endl;
           
           Time rcvTime = Simulator::Now()+ Time(cur_delay);
 
@@ -283,7 +334,7 @@ PointToPointChannel::TransmitStart (
 	        
 	        
           }
-
+    }
   }
   return true;
 }
