@@ -162,7 +162,7 @@ int main (int argc, char *argv[])
 
     cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
     cmd.AddValue ("chan_alpha", "alpha for random distribution in server-BS conection", alpha);
-    cmd.AddValue ("chan_variance", "variance for random distribution in server-BS conection", variance);
+    cmd.AddValue ("chan_variance", "variance for normal random distribution in server-BS conection", variance);
     cmd.AddValue ("chan_mean", " Normal random distribution mean in server-BS conection", mean);
 	
      cmd.Parse (argc, argv);     
@@ -369,16 +369,12 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
-	int EndTime;
-	//std::cout << "simutime"<<SimuTime<< std::endl;
-	//std::cout << "simutime"<<IperfTime<< std::endl;
-	if (SimuTime<=20) {
-	   EndTime=30;	
+	int EndTime = 2*SimuTime;;
+	
+	if (EndTime<=20) {
+	   EndTime=40;	
 	}
-	else {
-	 EndTime = 2*SimuTime;
-	 }
-
+	
   switch (TypeOfConnection)
     {
     case 'p':

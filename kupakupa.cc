@@ -369,16 +369,12 @@ NetDeviceContainer d1d2 = p2p.Install (n1n2);
     DceApplicationHelper dce;
 
 	dce.SetStackSize (1 << 20);
-	int EndTime;
-	//std::cout << "simutime"<<SimuTime<< std::endl;
-	//std::cout << "simutime"<<IperfTime<< std::endl;
-	if (SimuTime<=20) {
-	   EndTime=30;	
+	int EndTime = 2*SimuTime;;
+	
+	if (EndTime<=100) {
+	   EndTime=100;	
 	}
-	else {
-	 EndTime = 2*SimuTime;
-	 }
-
+	
   switch (TypeOfConnection)
     {
     case 'p':

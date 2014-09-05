@@ -249,7 +249,7 @@ PointToPointChannel::TransmitStart (
           double prevDelay =(m_previousDelay==0)? NormalRandomValue():m_previousDelay;
           double cur_delay = (1-m_alpha)*prevDelay+m_alpha*NormalRandomValue();
           
-          std::cout << wire <<"  current delay = "<< Time(cur_delay).GetMicroSeconds() << std::endl;
+         //std::cout << wire <<"  current delay = "<< Time(prevDelay).GetMicroSeconds() << std::endl;
           
           Time rcvTime = Simulator::Now()+ Time(cur_delay);
 
@@ -261,7 +261,7 @@ PointToPointChannel::TransmitStart (
                   std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
                   std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
                   */
-                  rcvTime= m_prevRcvTime;
+                  rcvTime= m_prevRcvTime+Time(50000); // add 0.05 milisecond
                   //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
                   cur_delay=(rcvTime-Simulator::Now()).GetDouble();
           }
