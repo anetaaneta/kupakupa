@@ -26,6 +26,34 @@ string DoubleToString (double a)
     return temp.str();
 }
 
+double findPk(double k)
+   {
+       FILE * fp;
+       char * line = NULL;
+       size_t len = 0;
+       ssize_t read;
+       stringstream ss;
+       string lineString;
+       double pk;
+       fp = fopen("pk.txt", "r");
+       if (fp == NULL)
+           exit(EXIT_FAILURE);
+
+       while ((read = getline(&line, &len, fp)) != -1) {
+           //printf("Retrieved line of length %zu :\n", read);
+           //printf("%s", line);
+           ss << line;
+           ss >> lineString;
+           unsigned found = lineString.find_last_of(",");
+           double kTmp = atof(lineString.substr(0,found).c_str());
+           if (kTmp==k) {
+               pk=atof(lineString.substr(found+1).c_str());
+           }
+           
+           
+       }
+	return pk;
+   }
 
 void GenerateHtmlFile (int fileSize)
 {
@@ -173,7 +201,7 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,jitter,k, pdv, delay, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,jitter,k, pdv, avg_delay, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -197,11 +225,11 @@ int main (int argc, char *argv[])
 // calculating theta and delay
 double delay;
 double theta;
-double pk=0.1;     
-theta = pdv/0.1;
-delay = avg_delay-k*theta;
-    
 
+double pk=findPk(k);     
+theta = pdv/pk;
+delay = avg_delay-k*theta;
+ 
 
 // topologies
     std::cout << "Building topologies.." << std::endl;

@@ -26,6 +26,34 @@ string DoubleToString (double a)
     return temp.str();
 }
 
+double findPk(double k)
+   {
+       FILE * fp;
+       char * line = NULL;
+       size_t len = 0;
+       ssize_t read;
+       stringstream ss;
+       string lineString;
+       double pk;
+       fp = fopen("pk.txt", "r");
+       if (fp == NULL)
+           exit(EXIT_FAILURE);
+
+       while ((read = getline(&line, &len, fp)) != -1) {
+           //printf("Retrieved line of length %zu :\n", read);
+           //printf("%s", line);
+           ss << line;
+           ss >> lineString;
+           unsigned found = lineString.find_last_of(",");
+           double kTmp = atof(lineString.substr(0,found).c_str());
+           if (kTmp==k) {
+               pk=atof(lineString.substr(found+1).c_str());
+           }
+           
+           
+       }
+	return pk;
+   }
 
 void GenerateHtmlFile (int fileSize)
 {
@@ -197,11 +225,14 @@ int main (int argc, char *argv[])
 // calculating theta and delay
 double delay;
 double theta;
-double pk=0.1;     
-theta = pdv/0.1;
-delay = avg_delay-k*theta;
-    
 
+double pk=findPk(k);     
+theta = pdv/pk;
+delay = avg_delay-k*theta;
+if (delay < 0) {
+	std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
+	return 0;
+}
 
 // topologies
     std::cout << "Building topologies.." << std::endl;
