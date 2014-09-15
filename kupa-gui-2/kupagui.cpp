@@ -313,8 +313,8 @@ void kupagui::on_button_generate_command_clicked()
     else if(ui->tabWidget->currentIndex()==2){
         TypeOfConnection =" --TypeOfConnection=w";
 
-        if (ui->tcp_mem_user_2->displayText().isEmpty() == false){
-            mem_user = ui->tcp_mem_user_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_user_wget->displayText().isEmpty() == false){
+            mem_user = ui->tcp_mem_user_wget->text ().toUtf8 ().constData ();
             mem_user = RemoveComma (mem_user);
 
             first = mem_user.find(' ');
@@ -329,8 +329,8 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_user=" --tcp_mem_user="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
         }
 
-        if (ui->tcp_mem_user_wmem_2->displayText().isEmpty() == false){
-            wmem_user = ui->tcp_mem_user_wmem_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_user_wmem_wget->displayText().isEmpty() == false){
+            wmem_user = ui->tcp_mem_user_wmem_wget->text ().toUtf8 ().constData ();
             wmem_user = RemoveComma (wmem_user);
 
             first = wmem_user.find(' ');
@@ -345,8 +345,8 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_user_wmem=" --tcp_mem_user_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
         }
 
-        if (ui->tcp_mem_user_rmem_2->displayText().isEmpty() == false){
-            rmem_user = ui->tcp_mem_user_rmem_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_user_rmem_wget->displayText().isEmpty() == false){
+            rmem_user = ui->tcp_mem_user_rmem_wget->text ().toUtf8 ().constData ();
             rmem_user = RemoveComma (rmem_user);
 
             first = rmem_user.find(' ');
@@ -361,8 +361,8 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_user_rmem=" --tcp_mem_user_rmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
         }
 
-        if (ui->tcp_mem_server_2->displayText().isEmpty() == false){
-            mem_server = ui->tcp_mem_server_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_server_wget->displayText().isEmpty() == false){
+            mem_server = ui->tcp_mem_server_wget->text ().toUtf8 ().constData ();
             mem_server = RemoveComma (mem_server);
 
             first = mem_server.find(' ');
@@ -377,8 +377,8 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_server=" --tcp_mem_server="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
          }
 
-        if (ui->tcp_mem_server_wmem_2->displayText().isEmpty() == false){
-            wmem_server = ui->tcp_mem_server_wmem_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_server_wmem_wget->displayText().isEmpty() == false){
+            wmem_server = ui->tcp_mem_server_wmem_wget->text ().toUtf8 ().constData ();
             wmem_server = RemoveComma (wmem_server);
 
             first = wmem_server.find(' ');
@@ -393,8 +393,8 @@ void kupagui::on_button_generate_command_clicked()
             tcp_mem_server_wmem=" --tcp_mem_server_wmem="+QString::number (min)+","+QString::number (def)+","+QString::number (max);
          }
 
-        if (ui->tcp_mem_server_rmem_2->displayText().isEmpty() == false){
-            rmem_server = ui->tcp_mem_server_rmem_2->text ().toUtf8 ().constData ();
+        if (ui->tcp_mem_server_rmem_wget->displayText().isEmpty() == false){
+            rmem_server = ui->tcp_mem_server_rmem_wget->text ().toUtf8 ().constData ();
             rmem_server = RemoveComma (rmem_server);
 
             first = rmem_server.find(' ');
@@ -550,13 +550,13 @@ void kupagui::on_actionLoad_Command_triggered()
   if (TypeOfConnection=='w'){
       ui->tabWidget->setCurrentIndex (2);
       ui->tcp_cc_wget->setCurrentText (QString::fromStdString (tcp_cc));
-      ui->tcp_mem_user_2->setText (QString::fromStdString (tcp_mem_user));
-      ui->tcp_mem_user_wmem_2->setText (QString::fromStdString (tcp_mem_user_wmem));
-      ui->tcp_mem_user_rmem_2->setText (QString::fromStdString (tcp_mem_user_rmem));
+      ui->tcp_mem_user_wget->setText (QString::fromStdString (tcp_mem_user));
+      ui->tcp_mem_user_wmem_wget->setText (QString::fromStdString (tcp_mem_user_wmem));
+      ui->tcp_mem_user_rmem_wget->setText (QString::fromStdString (tcp_mem_user_rmem));
 
-      ui->tcp_mem_server_2->setText (QString::fromStdString (tcp_mem_server));
-      ui->tcp_mem_server_wmem_2->setText (QString::fromStdString (tcp_mem_server_wmem));
-      ui->tcp_mem_server_rmem_2->setText (QString::fromStdString (tcp_mem_server_rmem));
+      ui->tcp_mem_server_wget->setText (QString::fromStdString (tcp_mem_server));
+      ui->tcp_mem_server_wmem_wget->setText (QString::fromStdString (tcp_mem_server_wmem));
+      ui->tcp_mem_server_rmem_wget->setText (QString::fromStdString (tcp_mem_server_rmem));
     }
 
   if (user_bw.find ('M')!=std::string::npos){
@@ -847,12 +847,12 @@ void kupagui::on_actionSave_Command_triggered()
     } else {
       type="http";
       congestion = ui->tcp_cc_wget->currentText ().toLower ();
-      server_param = ui->tcp_mem_server_2->text ().toUtf8 ().constData ();
-      user_param = ui->tcp_mem_user_2->text ().toUtf8 ().constData ();
-      server_param_rmem = ui->tcp_mem_server_rmem_2->text ().toUtf8 ().constData ();
-      server_param_wmem=ui->tcp_mem_server_wmem_2->text ().toUtf8 ().constData ();
-      user_param_rmem=ui->tcp_mem_user_rmem_2->text ().toUtf8 ().constData ();
-      user_param_wmem=ui->tcp_mem_user_wmem_2->text ().toUtf8 ().constData ();
+      server_param = ui->tcp_mem_server_wget->text ().toUtf8 ().constData ();
+      user_param = ui->tcp_mem_user_wget->text ().toUtf8 ().constData ();
+      server_param_rmem = ui->tcp_mem_server_rmem_wget->text ().toUtf8 ().constData ();
+      server_param_wmem=ui->tcp_mem_server_wmem_wget->text ().toUtf8 ().constData ();
+      user_param_rmem=ui->tcp_mem_user_rmem_wget->text ().toUtf8 ().constData ();
+      user_param_wmem=ui->tcp_mem_user_wmem_wget->text ().toUtf8 ().constData ();
     }
 
 

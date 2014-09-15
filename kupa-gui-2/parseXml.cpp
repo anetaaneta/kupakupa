@@ -18,6 +18,29 @@ return stringName;
 void
 ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,double& SimuTime,bool& downloadMode, double& errRate, int& jitter, double& alpha,double& mean,double& variance,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
 
+// set default value
+TypeOfConnection='p';
+tcp_cc="reno";
+udp_bw="10";
+delay="0ms";
+SimuTime=50;
+downloadMode=true;
+errRate=0.001;
+jitter=1;
+alpha=0.3;
+mean=3;
+variance=2;
+ErrorModel=1;
+user_bw = "150Mbps";
+server_bw = "10Gbps";
+htmlSize = 2;
+tcp_mem_user = "4096 8192 8388608";
+tcp_mem_user_wmem = "4096 8192 8388608";
+tcp_mem_user_rmem = "4096 8192 8388608";
+tcp_mem_server = "4096 8192 8388608";
+tcp_mem_server_wmem = "4096 8192 8388608";
+tcp_mem_server_rmem = "4096 8192 8388608";
+
 
 TiXmlDocument readdoc(fileName.c_str());
 bool loadOkay = readdoc.LoadFile();
