@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'kupagui.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.2.1)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.3.1)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'kupagui.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.2.1. It"
+#error "This file was generated using the moc from 5.3.1. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -20,12 +20,12 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_kupagui_t {
     QByteArrayData data[12];
-    char stringdata[297];
+    char stringdata[296];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    offsetof(qt_meta_stringdata_kupagui_t, stringdata) + ofs \
-        - idx * sizeof(QByteArrayData) \
+    qptrdiff(offsetof(qt_meta_stringdata_kupagui_t, stringdata) + ofs \
+        - idx * sizeof(QByteArrayData)) \
     )
 static const qt_meta_stringdata_kupagui_t qt_meta_stringdata_kupagui = {
     {
@@ -51,7 +51,7 @@ QT_MOC_LITERAL(11, 265, 30)
     "on_actionEdit_XML_triggered\0"
     "on_actionAbout_triggered\0"
     "on_actionSave_Command_triggered\0"
-    "on_button_changefolder_clicked\0"
+    "on_button_changefolder_clicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -69,16 +69,16 @@ static const uint qt_meta_data_kupagui[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   64,    2, 0x08,
-       3,    0,   65,    2, 0x08,
-       4,    0,   66,    2, 0x08,
-       5,    0,   67,    2, 0x08,
-       6,    0,   68,    2, 0x08,
-       7,    0,   69,    2, 0x08,
-       8,    0,   70,    2, 0x08,
-       9,    0,   71,    2, 0x08,
-      10,    0,   72,    2, 0x08,
-      11,    0,   73,    2, 0x08,
+       1,    0,   64,    2, 0x08 /* Private */,
+       3,    0,   65,    2, 0x08 /* Private */,
+       4,    0,   66,    2, 0x08 /* Private */,
+       5,    0,   67,    2, 0x08 /* Private */,
+       6,    0,   68,    2, 0x08 /* Private */,
+       7,    0,   69,    2, 0x08 /* Private */,
+       8,    0,   70,    2, 0x08 /* Private */,
+       9,    0,   71,    2, 0x08 /* Private */,
+      10,    0,   72,    2, 0x08 /* Private */,
+      11,    0,   73,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
