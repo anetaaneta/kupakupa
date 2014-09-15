@@ -30,7 +30,7 @@ string DoubleToString (double a)
 void GenerateHtmlFile (int fileSize)
 {
 	std::ofstream myfile;
-	myfile.open ("files-5/index.html");
+	myfile.open ("files-2/index.html");
 
 	myfile << "<http>\n <body>\n";
 	std::vector<char> empty(1024, 0);
@@ -201,18 +201,11 @@ int main (int argc, char *argv[])
 // topologies
     std::cout << "Building topologies.." << std::endl;
     NS_LOG_INFO ("Create nodes.");
-    NodeContainer mobile,BS,core,router;
-    mobile.Create(1);
-    router.Create(2);
-    BS.Create(2);
-    core.Create (1);
-    NodeContainer mobileRouter = NodeContainer (mobile.Get (0), router.Get (0));
-    NodeContainer routerBSDown = NodeContainer (router.Get (0), BS.Get (0));
-    NodeContainer routerBSUp = NodeContainer (router.Get (0), BS.Get (1));
-    NodeContainer BSRouterDown = NodeContainer (BS.Get (0),router.Get (1));
-    NodeContainer BSRouterUp = NodeContainer (BS.Get (1), router.Get (1));
-    NodeContainer routerCore = NodeContainer (router.Get (1), core.Get (0));
-    
+    NodeContainer c;
+    c.Create (3);
+    NodeContainer n0n1 = NodeContainer (c.Get (0), c.Get (1));
+    NodeContainer n1n2 = NodeContainer (c.Get (1), c.Get (2));
+
     DceManagerHelper dceManager;
 
     std::cout << "Setting memory size.." << std::endl;
@@ -221,14 +214,8 @@ int main (int argc, char *argv[])
 #ifdef KERNEL_STACK
     dceManager.SetNetworkStack ("ns3::LinuxSocketFdFactory", "Library", StringValue ("liblinux.so"));
     LinuxStackHelper stack;
-    stack.Install (mobile);
-    stack.Install (router);
-    stack.Install (BS);
-    stack.Install (core);
-    dceManager.Install (mobile);
-    dceManager.Install (router);
-    dceManager.Install (BS);
-    dceManager.Install (core);
+    stack.Install (c);
+    dceManager.Install (c);
     
     	//let's remove the comma
 	tcp_mem_user = RemoveComma(tcp_mem_user);
@@ -249,7 +236,7 @@ int main (int argc, char *argv[])
 	if (TypeOfConnection=='w')
 	{
 	    std::cout << "Generating html file with size =" << htmlSize <<"Mbytes" << std::endl;
-	    mkdir ("files-5",0744);
+	    mkdir ("files-2",0744);
 	    GenerateHtmlFile(htmlSize);
 	    SimuTime=100;
 	    if (htmlSize*1000 > atoi(tcp_mem_user_max_wmem.c_str())){
@@ -264,23 +251,20 @@ int main (int argc, char *argv[])
 		
     std::string IperfTime = DoubleToString(SimuTime);	
 	
-    stack.SysctlSet (mobile.Get(0), ".net.ipv4.tcp_mem", tcp_mem_user);
-    stack.SysctlSet (mobile.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user_wmem);
-    stack.SysctlSet (mobile.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user_rmem);
-    stack.SysctlSet (mobile.Get(0), ".net.core.wmem_max", tcp_mem_user_max_wmem);
-    stack.SysctlSet (mobile.Get(0), ".net.core.rmem_max", tcp_mem_user_max_rmem);
-    stack.SysctlSet (mobile.Get(0), ".net.core.netdev_max_backlog", "250000");
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_mem", tcp_mem_user);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_user_wmem);
+    stack.SysctlSet (c.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_user_rmem);
+    stack.SysctlSet (c.Get(0), ".net.core.wmem_max", tcp_mem_user_max_wmem);
+    stack.SysctlSet (c.Get(0), ".net.core.rmem_max", tcp_mem_user_max_rmem);
+    stack.SysctlSet (c.Get(0), ".net.core.netdev_max_backlog", "250000");
         
-    stack.SysctlSet (core.Get(0), ".net.ipv4.tcp_mem", tcp_mem_server);
-    stack.SysctlSet (core.Get(0), ".net.ipv4.tcp_wmem", tcp_mem_server_wmem);
-    stack.SysctlSet (core.Get(0), ".net.ipv4.tcp_rmem", tcp_mem_server_rmem);
-    stack.SysctlSet (core.Get(0), ".net.core.wmem_max", tcp_mem_server_max_wmem);
-    stack.SysctlSet (core.Get(0), ".net.core.rmem_max", tcp_mem_server_max_rmem);
-    stack.SysctlSet (core.Get(0), ".net.core.netdev_max_backlog", "250000");
-    stack.SysctlSet (mobile, ".net.ipv4.tcp_congestion_control", tcp_cc);
-    stack.SysctlSet (BS, ".net.ipv4.tcp_congestion_control", tcp_cc);
-    stack.SysctlSet (core, ".net.ipv4.tcp_congestion_control", tcp_cc);
-    stack.SysctlSet (router, ".net.ipv4.tcp_congestion_control", tcp_cc);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_mem", tcp_mem_server);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_wmem", tcp_mem_server_wmem);
+    stack.SysctlSet (c.Get(2), ".net.ipv4.tcp_rmem", tcp_mem_server_rmem);
+    stack.SysctlSet (c.Get(2), ".net.core.wmem_max", tcp_mem_server_max_wmem);
+    stack.SysctlSet (c.Get(2), ".net.core.rmem_max", tcp_mem_server_max_rmem);
+    stack.SysctlSet (c.Get(2), ".net.core.netdev_max_backlog", "250000");
+    stack.SysctlSet (c, ".net.ipv4.tcp_congestion_control", tcp_cc);
 #else
     NS_LOG_ERROR ("Linux kernel stack for DCE is not available. build with dce-linux module.");
     //silently exit
@@ -299,72 +283,24 @@ if (!downloadMode) {
 	mode = 1;
 }
 
-// channel for mobile router to BS
+// channel for user to BS
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0"));
-	if (mode==0) {
-	   p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
-	} else {
-	   p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-	}
+	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
 	p2p.SetChannelAttribute ("mode",UintegerValue (mode));
-	NetDeviceContainer chanRouterBSDown = p2p.Install (routerBSDown);
-	
-	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
-	p2p.SetChannelAttribute ("Delay", StringValue ("0"));
-	if (mode==1) {
-	   p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
-	} else {
-	   p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-	}
-	p2p.SetChannelAttribute ("mode",UintegerValue (mode));
-	NetDeviceContainer chanRouterBSUp = p2p.Install (routerBSUp);
-	
-//channel for core router to BS
+	NetDeviceContainer d0d1 = p2p.Install (n0n1);
+//channel for server to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 p2p.SetChannelAttribute ("Delay", StringValue (delay));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
 p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
 p2p.SetChannelAttribute ("mean", DoubleValue (mean));
 p2p.SetChannelAttribute ("variance", DoubleValue (variance));
-if (mode==0) {
-	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
-} else {
-	p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-}
+p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
 p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
-NetDeviceContainer chanBSRouterDown = p2p.Install (BSRouterDown);
-
-p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
-p2p.SetChannelAttribute ("Delay", StringValue (delay));
-p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
-p2p.SetChannelAttribute ("alpha", DoubleValue (alpha));
-p2p.SetChannelAttribute ("mean", DoubleValue (mean));
-p2p.SetChannelAttribute ("variance", DoubleValue (variance));
-if (mode==1) {
-	p2p.SetChannelAttribute ("monitor", UintegerValue (monitor));
-} else {
-	p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-}
-p2p.SetChannelAttribute ("mode",UintegerValue (mode) );
-NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
-
-
-// channel for mobile router to mobile and mobile router to core
-	p2p.SetDeviceAttribute ("DataRate", StringValue ("100Gbps"));
-	p2p.SetChannelAttribute ("Delay", StringValue ("0"));
-	p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-	p2p.SetChannelAttribute ("transparent", UintegerValue (1));
-	NetDeviceContainer chanMobileRouter = p2p.Install (mobileRouter);
-	
-	p2p.SetDeviceAttribute ("DataRate", StringValue ("100Gbps"));
-	p2p.SetChannelAttribute ("Delay", StringValue ("0"));
-	p2p.SetChannelAttribute ("monitor", UintegerValue (0));
-	p2p.SetChannelAttribute ("transparent", UintegerValue (1));
-	NetDeviceContainer chanRouterCore = p2p.Install (routerCore);
-	
+NetDeviceContainer d1d2 = p2p.Install (n1n2);
 //error model options
 
 	/*strangely, if em is not set at the begining, it doesn't want to compile.
@@ -411,64 +347,16 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     NS_LOG_INFO ("Assign IP Addresses.");
     std::cout << "Setting IP addresses" << std::endl;
     Ipv4AddressHelper ipv4;
-    //for router mobile and BS net devices
+    //for client and BS net devices
         ipv4.SetBase ("10.1.1.0", "255.255.255.0");
-    	Ipv4InterfaceContainer IPRouterBSDown = ipv4.Assign (chanRouterBSDown);
-
-    	ipv4.SetBase ("10.2.1.0", "255.255.255.0");
-    	Ipv4InterfaceContainer IPRouterBSUp = ipv4.Assign (chanRouterBSUp);
-    	
-        //for router core and BS devices
+    Ipv4InterfaceContainer i0i1 = ipv4.Assign (d0d1);
+        //for server and BS devices
         ipv4.SetBase ("10.1.2.0", "255.255.255.0");
-        Ipv4InterfaceContainer IPBSRouterDown = ipv4.Assign (chanBSRouterDown);
-        
-        ipv4.SetBase ("10.2.2.0", "255.255.255.0");
-        Ipv4InterfaceContainer IPBSRouterUp= ipv4.Assign (chanBSRouterUp);
+        Ipv4InterfaceContainer i1i2 = ipv4.Assign (d1d2);
 
-        // for router to mobile and core
-        ipv4.SetBase ("10.9.1.0", "255.255.255.0");
-        Ipv4InterfaceContainer IPMobileRouter = ipv4.Assign (chanMobileRouter);
-        
-        ipv4.SetBase ("10.9.2.0", "255.255.255.0");
-        Ipv4InterfaceContainer IPRouterCore = ipv4.Assign (chanRouterCore);
-        
 // Create router nodes, initialize routing database and set up the routing tables in the nodes.
     std::cout << "Creating routing table" << std::endl;
-    std::ostringstream cmd_oss;
-    	
-    //Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
-    // setup ip routes
-    // mobile
-	cmd_oss.str ("");
-	cmd_oss << "route add "<< "10.9.2.2"<<"/255.255.255.255" <<" via " <<"10.9.1.2";
-	LinuxStackHelper::RunIp (mobile.Get (0), Seconds (0.1), cmd_oss.str ().c_str ());
-    // core
-       cmd_oss.str ("");
-       cmd_oss << "route add "<< "10.9.1.1"<<"/255.255.255.255" <<" via " <<"10.9.2.1";
-       LinuxStackHelper::RunIp (core.Get (0), Seconds (0.1), cmd_oss.str ().c_str ());
-       
-	
-        // mobile router
-	    cmd_oss.str ("");
-	    cmd_oss << "route add "<< "10.9.2.2"<<"/255.255.255.255" <<" via " <<"10.2.1.2";
-	    LinuxStackHelper::RunIp (router.Get (0), Seconds (0.1), cmd_oss.str ().c_str ());
-	    
-	// core router
-	    cmd_oss.str ("");
-	    cmd_oss << "route add "<< "10.9.1.1"<<"/255.255.255.255" <<" via " <<"10.1.2.1";
-	    LinuxStackHelper::RunIp (router.Get (1), Seconds (0.1), cmd_oss.str ().c_str ());
-	    
-        // BS DOWNLINK
-	    cmd_oss.str ("");
-	    cmd_oss << "route add "<< "10.9.1.1"<<"/255.255.255.255" <<" via " <<"10.1.1.1";
-	    LinuxStackHelper::RunIp (BS.Get (0), Seconds (0.1), cmd_oss.str ().c_str ());
-	    
-        // BS UPLINK
-	    cmd_oss.str ("");
-	    cmd_oss << "route add "<< "10.9.2.2"<<"/255.255.255.255" <<" via " <<"10.2.2.2";
-	    LinuxStackHelper::RunIp (BS.Get (1), Seconds (0.1), cmd_oss.str ().c_str ());
-	    
-
+    Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
 #ifdef KERNEL_STACK
     LinuxStackHelper::PopulateRoutingTables ();
@@ -493,7 +381,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
             {
-            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf server on node 0 (mobile device)
             
             dce.SetBinary ("iperf");
@@ -502,159 +390,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
             dce.AddArgument ("-s");
             dce.AddArgument ("-P");
             dce.AddArgument ("1");
-            ApplicationContainer SerApps0 = dce.Install (mobile.Get (0));
-            SerApps0.Start (Seconds (1));
-            //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-
-            // Launch iperf client on node 2
-            dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-c");
-            dce.AddArgument ("10.9.1.1");
-            dce.AddArgument ("-i");
-            dce.AddArgument ("1");
-            dce.AddArgument ("--time");
-            dce.AddArgument (IperfTime);
-            ApplicationContainer ClientApps0 = dce.Install (core.Get (0));
-            ClientApps0.Start (Seconds (1));
-            //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-        }
-            else
-            {
-                chanRouterBSUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-                // Launch iperf server on node 2
-                // server will receive tcp message
-                dce.SetBinary ("iperf");
-                dce.ResetArguments ();
-                dce.ResetEnvironment ();
-                dce.AddArgument ("-s");
-                dce.AddArgument ("-P");
-                dce.AddArgument ("1");
-                ApplicationContainer SerApps0 = dce.Install (core.Get (0));
-                SerApps0.Start (Seconds (1));
-                //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-
-                // Launch iperf client on node 0
-                dce.SetBinary ("iperf");
-                dce.ResetArguments ();
-                dce.ResetEnvironment ();
-                dce.AddArgument ("-c");
-                dce.AddArgument ("10.9.2.2");
-                dce.AddArgument ("-i");                
-                dce.AddArgument ("1");                        
-                dce.AddArgument ("--time");                
-                dce.AddArgument (IperfTime);
-                ApplicationContainer ClientApps0 = dce.Install (mobile.Get (0));
-                ClientApps0.Start (Seconds (1));
-                //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-            }
-        }
-      break;
-
-    case 'u':
-      {
-        if (downloadMode)
-        {
-        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-       	// Launch iperf udp server on node 0
-       	dce.SetBinary ("iperf");
-       	dce.ResetArguments ();
-	dce.ResetEnvironment ();
-       	dce.AddArgument ("-s");
-       	dce.AddArgument ("-u");
-       	dce.AddArgument ("-P");
-       	dce.AddArgument ("1");
-       	ApplicationContainer SerApps0 = dce.Install (mobile.Get (0));
-       	SerApps0.Start (Seconds (1));
-       	//SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-
-       	// Launch iperf client on node 2
-       	dce.SetBinary ("iperf");
-       	dce.ResetArguments ();
-       	dce.ResetEnvironment ();
-       	dce.AddArgument ("-c");
-       	dce.AddArgument ("10.9.1.1");
-       	dce.AddArgument ("-u");
-       	dce.AddArgument ("-i");
-       	dce.AddArgument ("1");
-       	dce.AddArgument ("-b");
-       	dce.AddArgument (udp_bw+"m");
-       	dce.AddArgument ("--time");
-       	dce.AddArgument (IperfTime);
-       	ApplicationContainer ClientApps0 = dce.Install (core.Get (0));
-       	ClientApps0.Start (Seconds (1));
-       	//ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-        }
-        else
-            {
-             chanRouterBSUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-		// Launch iperf udp server on node 0
-             dce.SetBinary ("iperf");
-             dce.ResetArguments ();
-             dce.ResetEnvironment ();
-             dce.AddArgument ("-s");
-             dce.AddArgument ("-u");
-             dce.AddArgument ("-i");
-             dce.AddArgument ("1");
-             ApplicationContainer SerApps0 = dce.Install (core.Get (0));
-             SerApps0.Start (Seconds (1));
-             //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-
-            // Launch iperf client on node 2           
-            dce.SetBinary ("iperf");
-       	    dce.ResetArguments ();
-       	    dce.ResetEnvironment ();
-       	    dce.AddArgument ("-c");
-       	    dce.AddArgument ("10.9.2.2");
-       	    dce.AddArgument ("-u");
-       	    dce.AddArgument ("-i");
-       	    dce.AddArgument ("1");
-       	    dce.AddArgument ("-b");
-       	    dce.AddArgument (udp_bw+"m");
-       	    dce.AddArgument ("--time");
-       	    dce.AddArgument (IperfTime);
-       	    ApplicationContainer ClientApps0 = dce.Install (mobile.Get (0));
-       	    ClientApps0.Start (Seconds (1));
-       	    //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
-            }
-      }
-      break;
-
-    case 'w':
-      {
-        downloadMode=true;
-        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-
-        dce.SetBinary ("thttpd");
-        dce.ResetArguments ();
-        dce.ResetEnvironment ();
-        dce.SetUid (1);
-        dce.SetEuid (1);
-	ApplicationContainer serHttp = dce.Install (core.Get (0));
-        serHttp.Start (Seconds (1));
-
-        dce.SetBinary ("wget");
-        dce.ResetArguments ();
-        dce.ResetEnvironment ();
-        dce.AddArgument ("-r");
-        dce.AddArgument ("http://10.9.2.2/index.html");
-        ApplicationContainer clientHttp = dce.Install (mobile.Get (0));
-        clientHttp.Start (Seconds (1));
-        }
-      break;
-
-    default:
-        {
-            // Launch iperf server on node 0
-            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            dce.SetBinary ("iperf");
-            dce.ResetArguments ();
-            dce.ResetEnvironment ();
-            dce.AddArgument ("-s");
-            dce.AddArgument ("-P");
-            dce.AddArgument ("1");
-            ApplicationContainer SerApps0 = dce.Install (mobile.Get (0));
+            ApplicationContainer SerApps0 = dce.Install (c.Get (0));
             SerApps0.Start (Seconds (1));
             //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
 
@@ -668,7 +404,159 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
             dce.AddArgument ("1");
             dce.AddArgument ("--time");
             dce.AddArgument (IperfTime);
-            ApplicationContainer ClientApps0 = dce.Install (core.Get (0));
+            ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
+            ClientApps0.Start (Seconds (1));
+            //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+        }
+            else
+            {
+                d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                // Launch iperf server on node 2
+                // server will receive tcp message
+                dce.SetBinary ("iperf");
+                dce.ResetArguments ();
+                dce.ResetEnvironment ();
+                dce.AddArgument ("-s");
+                dce.AddArgument ("-P");
+                dce.AddArgument ("1");
+                ApplicationContainer SerApps0 = dce.Install (c.Get (2));
+                SerApps0.Start (Seconds (1));
+                //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+
+                // Launch iperf client on node 0
+                dce.SetBinary ("iperf");
+                dce.ResetArguments ();
+                dce.ResetEnvironment ();
+                dce.AddArgument ("-c");
+                dce.AddArgument ("10.1.2.2");
+                dce.AddArgument ("-i");                
+                dce.AddArgument ("1");                        
+                dce.AddArgument ("--time");                
+                dce.AddArgument (IperfTime);
+                ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
+                ClientApps0.Start (Seconds (1));
+                //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+            }
+        }
+      break;
+
+    case 'u':
+      {
+        if (downloadMode)
+        {
+        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+       	// Launch iperf udp server on node 0
+       	dce.SetBinary ("iperf");
+       	dce.ResetArguments ();
+	dce.ResetEnvironment ();
+       	dce.AddArgument ("-s");
+       	dce.AddArgument ("-u");
+       	dce.AddArgument ("-P");
+       	dce.AddArgument ("1");
+       	ApplicationContainer SerApps0 = dce.Install (c.Get (0));
+       	SerApps0.Start (Seconds (1));
+       	//SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+
+       	// Launch iperf client on node 2
+       	dce.SetBinary ("iperf");
+       	dce.ResetArguments ();
+       	dce.ResetEnvironment ();
+       	dce.AddArgument ("-c");
+       	dce.AddArgument ("10.1.1.1");
+       	dce.AddArgument ("-u");
+       	dce.AddArgument ("-i");
+       	dce.AddArgument ("1");
+       	dce.AddArgument ("-b");
+       	dce.AddArgument (udp_bw+"m");
+       	dce.AddArgument ("--time");
+       	dce.AddArgument (IperfTime);
+       	ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
+       	ClientApps0.Start (Seconds (1));
+       	//ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+        }
+        else
+            {
+             d1d2.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+		// Launch iperf udp server on node 0
+             dce.SetBinary ("iperf");
+             dce.ResetArguments ();
+             dce.ResetEnvironment ();
+             dce.AddArgument ("-s");
+             dce.AddArgument ("-u");
+             dce.AddArgument ("-i");
+             dce.AddArgument ("1");
+             ApplicationContainer SerApps0 = dce.Install (c.Get (2));
+             SerApps0.Start (Seconds (1));
+             //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+
+            // Launch iperf client on node 2           
+            dce.SetBinary ("iperf");
+       	    dce.ResetArguments ();
+       	    dce.ResetEnvironment ();
+       	    dce.AddArgument ("-c");
+       	    dce.AddArgument ("10.1.2.2");
+       	    dce.AddArgument ("-u");
+       	    dce.AddArgument ("-i");
+       	    dce.AddArgument ("1");
+       	    dce.AddArgument ("-b");
+       	    dce.AddArgument (udp_bw+"m");
+       	    dce.AddArgument ("--time");
+       	    dce.AddArgument (IperfTime);
+       	    ApplicationContainer ClientApps0 = dce.Install (c.Get (0));
+       	    ClientApps0.Start (Seconds (1));
+       	    //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+            }
+      }
+      break;
+
+    case 'w':
+      {
+        downloadMode=true;
+        d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+
+        dce.SetBinary ("thttpd");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.SetUid (1);
+        dce.SetEuid (1);
+	ApplicationContainer serHttp = dce.Install (c.Get (2));
+        serHttp.Start (Seconds (1));
+
+        dce.SetBinary ("wget");
+        dce.ResetArguments ();
+        dce.ResetEnvironment ();
+        dce.AddArgument ("-r");
+        dce.AddArgument ("http://10.1.2.2/index.html");
+        ApplicationContainer clientHttp = dce.Install (c.Get (0));
+        clientHttp.Start (Seconds (1));
+        }
+      break;
+
+    default:
+        {
+            // Launch iperf server on node 0
+            d1d2.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            dce.SetBinary ("iperf");
+            dce.ResetArguments ();
+            dce.ResetEnvironment ();
+            dce.AddArgument ("-s");
+            dce.AddArgument ("-P");
+            dce.AddArgument ("1");
+            ApplicationContainer SerApps0 = dce.Install (c.Get (0));
+            SerApps0.Start (Seconds (1));
+            //SerApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
+
+            // Launch iperf client on node 2
+            dce.SetBinary ("iperf");
+            dce.ResetArguments ();
+            dce.ResetEnvironment ();
+            dce.AddArgument ("-c");
+            dce.AddArgument ("10.1.1.1");
+            dce.AddArgument ("-i");
+            dce.AddArgument ("1");
+            dce.AddArgument ("--time");
+            dce.AddArgument (IperfTime);
+            ApplicationContainer ClientApps0 = dce.Install (c.Get (2));
             ClientApps0.Start (Seconds (1));
             //ClientApps0.Stop (Seconds (SimuTime+(SimuTime*25/100)));
         }
@@ -710,7 +598,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     Simulator::Stop (Seconds (EndTime));
  
     
-    std::cout << "Running simulation" <<std::endl;
+    
     Simulator::Run ();
     std::cout << "Simulation is completed" << std::endl;
     Simulator::Destroy ();

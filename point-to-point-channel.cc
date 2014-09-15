@@ -65,6 +65,11 @@ PointToPointChannel::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_mode),
                    MakeUintegerChecker<uint16_t> ())
+         .AddAttribute ("transparent", "set with no delay unlimited bandwidth, 0 set link transparent",
+                   UintegerValue (0),
+                   MakeUintegerAccessor (&PointToPointChannel::m_transparent),
+                   MakeUintegerChecker<uint16_t> ())
+                   
                    				   
     .AddTraceSource ("TxRxPointToPoint",
                      "Trace source indicating transmission of packet from the PointToPointChannel, used by the Animation interface.",
@@ -97,7 +102,8 @@ PointToPointChannel::PointToPointChannel()
     m_noPacketFlow (0),
     m_firstRecFlow (Seconds (0.)),
     m_lastRecFlow (Seconds (0.)),
-    m_firstPacket (true)
+    m_firstPacket (true),
+    m_transparent(0)
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -136,8 +142,17 @@ PointToPointChannel::TransmitStart (
   NS_ASSERT (m_link[1].m_state != INITIALIZING);
 
   uint32_t wire = src == m_link[0].m_src ? 0 : 1;
+  
+
+  
   if (m_jitter==0)
   {
+      if (m_transparent==1) {
+          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                                  m_delay, &PointToPointNetDevice::Receive,
+                                                  m_link[wire].m_dst, p);
+          m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0), m_delay);
+       }
   
           Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                           txTime+m_delay, &PointToPointNetDevice::Receive,
@@ -261,7 +276,7 @@ PointToPointChannel::TransmitStart (
                   std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
                   std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
                   */
-                  rcvTime= m_prevRcvTime+Time(50000); // add 0.05 milisecond
+                  rcvTime= m_prevRcvTime;
                   //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
                   cur_delay=(rcvTime-Simulator::Now()).GetDouble();
           }
