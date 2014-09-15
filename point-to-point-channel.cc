@@ -45,17 +45,13 @@ PointToPointChannel::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_jitter),
                    MakeUintegerChecker<uint16_t> ())
-	.AddAttribute ("alpha", "Set jitter moving average value",
-                   DoubleValue (0.4),
-                   MakeDoubleAccessor (&PointToPointChannel::m_alpha),
-                   MakeDoubleChecker<int64_t>())
-	.AddAttribute ("mean", "Set normal distribution mean value",
+	.AddAttribute ("k", "Set gamma distribution shape value",
                    DoubleValue (5.0),
-                   MakeDoubleAccessor (&PointToPointChannel::m_mean),
+                   MakeDoubleAccessor (&PointToPointChannel::m_k),
                    MakeDoubleChecker<int64_t>())
-        .AddAttribute ("variance", "Set normal distribution variance value",
+        .AddAttribute ("theta", "Set gamma distribution scale value",
                    DoubleValue (2.0),
-                   MakeDoubleAccessor (&PointToPointChannel::m_variance),
+                   MakeDoubleAccessor (&PointToPointChannel::m_theta),
                    MakeDoubleChecker<int64_t>())
          .AddAttribute ("monitor", "download or upload mode, 0 set mode to download",
                    UintegerValue (0),
@@ -87,9 +83,8 @@ PointToPointChannel::PointToPointChannel()
     m_delay (Seconds (0.)),
     m_nDevices (0),
     m_jitter (0),
-    m_alpha (0.4),
-    m_mean (5.0),
-    m_variance (2.0),
+    m_k (5.0),
+    m_theta (2.0),
     m_monitor (0),
     m_mode (0),
     m_prevRcvTime(Seconds (0.)),
@@ -195,6 +190,7 @@ PointToPointChannel::TransmitStart (
 				        recTotal.open ("recTotal.txt");
 				        recTotal << m_sumPacketFlow;
 				        recTotal.close();
+				        
 			        }
 		          }
 	         }
@@ -206,54 +202,6 @@ PointToPointChannel::TransmitStart (
   }
   else
   {
-       /* if (m_mean==0 && m_variance==0) {
-        
-             Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
-                                          m_delay, &PointToPointNetDevice::Receive,
-                                          m_link[wire].m_dst, p);
-              m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0),m_delay);
-              
-              //std::cout << wire <<"  static delay = "<< m_delay.GetMicroSeconds() << std::endl;
-              if (m_monitor==1) {
-                  if (m_mode==1){
-		          if (wire==0){
-		                int32_t packetSize = p->GetSize();
-			        if (packetSize >= 100) {
-				        m_lastRecFlow=Simulator::Now()+m_delay;
-				        std::ofstream lastReceive;
-				        lastReceive.open ("lastReceive.txt");
-				        lastReceive << m_lastRecFlow.GetNanoSeconds();
-				        lastReceive.close();
-				        m_sumPacketFlow+=packetSize-2;
-				        
-				        std::ofstream recTotal;
-				        recTotal.open ("recTotal.txt");
-				        recTotal << m_sumPacketFlow;
-				        recTotal.close();
-			        }
-		          }
-	          }
-	          
-
-	          if (m_mode==0){
-		          if (wire==1){
-			        int32_t packetSize = p->GetSize();
-			        if (packetSize >= 100) {
-				        m_noPacketFlow+=1;
-				        if (m_noPacketFlow==1 && m_firstPacket==true) {
-				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
-					        m_firstRecFlow=Simulator::Now();
-					        std::ofstream firstSend;
-					        firstSend.open ("firstSend.txt");
-					        firstSend << m_firstRecFlow.GetNanoSeconds();
-					        firstSend.close();
-				         } 
-			        }
-		          }
-	         }
-              
-             }  
-        } */
         
        // else {
           //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
@@ -261,8 +209,8 @@ PointToPointChannel::TransmitStart (
           m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
 
           
-          double prevDelay =(m_previousDelay==0)? NormalRandomValue():m_previousDelay;
-          double cur_delay = (1-m_alpha)*prevDelay+m_alpha*NormalRandomValue();
+          
+          double cur_delay = GammaRandomValue()+m_delay.GetDouble();
           
          //std::cout << wire <<"  current delay = "<< Time(prevDelay).GetMicroSeconds() << std::endl;
           
@@ -297,6 +245,7 @@ PointToPointChannel::TransmitStart (
 		                
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
+			                
 				        m_lastRecFlow=Simulator::Now()+Time(cur_delay);
 				        std::ofstream lastReceive;
 				        lastReceive.open ("lastReceive.txt");
@@ -324,6 +273,7 @@ PointToPointChannel::TransmitStart (
 					        firstSend.open ("firstSend.txt");
 					        firstSend << m_firstRecFlow.GetNanoSeconds();
 					        firstSend.close();
+					        
 				         } 
 			        }
 		          }
@@ -405,14 +355,14 @@ PointToPointChannel::IsInitialized (void) const
   return true;
 }
 double
-PointToPointChannel::NormalRandomValue()
+PointToPointChannel::GammaRandomValue()
 {
 
-
-  Ptr<NormalRandomVariable> x = CreateObject<NormalRandomVariable> ();
-  x->SetAttribute ("Mean", DoubleValue (m_mean));
-  x->SetAttribute ("Variance", DoubleValue (m_variance));
-  // The expected value for the mean of the values returned by a
+        
+  Ptr<GammaRandomVariable> x = CreateObject<GammaRandomVariable> ();
+  x->SetAttribute ("Alpha", DoubleValue (m_k));
+  x->SetAttribute ("Beta", DoubleValue (m_theta));
+  // The expected value for the k of the values returned by a
   // gammaly distributed random variable is equal to
   //
   // E[value] = alpha * beta .

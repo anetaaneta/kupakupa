@@ -92,7 +92,7 @@ public:
    */
   virtual Ptr<NetDevice> GetDevice (uint32_t i) const;
 
-double NormalRandomValue(void);
+double GammaRandomValue(void);
 
 protected:
   /*
@@ -130,9 +130,8 @@ private:
   Time          m_delay;
   int32_t       m_nDevices;
   int16_t       m_jitter;
-  double        m_alpha;
-  double        m_mean;
-  double        m_variance;
+  double        m_k;
+  double        m_theta;
   int16_t	m_monitor;
   int16_t	m_mode;
   Time		m_prevRcvTime;

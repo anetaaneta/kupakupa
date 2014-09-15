@@ -2,12 +2,11 @@
 <SimulationParameters>
     <TypeOfConnection>iperf-tcp</TypeOfConnection>
     <congestionControl>CUBIC</congestionControl>
-    <UDPBandwidth>100</UDPBandwidth>
-    <Delay>1.00ms</Delay>
+    <UDPBandwidth>100</UDPBandwidth>  
     <SimulationTime>10</SimulationTime>
     <ModeOperation>download</ModeOperation>
     <ErrorRate>0.001</ErrorRate>
-    <JitterParam jitter="true" alpha="0.4" mean="2" variance="4" />
+    <DelayParam jitter="true" k="0" pdv="3" avg_delay="1" />
     <UserBandwidth>10Gbps</UserBandwidth>
     <ServerBandwidth>1Mbps</ServerBandwidth>
     <ErrorModel>1</ErrorModel>
