@@ -16,20 +16,20 @@ return stringName;
 }
 
 void
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, string& delay,double& SimuTime,bool& downloadMode, double& errRate, int& jitter, double& alpha,double& mean,double& variance,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, int& jitter ,double& k,double& pdv , double& avg_delay,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
 
 // set default value
 TypeOfConnection='p';
 tcp_cc="reno";
 udp_bw="10";
-delay="0ms";
+
 SimuTime=50;
 downloadMode=true;
 errRate=0.001;
 jitter=1;
-alpha=0.3;
-mean=3;
-variance=2;
+k=3;
+pdv=2;
+avg_delay=0;
 ErrorModel=1;
 user_bw = "150Mbps";
 server_bw = "10Gbps";
@@ -104,13 +104,6 @@ udp_bw = text->Value();
 
 }
 
-if (elemName=="Delay")
-{
-TiXmlNode* e = elem->FirstChild();
-TiXmlText* text = e->ToText();
-delay = text->Value();
-}
-
 if (elemName=="SimulationTime")
 {
 TiXmlNode* e = elem->FirstChild();
@@ -141,7 +134,7 @@ TiXmlText* text = e->ToText();
 string errRateTmp = text->Value();
 errRate = atof(errRateTmp.c_str());
 }
-if (elemName=="JitterParam")
+if (elemName=="DelayParam")
 {
 string jitterTmp = elem->Attribute("jitter");
 if (GetLowerCase(jitterTmp)=="false"){
@@ -150,12 +143,12 @@ jitter=0;
 else{
 jitter=1;
 }
-string alphaTmp = elem->Attribute("alpha");
-alpha=atof(alphaTmp.c_str());
-string MeanTmp= elem->Attribute("mean");
-mean=atof(MeanTmp.c_str());
-string varianceTmp = elem->Attribute("variance");
-variance=atof(varianceTmp.c_str());
+string kTmp= elem->Attribute("k");
+k=atof(kTmp.c_str());
+string pdvTmp = elem->Attribute("pdv");
+pdv=atof(pdvTmp.c_str());
+string delayTmp = elem->Attribute("avg_delay");
+avg_delay=atof(delayTmp.c_str());
 }
 
 if (elemName=="UserBandwidth")

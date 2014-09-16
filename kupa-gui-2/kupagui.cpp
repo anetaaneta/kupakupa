@@ -114,18 +114,18 @@ void kupagui::printCalcThroughPut(double throughput){
         QString calTp = QString::number (throughput);
         unit="bps";
     }
-    if (throughput < 100)
+    else if (throughput >= 1 && throughput < 100)
     {
         unit="Kbps";
     }
 
-    if (throughput >= 100)
+    else if (throughput >= 100 && throughput < 100000)
     {
         throughput=throughput/1000; // in Mbit/Sec
         unit="Mbps";
     }
 
-    if (throughput >= 100000)
+    else if (throughput >= 100000)
     {
         throughput=throughput/1000000; // in Gbit/Sec
         unit="Gbps";
@@ -170,16 +170,13 @@ void kupagui::on_button_generate_command_clicked()
 
     chan_jitter=" --chan_jitter=1";
 
-    QString delay;
-    QString chan_alpha;
-    QString chan_variance;
-    QString chan_mean;
+    QString chan_k;
+    QString delay_pdv;
+    QString avg_delay;
 
-
-    chan_alpha=" --chan_alpha="+ui->alpha_value->text ();
-    chan_variance=" --chan_variance="+ui->variance_value->text ();
-    chan_mean=" --chan_mean="+ui->mean_value->text ();
-    delay=" --delay=0ms";
+    delay_pdv=" --delay_pdv="+ui->delay_pdv->text ();
+    avg_delay=" --avg_delay="+ui->avg_delay->text ();
+    chan_k=" --chan_k="+ui->k->text();
 
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
@@ -293,7 +290,7 @@ void kupagui::on_button_generate_command_clicked()
 
         tcp_cc = " --tcp_cc="+ui->tcp_cc->currentText().toLower();
         SimuTime =" --SimuTime="+ui->iperf_time->text();
-        FinalCommand = TypeOfConnection + delay + ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + SimuTime;
+        FinalCommand = TypeOfConnection  + ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + SimuTime;
         resultNumber=1;
     }
 /* -----------------------for iperf udp--------------------------- */
@@ -305,7 +302,7 @@ void kupagui::on_button_generate_command_clicked()
 
         udp_bw=" --udp_bw="+ui->udp_bw->text();
         SimuTime =" --SimuTime="+ui->iperf_time_udp->text();
-        FinalCommand = TypeOfConnection + delay +  ModeOperation + udp_bw + SimuTime;
+        FinalCommand = TypeOfConnection +  ModeOperation + udp_bw + SimuTime;
         resultNumber=2;
     }
 
@@ -411,11 +408,11 @@ void kupagui::on_button_generate_command_clicked()
 
         tcp_cc = " --tcp_cc="+ui->tcp_cc_wget->currentText().toLower();
         file_size = " --htmlSize="+ui->wget_file_size->text();
-        FinalCommand = TypeOfConnection + delay +  ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + file_size;
+        FinalCommand = TypeOfConnection  +  ModeOperation +tcp_mem_user+tcp_mem_user_wmem+ tcp_mem_user_rmem+ tcp_mem_server + tcp_mem_server_wmem+tcp_mem_server_rmem+ tcp_cc + file_size;
         resultNumber=3;
     }
 //concatenates all commands
-    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_alpha + chan_mean + chan_variance + chan_jitter;
+    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_jitter + chan_k + avg_delay + delay_pdv ;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
     theCommand = FinalCommand.toUtf8 ().constData ();
@@ -515,11 +512,11 @@ void kupagui::on_actionLoad_Command_triggered()
   string tcp_cc,udp_bw,delay,server_bw,user_bw;
   string tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem,tcp_mem_server,tcp_mem_server_wmem,tcp_mem_server_rmem;
   int jitter,htmlSize,ErrorModel;
-  double alpha,mean,variance,SimuTime,errRate;
+  double k,avg_delay,pdv,SimuTime,errRate;
   bool downloadMode;
 
   ParseInput parser;
-  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,delay,SimuTime,downloadMode,errRate,jitter,alpha,mean,variance, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,jitter,k, pdv, avg_delay, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
   if (TypeOfConnection=='p'){
       ui->tabWidget->setCurrentIndex (0);
       ui->tcp_cc->setCurrentText (QString::fromStdString (tcp_cc));
@@ -591,9 +588,9 @@ void kupagui::on_actionLoad_Command_triggered()
 
   ui->error_rate->setValue(errRate);
 
-  ui->alpha_value->setValue (alpha);
-  ui->mean_value->setValue (mean);
-  ui->variance_value->setValue (variance);
+  ui->k->setValue (k);
+  ui->avg_delay->setValue (avg_delay);
+  ui->delay_pdv->setValue (pdv);
 
   on_button_generate_command_clicked ();
   statusBar()->showMessage(tr("Xml loaded"));
@@ -633,15 +630,15 @@ void kupagui::on_button_getResult_clicked()
         QString unit;
 
         if (n[n.find ("Bytes")-1] =='K'){
-            if (tcp_tp < 1) {
+            if (tcp_tp < 0.1) {
                 tcp_tp=tcp_tp*1000;
                 unit="bps";
             }
-            if (tcp_tp < 1000) {
+            else if (tcp_tp >= 0.1 && tcp_tp < 100){
                 tcp_tp=tcp_tp;
                 unit="Kbps";
             }
-            if (tcp_tp >= 1000) {
+            else if (tcp_tp >= 100) {
                 tcp_tp=tcp_tp/1000;
                 unit="Mbps";
             }
@@ -649,15 +646,15 @@ void kupagui::on_button_getResult_clicked()
             //out << "Kbps \t";
           }
         else if (n[n.find ("Bytes")-1] =='M'){
-            if (tcp_tp < 1) {
+            if (tcp_tp < 0.1) {
                 tcp_tp=tcp_tp*1000;
                 unit="KBps";
             }
-            if (tcp_tp < 1000) {
+            else if (tcp_tp >= 0.1 && tcp_tp < 100) {
                 tcp_tp=tcp_tp;
                 unit="Mbps";
             }
-            if (tcp_tp >= 1000) {
+            else if (tcp_tp >= 100) {
                 tcp_tp=tcp_tp/1000;
                 unit="Gbps";
             }
@@ -665,7 +662,7 @@ void kupagui::on_button_getResult_clicked()
             //out << "Mbps \t";
           }
         else if (n[n.find ("Bytes")-1]=='G'){
-            if (tcp_tp < 1) {
+            if (tcp_tp < 0.1) {
                 tcp_tp=tcp_tp*1000;
                 unit="Mbps";
             }
@@ -704,7 +701,7 @@ void kupagui::on_button_getResult_clicked()
         ui->output_result->setText ("Measured jitter is " + jitter + " ms");
         //ui->output_result->append ("measured jitter is");
         //ui->output_result->append (jitter);
-        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+ui->alpha_value->text () + "\t" +ui->variance_value->text ()+"\t"+ui->mean_value->text ()+"\n";
+        out << now.toString () + "\t"+jitter + "\t"+"ms"+"\t"+"\t" +ui->delay_pdv->text ()+"\t"+ui->avg_delay->text ()+"\n";
         //ui->output_result->append ("ms");
 
          printCalcThroughPut(throughput);
@@ -866,9 +863,9 @@ void kupagui::on_actionSave_Command_triggered()
 
   xmlWriter.writeStartElement("JitterParam");
   xmlWriter.writeAttribute("jitter", "true");
-  xmlWriter.writeAttribute("alpha",ui->alpha_value->text ());
-  xmlWriter.writeAttribute("k",ui->mean_value->text ());
-  xmlWriter.writeAttribute("variance",ui->variance_value->text ());
+
+  xmlWriter.writeAttribute("k",ui->avg_delay->text ());
+  xmlWriter.writeAttribute("pdv",ui->delay_pdv->text ());
 
   xmlWriter.writeEndElement();
 
