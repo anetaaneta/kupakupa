@@ -26,34 +26,6 @@ string DoubleToString (double a)
     return temp.str();
 }
 
-double findPk(double k)
-   {
-       FILE * fp;
-       char * line = NULL;
-       size_t len = 0;
-       ssize_t read;
-       stringstream ss;
-       string lineString;
-       double pk;
-       fp = fopen("pk.txt", "r");
-       if (fp == NULL)
-           exit(EXIT_FAILURE);
-
-       while ((read = getline(&line, &len, fp)) != -1) {
-           //printf("Retrieved line of length %zu :\n", read);
-           //printf("%s", line);
-           ss << line;
-           ss >> lineString;
-           unsigned found = lineString.find_last_of(",");
-           double kTmp = atof(lineString.substr(0,found).c_str());
-           if (kTmp==k) {
-               pk=atof(lineString.substr(found+1).c_str());
-           }
-           
-           
-       }
-	return pk;
-   }
 
 void GenerateHtmlFile (int fileSize)
 {
@@ -226,7 +198,31 @@ int main (int argc, char *argv[])
 double delay;
 double theta;
 
-double pk=findPk(k);     
+//read pk.txt and store it in 50x1 matrix
+    ifstream in;
+    in.open("pk.txt");
+
+  if(!in) {
+    cout << "Cannot open input file.\n";
+    return 1;
+  }
+
+  char str[255];
+  double pkval[50];
+  char pkchar[15];
+  string buff;
+  int pkcount=0;
+  while(std::getline(in, buff)) {
+    for (int a=0; a!=15; a++){
+        pkchar[a]=buff[a+6];
+    }
+    pkval[pkcount]=atof(pkchar);
+    pkcount=pkcount+1;
+  }
+  in.close();
+
+  int y = static_cast<int>(k*10);
+double pk=pkval[(y-1)];
 theta = pdv/pk;
 delay = avg_delay-k*theta;
 if (delay < 0) {
