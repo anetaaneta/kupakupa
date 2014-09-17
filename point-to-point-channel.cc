@@ -65,7 +65,10 @@ PointToPointChannel::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_transparent),
                    MakeUintegerChecker<uint16_t> ())
-                   
+         .AddAttribute ("coreRouter", "core router flag for calculating througput, 0 set in core router",
+                   UintegerValue (0),
+                   MakeUintegerAccessor (&PointToPointChannel::m_coreRouter),
+                   MakeUintegerChecker<uint16_t> ())          
                    				   
     .AddTraceSource ("TxRxPointToPoint",
                      "Trace source indicating transmission of packet from the PointToPointChannel, used by the Animation interface.",
@@ -98,7 +101,8 @@ PointToPointChannel::PointToPointChannel()
     m_firstRecFlow (Seconds (0.)),
     m_lastRecFlow (Seconds (0.)),
     m_firstPacket (true),
-    m_transparent(0)
+    m_transparent (0),
+    m_coreRouter (0)
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -138,23 +142,19 @@ PointToPointChannel::TransmitStart (
 
   uint32_t wire = src == m_link[0].m_src ? 0 : 1;
   
-
   
-  if (m_jitter==0)
-  {
-      if (m_transparent==1) {
-          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+  //std::cout << wire <<" "<< m_jitter<<" "<<m_transparent<< std::endl;
+  
+  if (m_transparent==1) {
+      
+      
+      Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                                   m_delay, &PointToPointNetDevice::Receive,
                                                   m_link[wire].m_dst, p);
-          m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0), m_delay);
-       }
-  
-          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
-                                          txTime+m_delay, &PointToPointNetDevice::Receive,
-                                          m_link[wire].m_dst, p);
-                                          
-                                                   
-          // collect througput data
+      m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0), m_delay);
+      std::cout << wire <<" "<<m_coreRouter <<" "<< m_monitor <<" "<<m_mode<< std::endl;
+      if (m_coreRouter==0) {
+       // collect througput data
           if (m_monitor==1) {
                   if (m_mode==1){
 		          if (wire==0){
@@ -163,8 +163,7 @@ PointToPointChannel::TransmitStart (
 			               //std::cout << wire <<" nomer = "<< m_noPacketFlow<< std::endl;
 				        m_noPacketFlow+=1;
 				        if (m_noPacketFlow==1 && m_firstPacket==true) {
-				                //std::cout << wire <<" size = "<< p->GetSize()<< std::endl;
-				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				                //std::cout << wire <<" size = "<< p->GetSize()<< std::endl;				           
 				                m_firstPacket=false;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
@@ -172,15 +171,16 @@ PointToPointChannel::TransmitStart (
 					        firstSend << m_firstRecFlow.GetNanoSeconds();
 					        firstSend.close();
 				         } 
-		           }
-		         }
+		                }
+		          }
 	          }
 
 	          if (m_mode==0){
 		          if (wire==1){
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
-				        m_lastRecFlow=Simulator::Now()+txTime+m_delay;
+			                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				        m_lastRecFlow=Simulator::Now();
 				        std::ofstream lastReceive;
 				        lastReceive.open ("lastReceive.txt");
 				        lastReceive << m_lastRecFlow.GetNanoSeconds();
@@ -194,59 +194,22 @@ PointToPointChannel::TransmitStart (
 			        }
 		          }
 	         }
-	 } 
-  
-          
-          // Call the tx anim callback on the net device
-          m_txrxPointToPoint (p, src, m_link[wire].m_dst, txTime, txTime+m_delay);
-  }
-  else
-  {
-        
-       // else {
-          //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
-          m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
-          m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
-
-          
-          
-          double cur_delay = GammaRandomValue()+m_delay.GetDouble();
-          
-         //std::cout << wire <<"  current delay = "<< Time(prevDelay).GetMicroSeconds() << std::endl;
-          
-          Time rcvTime = Simulator::Now()+ Time(cur_delay);
-
-          // preveting reordering
-          if (rcvTime < m_prevRcvTime )
-          {
-                  /*  
-                  std::cout <<" reorder prev = "<< m_prevRcvTime.GetSeconds()<<" current = "<<rcvTime.GetSeconds()<< std::endl;
-                  std::cout <<" time = "<< Simulator::Now().GetSeconds()<< std::endl;
-                  std::cout <<" reorder prev = "<< prevDelay<<" current = "<<cur_delay<< std::endl;
-                  */
-                  rcvTime= m_prevRcvTime;
-                  //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
-                  cur_delay=(rcvTime-Simulator::Now()).GetDouble();
-          }
-
-
-
-          
-          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
-                                          Time(cur_delay), &PointToPointNetDevice::Receive,
-                                          m_link[wire].m_dst, p);
-          
-          
-          // collect througput data
+	     }
+	 }
+	 // other pair
+	 
+	 else if (m_coreRouter==1) {
+	 // collect througput data
+	 std::cout <<" test "<< std::endl;
           if (m_monitor==1) {
-                  if (m_mode==1){
+                if (m_mode==1){
                   
 		          if (wire==0){
 		                
 			        int32_t packetSize = p->GetSize();
 			        if (packetSize >= 100) {
 			                
-				        m_lastRecFlow=Simulator::Now()+Time(cur_delay);
+				        m_lastRecFlow=Simulator::Now();
 				        std::ofstream lastReceive;
 				        lastReceive.open ("lastReceive.txt");
 				        lastReceive << m_lastRecFlow.GetNanoSeconds();
@@ -264,10 +227,12 @@ PointToPointChannel::TransmitStart (
 	          if (m_mode==0){
 		          if (wire==1){
 			        int32_t packetSize = p->GetSize();
+			        
 			        if (packetSize >= 100) {
+			                std::cout <<" -test "<< std::endl;
 				        m_noPacketFlow+=1;
 				        if (m_noPacketFlow==1 && m_firstPacket==true) {
-				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				                std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
 					        firstSend.open ("firstSend.txt");
@@ -277,8 +242,57 @@ PointToPointChannel::TransmitStart (
 				         } 
 			        }
 		          }
-	        }
-	} 
+	          }
+	    }
+	  }
+           
+  
+          
+  }
+  
+  else if (m_jitter==0)
+  {
+      
+          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                          txTime+m_delay, &PointToPointNetDevice::Receive,
+                                          m_link[wire].m_dst, p);
+                                          
+                                                   
+          
+          // Call the tx anim callback on the net device
+          m_txrxPointToPoint (p, src, m_link[wire].m_dst, txTime, txTime+m_delay);
+  }
+  
+  
+  else if (m_jitter==1)
+  {
+          m_previousDelay = (wire==0) ? m_previousDelay1:m_previousDelay2;
+          m_prevRcvTime = (wire==0) ? m_prevRcvTime1:m_prevRcvTime2;
+
+          
+          
+          double cur_delay = GammaRandomValue()+m_delay.GetDouble();
+          //std::cout << m_jitter<<" "<< wire <<"  static delay = "<< m_delay.GetMicroSeconds() << std::endl;
+          //std::cout << wire <<"  current delay = "<< Time(cur_delay).GetMicroSeconds() << std::endl;
+          
+          Time rcvTime = Simulator::Now()+ Time(cur_delay);
+
+          // preveting reordering
+          if (rcvTime < m_prevRcvTime )
+          {            
+                  rcvTime= m_prevRcvTime;
+                  //std::cout << " new current = "<<rcvTime.GetSeconds()<< std::endl;
+                  cur_delay=(rcvTime-Simulator::Now()).GetDouble();
+          }
+
+
+
+          
+          Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
+                                          Time(cur_delay), &PointToPointNetDevice::Receive,
+                                          m_link[wire].m_dst, p);
+          
+          
           
           
           
@@ -301,6 +315,7 @@ PointToPointChannel::TransmitStart (
           }
     //}
   }
+  
   return true;
 }
 

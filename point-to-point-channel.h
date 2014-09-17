@@ -146,6 +146,7 @@ private:
   Time		m_lastRecFlow;
   bool          m_firstPacket;
   int16_t	m_transparent;
+  int16_t       m_coreRouter;
   
 
 
