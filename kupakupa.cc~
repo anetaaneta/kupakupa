@@ -517,7 +517,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
             {
-            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             // Launch iperf server on node 0 (mobile device)
             
             dce.SetBinary ("iperf");
@@ -546,7 +546,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
             else
             {
-                chanRouterBSUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
                 // Launch iperf server on node 2
                 // server will receive tcp message
                 dce.SetBinary ("iperf");
@@ -580,7 +580,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
         {
-        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
        	// Launch iperf udp server on node 0
        	dce.SetBinary ("iperf");
        	dce.ResetArguments ();
@@ -612,7 +612,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
         else
             {
-             chanRouterBSUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+             chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
 		// Launch iperf udp server on node 0
              dce.SetBinary ("iperf");
              dce.ResetArguments ();
@@ -648,7 +648,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     case 'w':
       {
         downloadMode=true;
-        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
 
         dce.SetBinary ("thttpd");
         dce.ResetArguments ();
@@ -671,7 +671,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     default:
         {
             // Launch iperf server on node 0
-            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
