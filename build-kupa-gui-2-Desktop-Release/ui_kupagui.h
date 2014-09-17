@@ -88,16 +88,16 @@ public:
     QTabWidget *memory_option_2;
     QWidget *usermemory_2;
     QLabel *label_25;
-    QLineEdit *tcp_mem_user_rmem_2;
+    QLineEdit *tcp_mem_user_rmem_wget;
     QLabel *label_16;
-    QLineEdit *tcp_mem_user_2;
+    QLineEdit *tcp_mem_user_wget;
     QLabel *label_11;
-    QLineEdit *tcp_mem_user_wmem_2;
+    QLineEdit *tcp_mem_user_wmem_wget;
     QWidget *servermemory_2;
-    QLineEdit *tcp_mem_server_2;
-    QLineEdit *tcp_mem_server_rmem_2;
+    QLineEdit *tcp_mem_server_wget;
+    QLineEdit *tcp_mem_server_rmem_wget;
     QLabel *label_32;
-    QLineEdit *tcp_mem_server_wmem_2;
+    QLineEdit *tcp_mem_server_wmem_wget;
     QLabel *label_33;
     QLabel *label_34;
     QComboBox *error_model;
@@ -115,11 +115,11 @@ public:
     QFrame *frame_6;
     QLabel *label_27;
     QLabel *label_21;
-    QLabel *label_20;
-    QDoubleSpinBox *alpha_value;
-    QDoubleSpinBox *variance_value;
-    QDoubleSpinBox *mean_value;
+    QDoubleSpinBox *delay_pdv;
+    QDoubleSpinBox *avg_delay;
     QLabel *label_22;
+    QLabel *label_26;
+    QDoubleSpinBox *k;
     QPushButton *button_generate_command;
     QLineEdit *final_command;
     QTextEdit *output_result;
@@ -171,11 +171,11 @@ public:
         IperfTCP->setObjectName(QStringLiteral("IperfTCP"));
         tcp_upload = new QRadioButton(IperfTCP);
         tcp_upload->setObjectName(QStringLiteral("tcp_upload"));
-        tcp_upload->setGeometry(QRect(0, 40, 82, 17));
+        tcp_upload->setGeometry(QRect(10, 40, 82, 17));
         tcp_upload->setChecked(false);
         tcp_download = new QRadioButton(IperfTCP);
         tcp_download->setObjectName(QStringLiteral("tcp_download"));
-        tcp_download->setGeometry(QRect(0, 70, 101, 17));
+        tcp_download->setGeometry(QRect(10, 70, 101, 17));
         tcp_download->setChecked(true);
         label = new QLabel(IperfTCP);
         label->setObjectName(QStringLiteral("label"));
@@ -200,21 +200,21 @@ public:
         usermemory->setObjectName(QStringLiteral("usermemory"));
         label_24 = new QLabel(usermemory);
         label_24->setObjectName(QStringLiteral("label_24"));
-        label_24->setGeometry(QRect(30, 80, 71, 20));
+        label_24->setGeometry(QRect(20, 80, 71, 20));
         tcp_mem_user_rmem = new QLineEdit(usermemory);
         tcp_mem_user_rmem->setObjectName(QStringLiteral("tcp_mem_user_rmem"));
         tcp_mem_user_rmem->setGeometry(QRect(110, 80, 201, 20));
         tcp_mem_user_rmem->setMaxLength(200);
         label_15 = new QLabel(usermemory);
         label_15->setObjectName(QStringLiteral("label_15"));
-        label_15->setGeometry(QRect(30, 50, 81, 20));
+        label_15->setGeometry(QRect(20, 50, 81, 20));
         tcp_mem_user = new QLineEdit(usermemory);
         tcp_mem_user->setObjectName(QStringLiteral("tcp_mem_user"));
         tcp_mem_user->setGeometry(QRect(110, 20, 201, 20));
         tcp_mem_user->setMaxLength(200);
         label_8 = new QLabel(usermemory);
         label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setGeometry(QRect(30, 20, 71, 16));
+        label_8->setGeometry(QRect(20, 20, 71, 16));
         tcp_mem_user_wmem = new QLineEdit(usermemory);
         tcp_mem_user_wmem->setObjectName(QStringLiteral("tcp_mem_user_wmem"));
         tcp_mem_user_wmem->setGeometry(QRect(110, 50, 201, 20));
@@ -232,17 +232,17 @@ public:
         tcp_mem_server_rmem->setMaxLength(200);
         label_31 = new QLabel(servermemory);
         label_31->setObjectName(QStringLiteral("label_31"));
-        label_31->setGeometry(QRect(30, 80, 71, 20));
+        label_31->setGeometry(QRect(20, 80, 70, 20));
         tcp_mem_server_wmem = new QLineEdit(servermemory);
         tcp_mem_server_wmem->setObjectName(QStringLiteral("tcp_mem_server_wmem"));
         tcp_mem_server_wmem->setGeometry(QRect(110, 50, 201, 20));
         tcp_mem_server_wmem->setMaxLength(200);
         label_29 = new QLabel(servermemory);
         label_29->setObjectName(QStringLiteral("label_29"));
-        label_29->setGeometry(QRect(30, 20, 71, 16));
+        label_29->setGeometry(QRect(20, 20, 70, 16));
         label_30 = new QLabel(servermemory);
         label_30->setObjectName(QStringLiteral("label_30"));
-        label_30->setGeometry(QRect(30, 50, 81, 20));
+        label_30->setGeometry(QRect(20, 50, 80, 20));
         memory_option->addTab(servermemory, QString());
         tabWidget->addTab(IperfTCP, QString());
         IperfUDP = new QWidget();
@@ -300,49 +300,49 @@ public:
         usermemory_2->setObjectName(QStringLiteral("usermemory_2"));
         label_25 = new QLabel(usermemory_2);
         label_25->setObjectName(QStringLiteral("label_25"));
-        label_25->setGeometry(QRect(30, 80, 71, 20));
-        tcp_mem_user_rmem_2 = new QLineEdit(usermemory_2);
-        tcp_mem_user_rmem_2->setObjectName(QStringLiteral("tcp_mem_user_rmem_2"));
-        tcp_mem_user_rmem_2->setGeometry(QRect(110, 80, 201, 20));
-        tcp_mem_user_rmem_2->setMaxLength(200);
+        label_25->setGeometry(QRect(20, 80, 71, 20));
+        tcp_mem_user_rmem_wget = new QLineEdit(usermemory_2);
+        tcp_mem_user_rmem_wget->setObjectName(QStringLiteral("tcp_mem_user_rmem_wget"));
+        tcp_mem_user_rmem_wget->setGeometry(QRect(110, 80, 201, 20));
+        tcp_mem_user_rmem_wget->setMaxLength(200);
         label_16 = new QLabel(usermemory_2);
         label_16->setObjectName(QStringLiteral("label_16"));
-        label_16->setGeometry(QRect(30, 50, 81, 20));
-        tcp_mem_user_2 = new QLineEdit(usermemory_2);
-        tcp_mem_user_2->setObjectName(QStringLiteral("tcp_mem_user_2"));
-        tcp_mem_user_2->setGeometry(QRect(110, 20, 201, 20));
-        tcp_mem_user_2->setMaxLength(200);
+        label_16->setGeometry(QRect(20, 50, 81, 20));
+        tcp_mem_user_wget = new QLineEdit(usermemory_2);
+        tcp_mem_user_wget->setObjectName(QStringLiteral("tcp_mem_user_wget"));
+        tcp_mem_user_wget->setGeometry(QRect(110, 20, 201, 20));
+        tcp_mem_user_wget->setMaxLength(200);
         label_11 = new QLabel(usermemory_2);
         label_11->setObjectName(QStringLiteral("label_11"));
-        label_11->setGeometry(QRect(30, 20, 71, 16));
-        tcp_mem_user_wmem_2 = new QLineEdit(usermemory_2);
-        tcp_mem_user_wmem_2->setObjectName(QStringLiteral("tcp_mem_user_wmem_2"));
-        tcp_mem_user_wmem_2->setGeometry(QRect(110, 50, 201, 20));
-        tcp_mem_user_wmem_2->setMaxLength(200);
+        label_11->setGeometry(QRect(20, 20, 71, 16));
+        tcp_mem_user_wmem_wget = new QLineEdit(usermemory_2);
+        tcp_mem_user_wmem_wget->setObjectName(QStringLiteral("tcp_mem_user_wmem_wget"));
+        tcp_mem_user_wmem_wget->setGeometry(QRect(110, 50, 201, 20));
+        tcp_mem_user_wmem_wget->setMaxLength(200);
         memory_option_2->addTab(usermemory_2, QString());
         servermemory_2 = new QWidget();
         servermemory_2->setObjectName(QStringLiteral("servermemory_2"));
-        tcp_mem_server_2 = new QLineEdit(servermemory_2);
-        tcp_mem_server_2->setObjectName(QStringLiteral("tcp_mem_server_2"));
-        tcp_mem_server_2->setGeometry(QRect(110, 20, 201, 20));
-        tcp_mem_server_2->setMaxLength(200);
-        tcp_mem_server_rmem_2 = new QLineEdit(servermemory_2);
-        tcp_mem_server_rmem_2->setObjectName(QStringLiteral("tcp_mem_server_rmem_2"));
-        tcp_mem_server_rmem_2->setGeometry(QRect(110, 80, 201, 20));
-        tcp_mem_server_rmem_2->setMaxLength(200);
+        tcp_mem_server_wget = new QLineEdit(servermemory_2);
+        tcp_mem_server_wget->setObjectName(QStringLiteral("tcp_mem_server_wget"));
+        tcp_mem_server_wget->setGeometry(QRect(110, 20, 201, 20));
+        tcp_mem_server_wget->setMaxLength(200);
+        tcp_mem_server_rmem_wget = new QLineEdit(servermemory_2);
+        tcp_mem_server_rmem_wget->setObjectName(QStringLiteral("tcp_mem_server_rmem_wget"));
+        tcp_mem_server_rmem_wget->setGeometry(QRect(110, 80, 201, 20));
+        tcp_mem_server_rmem_wget->setMaxLength(200);
         label_32 = new QLabel(servermemory_2);
         label_32->setObjectName(QStringLiteral("label_32"));
-        label_32->setGeometry(QRect(30, 80, 71, 20));
-        tcp_mem_server_wmem_2 = new QLineEdit(servermemory_2);
-        tcp_mem_server_wmem_2->setObjectName(QStringLiteral("tcp_mem_server_wmem_2"));
-        tcp_mem_server_wmem_2->setGeometry(QRect(110, 50, 201, 20));
-        tcp_mem_server_wmem_2->setMaxLength(200);
+        label_32->setGeometry(QRect(20, 80, 71, 20));
+        tcp_mem_server_wmem_wget = new QLineEdit(servermemory_2);
+        tcp_mem_server_wmem_wget->setObjectName(QStringLiteral("tcp_mem_server_wmem_wget"));
+        tcp_mem_server_wmem_wget->setGeometry(QRect(110, 50, 201, 20));
+        tcp_mem_server_wmem_wget->setMaxLength(200);
         label_33 = new QLabel(servermemory_2);
         label_33->setObjectName(QStringLiteral("label_33"));
-        label_33->setGeometry(QRect(30, 20, 71, 16));
+        label_33->setGeometry(QRect(20, 20, 71, 16));
         label_34 = new QLabel(servermemory_2);
         label_34->setObjectName(QStringLiteral("label_34"));
-        label_34->setGeometry(QRect(30, 50, 81, 20));
+        label_34->setGeometry(QRect(20, 50, 81, 20));
         memory_option_2->addTab(servermemory_2, QString());
         tabWidget->addTab(wget, QString());
         error_model = new QComboBox(groupBox);
@@ -382,7 +382,7 @@ public:
         user_bw->setObjectName(QStringLiteral("user_bw"));
         user_bw->setGeometry(QRect(71, 50, 81, 22));
         user_bw->setMaximum(999);
-        user_bw->setValue(150);
+        user_bw->setValue(1);
         label_6 = new QLabel(frame);
         label_6->setObjectName(QStringLiteral("label_6"));
         label_6->setGeometry(QRect(20, 103, 61, 16));
@@ -404,33 +404,33 @@ public:
         label_27->setFont(font);
         label_21 = new QLabel(frame_6);
         label_21->setObjectName(QStringLiteral("label_21"));
-        label_21->setGeometry(QRect(20, 110, 67, 17));
-        label_20 = new QLabel(frame_6);
-        label_20->setObjectName(QStringLiteral("label_20"));
-        label_20->setGeometry(QRect(20, 36, 91, 20));
-        alpha_value = new QDoubleSpinBox(frame_6);
-        alpha_value->setObjectName(QStringLiteral("alpha_value"));
-        alpha_value->setGeometry(QRect(130, 30, 69, 27));
-        alpha_value->setDecimals(3);
-        alpha_value->setMaximum(1);
-        alpha_value->setSingleStep(0.05);
-        alpha_value->setValue(0);
-        variance_value = new QDoubleSpinBox(frame_6);
-        variance_value->setObjectName(QStringLiteral("variance_value"));
-        variance_value->setGeometry(QRect(130, 110, 69, 27));
-        variance_value->setDecimals(3);
-        variance_value->setSingleStep(0.5);
-        variance_value->setValue(0);
-        mean_value = new QDoubleSpinBox(frame_6);
-        mean_value->setObjectName(QStringLiteral("mean_value"));
-        mean_value->setGeometry(QRect(130, 70, 69, 27));
-        mean_value->setDecimals(3);
-        mean_value->setMaximum(999);
-        mean_value->setSingleStep(0.5);
-        mean_value->setValue(1);
+        label_21->setGeometry(QRect(20, 120, 121, 17));
+        delay_pdv = new QDoubleSpinBox(frame_6);
+        delay_pdv->setObjectName(QStringLiteral("delay_pdv"));
+        delay_pdv->setGeometry(QRect(140, 120, 69, 27));
+        delay_pdv->setDecimals(3);
+        delay_pdv->setSingleStep(0.5);
+        delay_pdv->setValue(0);
+        avg_delay = new QDoubleSpinBox(frame_6);
+        avg_delay->setObjectName(QStringLiteral("avg_delay"));
+        avg_delay->setGeometry(QRect(140, 80, 69, 27));
+        avg_delay->setDecimals(3);
+        avg_delay->setMaximum(999);
+        avg_delay->setSingleStep(0.5);
+        avg_delay->setValue(1);
         label_22 = new QLabel(frame_6);
         label_22->setObjectName(QStringLiteral("label_22"));
-        label_22->setGeometry(QRect(20, 70, 41, 20));
+        label_22->setGeometry(QRect(20, 80, 101, 21));
+        label_26 = new QLabel(frame_6);
+        label_26->setObjectName(QStringLiteral("label_26"));
+        label_26->setGeometry(QRect(20, 40, 101, 21));
+        k = new QDoubleSpinBox(frame_6);
+        k->setObjectName(QStringLiteral("k"));
+        k->setGeometry(QRect(140, 40, 69, 27));
+        k->setDecimals(3);
+        k->setMaximum(999);
+        k->setSingleStep(0.5);
+        k->setValue(0.1);
         frame->raise();
         tabWidget->raise();
         error_model->raise();
@@ -443,31 +443,31 @@ public:
         button_generate_command->setGeometry(QRect(20, 440, 151, 30));
         final_command = new QLineEdit(centralWidget);
         final_command->setObjectName(QStringLiteral("final_command"));
-        final_command->setGeometry(QRect(170, 440, 421, 31));
+        final_command->setGeometry(QRect(170, 440, 431, 31));
         output_result = new QTextEdit(centralWidget);
         output_result->setObjectName(QStringLiteral("output_result"));
-        output_result->setGeometry(QRect(20, 480, 451, 121));
+        output_result->setGeometry(QRect(20, 480, 471, 131));
         button_run = new QPushButton(centralWidget);
         button_run->setObjectName(QStringLiteral("button_run"));
-        button_run->setGeometry(QRect(480, 480, 99, 27));
+        button_run->setGeometry(QRect(500, 480, 99, 27));
         button_getResult = new QPushButton(centralWidget);
         button_getResult->setObjectName(QStringLiteral("button_getResult"));
-        button_getResult->setGeometry(QRect(480, 520, 99, 27));
+        button_getResult->setGeometry(QRect(500, 520, 99, 27));
         button_exit = new QPushButton(centralWidget);
         button_exit->setObjectName(QStringLiteral("button_exit"));
-        button_exit->setGeometry(QRect(480, 560, 99, 27));
+        button_exit->setGeometry(QRect(500, 560, 99, 27));
         label_19 = new QLabel(centralWidget);
         label_19->setObjectName(QStringLiteral("label_19"));
         label_19->setGeometry(QRect(20, 620, 81, 17));
         dce_source = new QLineEdit(centralWidget);
         dce_source->setObjectName(QStringLiteral("dce_source"));
-        dce_source->setGeometry(QRect(110, 620, 421, 27));
+        dce_source->setGeometry(QRect(110, 620, 451, 27));
         dce_source->setInputMask(QStringLiteral(""));
         dce_source->setMaxLength(32767);
         dce_source->setFrame(true);
         button_changefolder = new QToolButton(centralWidget);
         button_changefolder->setObjectName(QStringLiteral("button_changefolder"));
-        button_changefolder->setGeometry(QRect(550, 620, 24, 25));
+        button_changefolder->setGeometry(QRect(570, 620, 24, 25));
         kupagui->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(kupagui);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -505,12 +505,12 @@ public:
         QObject::connect(actionBye_Bye, SIGNAL(triggered()), kupagui, SLOT(close()));
         QObject::connect(actionGuide, SIGNAL(triggered()), kupagui, SLOT(show()));
 
-        tabWidget->setCurrentIndex(2);
-        memory_option->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(0);
+        memory_option->setCurrentIndex(1);
         memory_option_2->setCurrentIndex(0);
         error_model->setCurrentIndex(0);
         server_bw_unit->setCurrentIndex(1);
-        user_bw_unit->setCurrentIndex(0);
+        user_bw_unit->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(kupagui);
@@ -578,7 +578,7 @@ public:
         tcp_mem_user_rmem->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_user_rmem->setInputMask(QString());
-        tcp_mem_user_rmem->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user_rmem->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_15->setText(QApplication::translate("kupagui", "tcp_wmem", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_user->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -587,7 +587,7 @@ public:
         tcp_mem_user->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_user->setInputMask(QString());
-        tcp_mem_user->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_8->setText(QApplication::translate("kupagui", "tcp_mem", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_user_wmem->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -596,7 +596,7 @@ public:
         tcp_mem_user_wmem->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_user_wmem->setInputMask(QString());
-        tcp_mem_user_wmem->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user_wmem->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         memory_option->setTabText(memory_option->indexOf(usermemory), QApplication::translate("kupagui", "User Memory", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_server->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -605,7 +605,7 @@ public:
         tcp_mem_server->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_server->setInputMask(QString());
-        tcp_mem_server->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_server_rmem->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
@@ -613,7 +613,7 @@ public:
         tcp_mem_server_rmem->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_server_rmem->setInputMask(QString());
-        tcp_mem_server_rmem->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server_rmem->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_31->setText(QApplication::translate("kupagui", "tcp_rmem", 0));
 #ifndef QT_NO_TOOLTIP
         tcp_mem_server_wmem->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
@@ -622,7 +622,7 @@ public:
         tcp_mem_server_wmem->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
         tcp_mem_server_wmem->setInputMask(QString());
-        tcp_mem_server_wmem->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server_wmem->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_29->setText(QApplication::translate("kupagui", "tcp_mem", 0));
         label_30->setText(QApplication::translate("kupagui", "tcp_wmem", 0));
         memory_option->setTabText(memory_option->indexOf(servermemory), QApplication::translate("kupagui", "Server Memory", 0));
@@ -653,57 +653,57 @@ public:
         label_17->setText(QApplication::translate("kupagui", "File Size (Mb)", 0));
         label_25->setText(QApplication::translate("kupagui", "tcp_rmem", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_user_rmem_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_rmem_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_user_rmem_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_rmem_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_user_rmem_2->setInputMask(QString());
-        tcp_mem_user_rmem_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user_rmem_wget->setInputMask(QString());
+        tcp_mem_user_rmem_wget->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_16->setText(QApplication::translate("kupagui", "tcp_wmem", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_user_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_user_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_user_2->setInputMask(QString());
-        tcp_mem_user_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user_wget->setInputMask(QString());
+        tcp_mem_user_wget->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         label_11->setText(QApplication::translate("kupagui", "tcp_mem", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_user_wmem_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_wmem_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_user_wmem_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_user_wmem_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_user_wmem_2->setInputMask(QString());
-        tcp_mem_user_wmem_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_user_wmem_wget->setInputMask(QString());
+        tcp_mem_user_wmem_wget->setText(QApplication::translate("kupagui", "4096 87380 8388608", 0));
         memory_option_2->setTabText(memory_option_2->indexOf(usermemory_2), QApplication::translate("kupagui", "User Memory", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_server_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_server_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_server_2->setInputMask(QString());
-        tcp_mem_server_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server_wget->setInputMask(QString());
+        tcp_mem_server_wget->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_server_rmem_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_rmem_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_server_rmem_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_rmem_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_server_rmem_2->setInputMask(QString());
-        tcp_mem_server_rmem_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server_rmem_wget->setInputMask(QString());
+        tcp_mem_server_rmem_wget->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
         label_32->setText(QApplication::translate("kupagui", "tcp_rmem", 0));
 #ifndef QT_NO_TOOLTIP
-        tcp_mem_server_wmem_2->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_wmem_wget->setToolTip(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_WHATSTHIS
-        tcp_mem_server_wmem_2->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
+        tcp_mem_server_wmem_wget->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>put 3 values in bytes, can be separated by comma or space</p></body></html>", 0));
 #endif // QT_NO_WHATSTHIS
-        tcp_mem_server_wmem_2->setInputMask(QString());
-        tcp_mem_server_wmem_2->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
+        tcp_mem_server_wmem_wget->setInputMask(QString());
+        tcp_mem_server_wmem_wget->setText(QApplication::translate("kupagui", "8388608 8388608 8388608", 0));
         label_33->setText(QApplication::translate("kupagui", "tcp_mem", 0));
         label_34->setText(QApplication::translate("kupagui", "tcp_wmem", 0));
         memory_option_2->setTabText(memory_option_2->indexOf(servermemory_2), QApplication::translate("kupagui", "Server Memory", 0));
@@ -729,9 +729,9 @@ public:
         label_6->setText(QApplication::translate("kupagui", "Server ", 0));
         label_7->setText(QApplication::translate("kupagui", "Bandwidth", 0));
         label_27->setText(QApplication::translate("kupagui", "Delay", 0));
-        label_21->setText(QApplication::translate("kupagui", "Variance", 0));
-        label_20->setText(QApplication::translate("kupagui", "Randomness", 0));
-        label_22->setText(QApplication::translate("kupagui", "Mean", 0));
+        label_21->setText(QApplication::translate("kupagui", "PDV (ms)", 0));
+        label_22->setText(QApplication::translate("kupagui", "Average Delay", 0));
+        label_26->setText(QApplication::translate("kupagui", "k", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
         final_command->setWhatsThis(QApplication::translate("kupagui", "<html><head/><body><p>the command will be generated in this area, as well as the .sh file on source folder</p></body></html>", 0));

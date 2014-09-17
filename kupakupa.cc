@@ -253,9 +253,9 @@ if (delay < 0) {
 #ifdef KERNEL_STACK
     dceManager.SetNetworkStack ("ns3::LinuxSocketFdFactory", "Library", StringValue ("liblinux.so"));
     LinuxStackHelper stack;
+    LinuxStackHelper routerStack;
     stack.Install (mobile);
-    InternetStackHelper inet;
-    stack.Install (router);
+    routerStack.Install (router);
     stack.Install (BS);
     stack.Install (core);
     dceManager.Install (mobile);
@@ -313,6 +313,7 @@ if (delay < 0) {
     stack.SysctlSet (BS, ".net.ipv4.tcp_congestion_control", tcp_cc);
     stack.SysctlSet (core, ".net.ipv4.tcp_congestion_control", tcp_cc);
     stack.SysctlSet (router, ".net.ipv4.tcp_congestion_control", tcp_cc);
+
 #else
     NS_LOG_ERROR ("Linux kernel stack for DCE is not available. build with dce-linux module.");
     //silently exit
