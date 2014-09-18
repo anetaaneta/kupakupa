@@ -404,12 +404,13 @@ public:
         label_27->setFont(font);
         label_21 = new QLabel(frame_6);
         label_21->setObjectName(QStringLiteral("label_21"));
-        label_21->setGeometry(QRect(20, 120, 121, 17));
+        label_21->setGeometry(QRect(10, 120, 121, 17));
         delay_pdv = new QDoubleSpinBox(frame_6);
         delay_pdv->setObjectName(QStringLiteral("delay_pdv"));
         delay_pdv->setGeometry(QRect(140, 120, 69, 27));
         delay_pdv->setDecimals(3);
-        delay_pdv->setSingleStep(0.5);
+        delay_pdv->setMaximum(999);
+        delay_pdv->setSingleStep(0.1);
         delay_pdv->setValue(0);
         avg_delay = new QDoubleSpinBox(frame_6);
         avg_delay->setObjectName(QStringLiteral("avg_delay"));
@@ -420,16 +421,16 @@ public:
         avg_delay->setValue(1);
         label_22 = new QLabel(frame_6);
         label_22->setObjectName(QStringLiteral("label_22"));
-        label_22->setGeometry(QRect(20, 80, 101, 21));
+        label_22->setGeometry(QRect(10, 80, 121, 21));
         label_26 = new QLabel(frame_6);
         label_26->setObjectName(QStringLiteral("label_26"));
-        label_26->setGeometry(QRect(20, 40, 101, 21));
+        label_26->setGeometry(QRect(10, 40, 101, 21));
         k = new QDoubleSpinBox(frame_6);
         k->setObjectName(QStringLiteral("k"));
         k->setGeometry(QRect(140, 40, 69, 27));
         k->setDecimals(3);
-        k->setMaximum(999);
-        k->setSingleStep(0.5);
+        k->setMaximum(5);
+        k->setSingleStep(0.1);
         k->setValue(0.1);
         frame->raise();
         tabWidget->raise();
@@ -730,7 +731,7 @@ public:
         label_7->setText(QApplication::translate("kupagui", "Bandwidth", 0));
         label_27->setText(QApplication::translate("kupagui", "Delay", 0));
         label_21->setText(QApplication::translate("kupagui", "PDV (ms)", 0));
-        label_22->setText(QApplication::translate("kupagui", "Average Delay", 0));
+        label_22->setText(QApplication::translate("kupagui", "AVG_ DELAY (ms)", 0));
         label_26->setText(QApplication::translate("kupagui", "k", 0));
         button_generate_command->setText(QApplication::translate("kupagui", "Generate Command", 0));
 #ifndef QT_NO_WHATSTHIS
