@@ -6,7 +6,7 @@
     <SimulationTime>10</SimulationTime>
     <ModeOperation>download</ModeOperation>
     <ErrorRate>0.001</ErrorRate>
-    <DelayParam jitter="true" k="0" pdv="3" avg_delay="1" />
+    <DelayParam jitter="true" k="0.1" avg_delay="1" pdv="2" />
     <UserBandwidth>10Gbps</UserBandwidth>
     <ServerBandwidth>1Mbps</ServerBandwidth>
     <ErrorModel>1</ErrorModel>

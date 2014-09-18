@@ -147,12 +147,12 @@ PointToPointChannel::TransmitStart (
   
   if (m_transparent==1) {
       
-      
+      //std::cout << wire <<" "<<m_coreRouter <<" "<< m_monitor <<" "<<m_mode<< std::endl;
       Simulator::ScheduleWithContext (m_link[wire].m_dst->GetNode ()->GetId (),
                                                   m_delay, &PointToPointNetDevice::Receive,
                                                   m_link[wire].m_dst, p);
       m_txrxPointToPoint (p, src, m_link[wire].m_dst, Seconds(0), m_delay);
-      std::cout << wire <<" "<<m_coreRouter <<" "<< m_monitor <<" "<<m_mode<< std::endl;
+      
       if (m_coreRouter==0) {
        // collect througput data
           if (m_monitor==1) {
@@ -200,10 +200,9 @@ PointToPointChannel::TransmitStart (
 	 
 	 else if (m_coreRouter==1) {
 	 // collect througput data
-	 std::cout <<" test "<< std::endl;
+	 //std::cout <<" test "<< std::endl;
           if (m_monitor==1) {
                 if (m_mode==1){
-                  
 		          if (wire==0){
 		                
 			        int32_t packetSize = p->GetSize();
@@ -229,10 +228,10 @@ PointToPointChannel::TransmitStart (
 			        int32_t packetSize = p->GetSize();
 			        
 			        if (packetSize >= 100) {
-			                std::cout <<" -test "<< std::endl;
+			                //std::cout <<" -test "<< std::endl;
 				        m_noPacketFlow+=1;
 				        if (m_noPacketFlow==1 && m_firstPacket==true) {
-				                std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
+				                //std::cout << wire <<" Sending time = "<< Simulator::Now().GetSeconds()<< std::endl;
 					        m_firstRecFlow=Simulator::Now();
 					        std::ofstream firstSend;
 					        firstSend.open ("firstSend.txt");

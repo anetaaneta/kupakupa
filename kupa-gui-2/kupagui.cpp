@@ -861,10 +861,10 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("Delay", "0ms");
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
 
-  xmlWriter.writeStartElement("JitterParam");
+  xmlWriter.writeStartElement("DelayParam");
   xmlWriter.writeAttribute("jitter", "true");
-
-  xmlWriter.writeAttribute("k",ui->avg_delay->text ());
+  xmlWriter.writeAttribute("k",ui->k->text ());
+  xmlWriter.writeAttribute("avg_delay",ui->avg_delay->text ());
   xmlWriter.writeAttribute("pdv",ui->delay_pdv->text ());
 
   xmlWriter.writeEndElement();

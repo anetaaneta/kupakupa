@@ -223,15 +223,17 @@ double theta;
 
   int y = static_cast<int>(k*10);
   double pk=pkval[(y-1)];
-  std::cout << "pk " << pk << std::endl;
+  //std::cout << "pk " << pk << std::endl;
 
 theta = pdv/pk;
 delay = avg_delay-k*theta;
 
-std::cout << "theta " << theta << std::endl;
-std::cout << "delay " << delay << std::endl;
+//std::cout << "theta " << theta << std::endl;
+//std::cout << "delay " << delay << std::endl;
 if (delay < 0) {
 	std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
+	std::cout << "calculated theta " << theta << std::endl;
+	std::cout << "calculater node processing time " << delay << std::endl;
 	return 0;
 }
 
