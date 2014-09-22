@@ -134,7 +134,7 @@ TiXmlText* text = e->ToText();
 string errRateTmp = text->Value();
 errRate = atof(errRateTmp.c_str());
 }
-if (elemName=="JitterParam")
+if (elemName=="DelayParam")
 {
 string jitterTmp = elem->Attribute("jitter");	
 if (GetLowerCase(jitterTmp)=="false"){

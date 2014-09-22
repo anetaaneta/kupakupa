@@ -65,7 +65,7 @@ PointToPointChannel::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_transparent),
                    MakeUintegerChecker<uint16_t> ())
-         .AddAttribute ("coreRouter", "core router flag for calculating througput, 0 set in core router",
+         .AddAttribute ("coreRouter", "core router flag for calculating througput, 1 set in core router",
                    UintegerValue (0),
                    MakeUintegerAccessor (&PointToPointChannel::m_coreRouter),
                    MakeUintegerChecker<uint16_t> ())          
