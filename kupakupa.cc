@@ -98,6 +98,7 @@ PrintTcpFlags (std::string key, std::string value)
 int main (int argc, char *argv[])
 {
 	double errRate = 0.001;
+	double errRate2 = 0.001;
 	std::string tcp_cc = "reno";
 	std::string tcp_mem_user = "4096 8192 8388608";
 	std::string tcp_mem_user_wmem = "4096 8192 8388608";
@@ -155,7 +156,8 @@ int main (int argc, char *argv[])
       cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
 
      
-     cmd.AddValue ("errRate", "Error rate.", errRate);
+     cmd.AddValue ("errRate", "download Error rate.", errRate);
+     cmd.AddValue ("errRate2", "upload Error rate.", errRate2);
      cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
      cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
@@ -429,9 +431,41 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
 	else
 	{
 		//this will not change the error model
-		std::cout << "Unknown error model. Restore to default: rate error model" <<std::endl;
+		std::cout << "Unknown download error model. Restore to default: rate error model" <<std::endl;
 	}
 
+	Ptr<RateErrorModel> em2 = CreateObjectWithAttributes<RateErrorModel> (
+			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate2),
+			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
+			    );
+	std::cout << "Building error model..." <<std::endl;
+
+	if (ErrorModel == 1)
+	{
+		std::cout << "Rate Error Model is selected"<<std::endl;
+		Ptr<RateErrorModel> em2 = CreateObjectWithAttributes<RateErrorModel> (
+			    "RanVar", StringValue ("ns3::UniformRandomVariable[Min=0.0,Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate2),
+			    "ErrorUnit", EnumValue (RateErrorModel::ERROR_UNIT_PACKET)
+			    );
+		std::cout << "Building error model completed" <<std::endl;
+	}
+	else if (ErrorModel==2)
+	{
+		std::cout << "Burst Error Model is selected" <<std::endl;
+		Ptr<BurstErrorModel> em2 = CreateObjectWithAttributes<BurstErrorModel> (
+			    "BurstSize", StringValue ("ns3::UniformRandomVariable[Min=1,Max=4]"),
+			    "BurstStart", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1.0]"),
+			    "ErrorRate", DoubleValue (errRate2)
+			    );
+		std::cout << "Building error model completed" <<std::endl;
+	}
+	else
+	{
+		//this will not change the error model
+		std::cout << "Unknown upload error model. Restore to default: rate error model" <<std::endl;
+	}
 
 
 // IP Address
@@ -521,6 +555,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         if (downloadMode)
             {
             chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
             // Launch iperf server on node 0 (mobile device)
             
             dce.SetBinary ("iperf");
@@ -549,7 +584,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
             else
             {
-                chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+                chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
                 // Launch iperf server on node 2
                 // server will receive tcp message
                 dce.SetBinary ("iperf");
@@ -583,7 +619,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
         {
-        chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
        	// Launch iperf udp server on node 0
        	dce.SetBinary ("iperf");
        	dce.ResetArguments ();
@@ -615,7 +652,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
         else
             {
-             chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
 		// Launch iperf udp server on node 0
              dce.SetBinary ("iperf");
              dce.ResetArguments ();
@@ -652,6 +690,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         downloadMode=true;
         chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
 
         dce.SetBinary ("thttpd");
         dce.ResetArguments ();
@@ -674,7 +713,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     default:
         {
             // Launch iperf server on node 0
-            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+          chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+          chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
