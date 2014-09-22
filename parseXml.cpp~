@@ -16,9 +16,12 @@ return stringName;
 }
 
 void
-
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, double& errRate2,double& k_up,double& pdv_up , double& avg_delay_up,double& k_dw,double& pdv_dw , double& avg_delay_dw,int& ErrorModel, int& ErrorModel2,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
-
+<<<<<<< HEAD
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, double& errRate2, int& jitter ,double& k,double& pdv , double& avg_delay,int& ErrorModel, int& ErrorModel2, string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+=======
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate,double& k_up,double& pdv_up , double& avg_delay_up,double& k_dw,double& pdv_dw , double& avg_delay_dw,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+>>>>>>> 67032b6932b83d84bbb42bc737180c436653df6a
+    
 // set default value
 TypeOfConnection='p';
 tcp_cc="reno";
@@ -27,9 +30,13 @@ udp_bw="10";
 SimuTime=50;
 downloadMode=true;
 errRate=0.001;
-
+<<<<<<< HEAD
 errRate2=0.001;
-
+jitter=1;
+k=3;
+pdv=2;
+avg_delay=0;
+=======
 k_up=3;
 pdv_up=2;
 avg_delay_up=0;
@@ -38,6 +45,7 @@ k_dw=3;
 pdv_dw=2;
 avg_delay_dw=0;
 
+>>>>>>> 67032b6932b83d84bbb42bc737180c436653df6a
 ErrorModel=1;
 ErrorModel2=1;
 user_bw = "150Mbps";
@@ -143,7 +151,7 @@ TiXmlText* text = e->ToText();
 string errRateTmp = text->Value();
 errRate = atof(errRateTmp.c_str());
 }
-
+<<<<<<< HEAD
 
 
 if (elemName=="ErrorRate2")
@@ -159,7 +167,7 @@ if (elemName=="DelayParam")
 string jitterTmp = elem->Attribute("jitter");	
 if (GetLowerCase(jitterTmp)=="false"){
 jitter=0;
-
+=======
 if (elemName=="DelayParamUP")
 {	
 string kTmp= elem->Attribute("k");
@@ -168,7 +176,7 @@ string pdvTmp = elem->Attribute("pdv");
 pdv_up=atof(pdvTmp.c_str());
 string delayTmp = elem->Attribute("avg_delay");
 avg_delay_up=atof(delayTmp.c_str());
-
+>>>>>>> 67032b6932b83d84bbb42bc737180c436653df6a
 }
 if (elemName=="DelayParamDOWN")
 {	

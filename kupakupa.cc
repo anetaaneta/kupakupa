@@ -89,6 +89,41 @@ static void RunIp (Ptr<Node> node, Time at, std::string str)
   apps.Start (at);
 }
 
+double FindPk (double k)
+{
+//read pk.txt and store it in 50x1 matrix
+    ifstream in;
+    in.open("pk.txt");
+
+  if(!in) {
+    cout << "Cannot open input file.\n";
+    return 1;
+  }
+
+  char str[255];
+  double pkval[50];
+  char pkchar[15];
+  string buff;
+  int pkcount=0;
+  while(std::getline(in, buff)) {
+    for (int a=0; a!=15; a++){
+        pkchar[a]=buff[a+6];
+    }
+    pkval[pkcount]=atof(pkchar);
+    pkcount=pkcount+1;
+  }
+  in.close();
+
+  int y = static_cast<int>(k*10);
+  double pk=pkval[(y-1)];
+  //std::cout << "pk " << pk << std::endl;
+  return pk;
+}
+
+
+
+
+
 void
 PrintTcpFlags (std::string key, std::string value)
 {
@@ -112,12 +147,15 @@ int main (int argc, char *argv[])
 	
 	std::string user_bw = "150Mbps";
 	std::string server_bw = "10Gbps";
-
-	int jitter =1;
 	
-	double k = 0;
-	double pdv = 0;
-	double avg_delay=1;
+	double k_up = 0;
+	double pdv_up = 0;
+	double avg_delay_up=1;
+	
+	double k_dw = 0;
+	double pdv_dw = 0;
+	double avg_delay_dw=1;
+	
 	int monitor = 1;
 	int mode = 0;
 	
@@ -165,10 +203,13 @@ int main (int argc, char *argv[])
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
 
-    cmd.AddValue ("chan_jitter", "jitter in server-BS conection", jitter);
-    cmd.AddValue ("avg_delay", "average delay.", avg_delay);
-    cmd.AddValue ("delay_pdv", "theta for normal random distribution in server-BS conection", pdv);
-    cmd.AddValue ("chan_k", " Normal random distribution k in server-BS conection", k);
+    cmd.AddValue ("avg_delay_up", "average delay upstream.", avg_delay_up);
+    cmd.AddValue ("delay_pdv_up", "theta for normal random distribution in server-BS conection upstream", pdv_up);
+    cmd.AddValue ("chan_k_up", " Normal random distribution k in server-BS conection upstream", k_up);
+    
+    cmd.AddValue ("avg_delay_up", "average delay downstream.", avg_delay_dw);
+    cmd.AddValue ("delay_pdv_up", "theta for normal random distribution in server-BS conection downstream", pdv_dw);
+    cmd.AddValue ("chan_k_up", " Normal random distribution k in server-BS conection downstream", k_dw);
 	
      cmd.Parse (argc, argv);     
       
@@ -177,7 +218,9 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,jitter,k, pdv, avg_delay, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,k_up, pdv_up, avg_delay_up, k_dw, pdv_dw, avg_delay_dw, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -199,47 +242,39 @@ int main (int argc, char *argv[])
     	     
      
 // calculating theta and delay
-double delay;
-double theta;
+double delay_up;
+double theta_up;
+double pk_up = FindPk(k_up);
 
-//read pk.txt and store it in 50x1 matrix
-    ifstream in;
-    in.open("pk.txt");
+theta_up = pdv_up/pk_up;
+delay_up = avg_delay_up-k_up*theta_up;
+std::cout << "calculated theta " << theta_up << std::endl;
+std::cout << "calculater node processing time " << delay_up << std::endl;
+	if (delay_up < 0) {
+		std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
+		std::cout << "UPSTREAM" << std::endl;
+		std::cout << "calculated theta " << theta_up << std::endl;
+		std::cout << "calculater node processing time " << delay_up << std::endl;
+		return 0;
+	}
 
-  if(!in) {
-    cout << "Cannot open input file.\n";
-    return 1;
-  }
 
-  char str[255];
-  double pkval[50];
-  char pkchar[15];
-  string buff;
-  int pkcount=0;
-  while(std::getline(in, buff)) {
-    for (int a=0; a!=15; a++){
-        pkchar[a]=buff[a+6];
-    }
-    pkval[pkcount]=atof(pkchar);
-    pkcount=pkcount+1;
-  }
-  in.close();
+double delay_dw;
+double theta_dw;
+double pk_dw = FindPk(k_dw);
 
-  int y = static_cast<int>(k*10);
-  double pk=pkval[(y-1)];
-  //std::cout << "pk " << pk << std::endl;
+theta_dw = pdv_dw/pk_dw;
+delay_dw = avg_delay_dw-k_dw*theta_dw;
+std::cout << "calculated theta " << theta_dw << std::endl;
+std::cout << "calculater node processing time " << delay_dw << std::endl;
 
-theta = pdv/pk;
-delay = avg_delay-k*theta;
-
-//std::cout << "theta " << theta << std::endl;
-//std::cout << "delay " << delay << std::endl;
-if (delay < 0) {
-	std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
-	std::cout << "calculated theta " << theta << std::endl;
-	std::cout << "calculater node processing time " << delay << std::endl;
-	return 0;
-}
+	if (delay_dw < 0) {
+		std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
+		std::cout << "DOWNSTREAM" << std::endl;
+		std::cout << "calculated theta " << theta_dw << std::endl;
+		std::cout << "calculater node processing time " << delay_dw << std::endl;
+		return 0;
+	}
 
 // topologies
     std::cout << "Building topologies.." << std::endl;
@@ -358,24 +393,28 @@ if (!downloadMode) {
 
 std::ostringstream delay_oss;
 delay_oss.str ("");
-delay_oss << delay<<"ms";
+delay_oss << delay_dw <<"ms";
 std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
 //channel for core router to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 p2p.SetChannelAttribute ("Delay", StringValue (delay_oss.str ().c_str ()));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
-p2p.SetChannelAttribute ("k", DoubleValue (k));
+p2p.SetChannelAttribute ("k", DoubleValue (k_dw));
 p2p.SetChannelAttribute ("transparent", UintegerValue (0));
-p2p.SetChannelAttribute ("theta", DoubleValue (theta));
+p2p.SetChannelAttribute ("theta", DoubleValue (theta_dw));
 NetDeviceContainer chanBSRouterDown = p2p.Install (BSRouterDown);
+
+delay_oss.str ("");
+delay_oss << delay_up <<"ms";
+std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
 p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
 p2p.SetChannelAttribute ("Delay", StringValue (delay_oss.str ().c_str ()));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
-p2p.SetChannelAttribute ("k", DoubleValue (k));
+p2p.SetChannelAttribute ("k", DoubleValue (k_up));
 p2p.SetChannelAttribute ("transparent", UintegerValue (0));
-p2p.SetChannelAttribute ("theta", DoubleValue (theta));
+p2p.SetChannelAttribute ("theta", DoubleValue (theta_up));
 NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
 
 // channel for mobile router to mobile and mobile router to core
