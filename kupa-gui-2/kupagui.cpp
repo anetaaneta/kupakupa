@@ -526,14 +526,15 @@ void kupagui::on_actionLoad_Command_triggered()
 
   char TypeOfConnection;
   //string delay;
-  string tcp_cc,udp_bw,delay,server_bw,user_bw;
+  string tcp_cc,udp_bw,delay,user_bw_up,user_bw_down;
   string tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem,tcp_mem_server,tcp_mem_server_wmem,tcp_mem_server_rmem;
   int htmlSize,ErrorModel, ErrorModel2;
   double k_dw,avg_delay_dw,pdv_dw, k_up,avg_delay_up,pdv_up,SimuTime,errRate, errRate2;
   bool downloadMode;
 
   ParseInput parser;
-  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,errRate2,k_dw, pdv_dw, avg_delay_dw, k_up, pdv_up, avg_delay_up, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,k_up, pdv_up, avg_delay_up, k_dw, pdv_dw, avg_delay_dw, ErrorModel, ErrorModel2, user_bw_down, user_bw_up, htmlSize,tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+
   if (TypeOfConnection=='p'){
       ui->tabWidget->setCurrentIndex (0);
       ui->tcp_cc->setCurrentText (QString::fromStdString (tcp_cc));
@@ -573,24 +574,24 @@ void kupagui::on_actionLoad_Command_triggered()
       ui->tcp_mem_server_rmem_wget->setText (QString::fromStdString (tcp_mem_server_rmem));
     }
 
-  if (user_bw.find ('M')!=std::string::npos){
-      std::string v = user_bw.erase (user_bw.find ('M'),4);
+  if (user_bw_down.find ('M')!=std::string::npos){
+      std::string v = user_bw_down.erase (user_bw_down.find ('M'),4);
       ui->user_bw_down->setValue (atoi(v.c_str ()));
       ui->user_bw_down_unit->setCurrentIndex (0);
   }
-  if (user_bw.find ('G')!=std::string::npos){
-      std::string v = user_bw.erase (user_bw.find ('G'),4);
+  if (user_bw_down.find ('G')!=std::string::npos){
+      std::string v = user_bw_down.erase (user_bw_down.find ('G'),4);
       ui->user_bw_down->setValue (atoi(v.c_str ()));
       ui->user_bw_down_unit->setCurrentIndex (1);
   }
 
-  if (server_bw.find ('M')!=std::string::npos){
-      std::string v = server_bw.erase (server_bw.find ('M'),4);
+  if (user_bw_up.find ('M')!=std::string::npos){
+      std::string v = user_bw_up.erase (user_bw_up.find ('M'),4);
       ui->user_bw_up->setValue (atoi(v.c_str ()));
       ui->user_bw_up_unit->setCurrentIndex (0);
   }
-  if (server_bw.find ('G')!=std::string::npos){
-      std::string v = server_bw.erase (server_bw.find ('G'),4);
+  if (user_bw_up.find ('G')!=std::string::npos){
+      std::string v = user_bw_up.erase (user_bw_up.find ('G'),4);
       ui->user_bw_up->setValue (atoi(v.c_str ()));
       ui->user_bw_up_unit->setCurrentIndex (1);
   }
@@ -889,19 +890,20 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("ModeOperation", mode);
   xmlWriter.writeTextElement("Delay", "0ms");
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
-  xmlWriter.writeTextElement("ErrorRate2",ui->error_rate_2->text());
+  xmlWriter.writeTextElement("ErrorRateUP",ui->error_rate_2->text());
 
-  xmlWriter.writeStartElement("DelayParam");
+  xmlWriter.writeStartElement("DelayParamDOWN");
 
-  xmlWriter.writeAttribute("k_dw",ui->k->text ());
-  xmlWriter.writeAttribute("avg_delay_dw",ui->avg_delay->text ());
-  xmlWriter.writeAttribute("pdv_dw",ui->delay_pdv->text ());
-
-  xmlWriter.writeAttribute("k_up",ui->k_up->text ());
-  xmlWriter.writeAttribute("avg_delay_up",ui->avg_delay_up->text ());
-  xmlWriter.writeAttribute("pdv_up",ui->delay_pdv_up->text ());
-
+  xmlWriter.writeAttribute("k",ui->k->text ());
+  xmlWriter.writeAttribute("avg_delay",ui->avg_delay->text ());
+  xmlWriter.writeAttribute("pdv",ui->delay_pdv->text ());
   xmlWriter.writeEndElement();
+  xmlWriter.writeStartElement("DelayParamUP");
+  xmlWriter.writeAttribute("k",ui->k_up->text ());
+  xmlWriter.writeAttribute("avg_delay",ui->avg_delay_up->text ());
+  xmlWriter.writeAttribute("pdv",ui->delay_pdv_up->text ());
+  xmlWriter.writeEndElement();
+
 
   QString userBwUnit;
   if (ui->user_bw_down_unit->currentIndex()==0) {
@@ -922,9 +924,9 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("UserBandwidthUp",ui->user_bw_up->text ()+serverBwUnit);;
 
   xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
-  xmlWriter.writeTextElement("Errormodel2",QString::number(ui->error_model_2->currentIndex ()+1));
+  xmlWriter.writeTextElement("ErrormodelUP",QString::number(ui->error_model_2->currentIndex ()+1));
   xmlWriter.writeTextElement("SizeOfHttpFile", ui->wget_file_size->text());
-  xmlWriter.writeTextElement("SimuTime", simuTime);
+  xmlWriter.writeTextElement("SimulationTime", simuTime);
 
 
   if (ui->tabWidget->currentIndex ()==0 or ui->tabWidget->currentIndex ()==2){
