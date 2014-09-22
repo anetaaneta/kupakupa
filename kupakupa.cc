@@ -122,6 +122,7 @@ int main (int argc, char *argv[])
 	int mode = 0;
 	
        int ErrorModel = 1;
+       int ErrorModel2 = 1;
        double SimuTime = 50;
        int htmlSize = 2; // in mega bytes
        char TypeOfConnection = 'p'; // iperf tcp connection
@@ -159,6 +160,7 @@ int main (int argc, char *argv[])
      cmd.AddValue ("errRate", "download Error rate.", errRate);
      cmd.AddValue ("errRate2", "upload Error rate.", errRate2);
      cmd.AddValue ("ErrorModel", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
+     cmd.AddValue ("ErrorModel2", "Choose error model you want to use. options: 1 -rate error model-default, 2 - burst error model", ErrorModel);
      cmd.AddValue ("udp_bw","banwidth set for UDP, default is 1M", udp_bw);
      cmd.AddValue ("htmlSize","banwidth set for UDP, default is 1M", htmlSize);
      cmd.AddValue ("SimuTime", "time to do the simulaton, in second", SimuTime);
@@ -175,7 +177,7 @@ int main (int argc, char *argv[])
       {
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,jitter,k, pdv, avg_delay, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,jitter,k, pdv, avg_delay, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
 	  switch (TypeOfConnection)
@@ -441,7 +443,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
 			    );
 	std::cout << "Building error model..." <<std::endl;
 
-	if (ErrorModel == 1)
+	if (ErrorModel2 == 1)
 	{
 		std::cout << "Rate Error Model is selected"<<std::endl;
 		Ptr<RateErrorModel> em2 = CreateObjectWithAttributes<RateErrorModel> (
@@ -451,7 +453,7 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
 			    );
 		std::cout << "Building error model completed" <<std::endl;
 	}
-	else if (ErrorModel==2)
+	else if (ErrorModel2 ==2)
 	{
 		std::cout << "Burst Error Model is selected" <<std::endl;
 		Ptr<BurstErrorModel> em2 = CreateObjectWithAttributes<BurstErrorModel> (

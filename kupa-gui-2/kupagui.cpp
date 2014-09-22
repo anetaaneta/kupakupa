@@ -34,9 +34,11 @@ QString SimuTime="";
 QString udp_bw="";
 QString file_size="";
 QString error_model="";
+QString error_model_2="";
 QString user_bw="";
 QString server_bw="";
 QString error_rate="";
+QString error_rate_2="";
 QString chan_jitter="";
 string dce_source;
 
@@ -164,6 +166,7 @@ void kupagui::on_button_generate_command_clicked()
     user_bw=" --user_bw="+ui->user_bw->text()+userBwUnit;
     server_bw=" --server_bw="+ui->server_bw->text()+serverBwUnit;
     error_rate=" --errRate="+ui->error_rate->text();
+    error_rate_2=" --errRate2="+ui->error_rate_2->text();
 
     dce_source = ui->dce_source->text ().toUtf8 ().constData ();
 
@@ -182,6 +185,12 @@ void kupagui::on_button_generate_command_clicked()
         error_model=" --ErrorModel=1"; //rate error model
     }else{
         error_model=" --ErrorModel=2"; //burst error model
+    }
+
+    if (ui->error_model_2->currentIndex()==0){
+        error_model_2=" --ErrorModel2=1"; //rate error model
+    }else{
+        error_model_2=" --ErrorModel2=2"; //burst error model
     }
 
     int min, def, max;
@@ -412,7 +421,7 @@ void kupagui::on_button_generate_command_clicked()
         resultNumber=3;
     }
 //concatenates all commands
-    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + chan_jitter + chan_k + avg_delay + delay_pdv ;
+    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + error_model_2 + error_rate_2 + chan_jitter + chan_k + avg_delay + delay_pdv ;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
     theCommand = FinalCommand.toUtf8 ().constData ();
@@ -511,12 +520,12 @@ void kupagui::on_actionLoad_Command_triggered()
   //string delay;
   string tcp_cc,udp_bw,delay,server_bw,user_bw;
   string tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem,tcp_mem_server,tcp_mem_server_wmem,tcp_mem_server_rmem;
-  int jitter,htmlSize,ErrorModel;
-  double k,avg_delay,pdv,SimuTime,errRate;
+  int jitter,htmlSize,ErrorModel, ErrorModel2;
+  double k,avg_delay,pdv,SimuTime,errRate, errRate2;
   bool downloadMode;
 
   ParseInput parser;
-  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,jitter,k, pdv, avg_delay, ErrorModel, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,errRate2,jitter,k, pdv, avg_delay, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
   if (TypeOfConnection=='p'){
       ui->tabWidget->setCurrentIndex (0);
       ui->tcp_cc->setCurrentText (QString::fromStdString (tcp_cc));
@@ -586,7 +595,15 @@ void kupagui::on_actionLoad_Command_triggered()
       ui->error_model->setCurrentIndex (1);
     }
 
+  if (ErrorModel2==1){
+      ui->error_model_2->setCurrentIndex (0);
+    }
+  else {
+      ui->error_model_2->setCurrentIndex (1);
+    }
+
   ui->error_rate->setValue(errRate);
+  ui->error_rate_2->setValue(errRate2);
 
   ui->k->setValue (k);
   ui->avg_delay->setValue (avg_delay);
@@ -860,6 +877,7 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("ModeOperation", mode);
   xmlWriter.writeTextElement("Delay", "0ms");
   xmlWriter.writeTextElement("ErrorRate",ui->error_rate->text());
+  xmlWriter.writeTextElement("ErrorRate2",ui->error_rate_2->text());
 
   xmlWriter.writeStartElement("DelayParam");
   xmlWriter.writeAttribute("jitter", "true");
@@ -888,6 +906,7 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ()+serverBwUnit);;
 
   xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
+  xmlWriter.writeTextElement("Errormodel2",QString::number(ui->error_model_2->currentIndex ()+1));
   xmlWriter.writeTextElement("SizeOfHttpFile", ui->wget_file_size->text());
   xmlWriter.writeTextElement("SimuTime", simuTime);
 

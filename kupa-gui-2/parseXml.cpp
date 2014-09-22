@@ -16,7 +16,7 @@ return stringName;
 }
 
 void
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, int& jitter ,double& k,double& pdv , double& avg_delay,int& ErrorModel,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, double& errRate2, int& jitter ,double& k,double& pdv , double& avg_delay,int& ErrorModel, int& ErrorModel2,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
 
 // set default value
 TypeOfConnection='p';
@@ -26,11 +26,13 @@ udp_bw="10";
 SimuTime=50;
 downloadMode=true;
 errRate=0.001;
+errRate2=0.001;
 jitter=1;
 k=3;
 pdv=2;
 avg_delay=0;
 ErrorModel=1;
+ErrorModel2=1;
 user_bw = "150Mbps";
 server_bw = "10Gbps";
 htmlSize = 2;
@@ -134,6 +136,14 @@ TiXmlText* text = e->ToText();
 string errRateTmp = text->Value();
 errRate = atof(errRateTmp.c_str());
 }
+if (elemName=="ErrorRate2")
+{
+TiXmlNode* e = elem->FirstChild();
+TiXmlText* text = e->ToText();
+string errRateTmp = text->Value();
+errRate2 = atof(errRateTmp.c_str());
+}
+
 if (elemName=="DelayParam")
 {
 string jitterTmp = elem->Attribute("jitter");
@@ -170,6 +180,15 @@ TiXmlText* text = e->ToText();
 string ErrorModelTmp=text->Value();
 ErrorModel = atoi(ErrorModelTmp.c_str());
 }
+
+if (elemName=="ErrorModel2")
+{
+TiXmlNode* e = elem->FirstChild();
+TiXmlText* text = e->ToText();
+string ErrorModelTmp=text->Value();
+ErrorModel2 = atoi(ErrorModelTmp.c_str());
+}
+
 if (elemName=="SizeOfHttpFile")
 {
 TiXmlNode* e = elem->FirstChild();
