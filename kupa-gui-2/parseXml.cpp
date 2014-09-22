@@ -45,7 +45,7 @@ user_bw_up = "150Mbps";
 htmlSize = 2;
 tcp_mem_user = "4096 8192 8388608";
 tcp_mem_user_wmem = "4096 8192 8388608";
-tcp_mem_user_rmem = "4096 8192 8388608";	
+tcp_mem_user_rmem = "4096 8192 8388608";
 tcp_mem_server = "4096 8192 8388608";
 tcp_mem_server_wmem = "4096 8192 8388608";
 tcp_mem_server_rmem = "4096 8192 8388608";
@@ -134,19 +134,7 @@ downloadMode = false;
 }
 }
 
-
-
-if (elemName=="ErrorRate")
-{
-TiXmlNode* e = elem->FirstChild();
-TiXmlText* text = e->ToText();
-string errRateTmp = text->Value();
-errRate = atof(errRateTmp.c_str());
-}
-
-
-
-if (elemName=="ErrorRate2")
+if (elemName=="ErrorRateUP")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
@@ -155,10 +143,19 @@ errRate2 = atof(errRateTmp2.c_str());
 }
 
 
+if (elemName=="ErrorRateDOWN")
+{
+TiXmlNode* e = elem->FirstChild();
+TiXmlText* text = e->ToText();
+string errRateTmp = text->Value();
+errRate = atof(errRateTmp.c_str());
+}
+
+
 if (elemName=="DelayParamUP")
-{	
+{
 string kTmp= elem->Attribute("k");
-k_up=atof(kTmp.c_str());	
+k_up=atof(kTmp.c_str());
 string pdvTmp = elem->Attribute("pdv");
 pdv_up=atof(pdvTmp.c_str());
 string delayTmp = elem->Attribute("avg_delay");
@@ -166,9 +163,9 @@ avg_delay_up=atof(delayTmp.c_str());
 
 }
 if (elemName=="DelayParamDOWN")
-{	
+{
 string kTmp= elem->Attribute("k");
-k_dw=atof(kTmp.c_str());	
+k_dw=atof(kTmp.c_str());
 string pdvTmp = elem->Attribute("pdv");
 pdv_dw=atof(pdvTmp.c_str());
 string delayTmp = elem->Attribute("avg_delay");
@@ -186,27 +183,28 @@ if (elemName=="UserBandwidthUp")
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 user_bw_up = text->Value();
-}	
-if (elemName=="ErrorModel")
-{
-TiXmlNode* e = elem->FirstChild();
-TiXmlText* text = e->ToText();
-string ErrorModelTmp=text->Value();
-ErrorModel = atoi(ErrorModelTmp.c_str());
 }
-if (elemName=="ErrorModel2")
+if (elemName=="ErrorModelUP")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 string ErrorModelTmp2=text->Value();
 ErrorModel2 = atoi(ErrorModelTmp2.c_str());
 }
+if (elemName=="ErrorModelDOWN")
+{
+TiXmlNode* e = elem->FirstChild();
+TiXmlText* text = e->ToText();
+string ErrorModelTmp=text->Value();
+ErrorModel = atoi(ErrorModelTmp.c_str());
+}
+
 if (elemName=="SizeOfHttpFile")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
 httpSizeTmp = text->Value();
-htmlSize=atoi(httpSizeTmp.c_str());	
+htmlSize=atoi(httpSizeTmp.c_str());
 }
 
 if (elemName=="UserTCPMem")
@@ -256,7 +254,7 @@ tcp_mem_user_rmem = tcp_mem_user_rmem_min+ "," +tcp_mem_user_rmem_def+ "," +tcp_
 tcp_mem_server = tcp_mem_server_min + ","+tcp_mem_server_def+","+tcp_mem_server_max;
 tcp_mem_server_wmem = tcp_mem_server_wmem_min+","+tcp_mem_server_wmem_def+","+tcp_mem_server_wmem_max;
 tcp_mem_server_rmem = tcp_mem_server_rmem_min+","+tcp_mem_server_rmem_def+","+tcp_mem_server_rmem_max;
-      
-      
+
+
 }
 }
