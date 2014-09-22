@@ -17,7 +17,7 @@ return stringName;
 
 void
 
-ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, double& errRate2,double& k_up,double& pdv_up , double& avg_delay_up,double& k_dw,double& pdv_dw , double& avg_delay_dw,int& ErrorModel, int& ErrorModel2,string& user_bw, string& server_bw, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
+ParseInput::parseInputXml(string fileName,char& TypeOfConnection, string& tcp_cc, string& udp_bw, double& SimuTime,bool& downloadMode, double& errRate, double& errRate2,double& k_up,double& pdv_up , double& avg_delay_up,double& k_dw,double& pdv_dw , double& avg_delay_dw,int& ErrorModel, int& ErrorModel2,string& user_bw_down, string& user_bw_up, int& htmlSize,string& tcp_mem_user, string& tcp_mem_user_wmem, string& tcp_mem_user_rmem, string& tcp_mem_server, string& tcp_mem_server_wmem, string& tcp_mem_server_rmem){
 
 // set default value
 TypeOfConnection='p';
@@ -40,8 +40,8 @@ avg_delay_dw=0;
 
 ErrorModel=1;
 ErrorModel2=1;
-user_bw = "150Mbps";
-server_bw = "10Gbps";
+user_bw_down = "150Mbps";
+user_bw_up = "150Mbps";
 htmlSize = 2;
 tcp_mem_user = "4096 8192 8388608";
 tcp_mem_user_wmem = "4096 8192 8388608";
@@ -154,11 +154,6 @@ string errRateTmp2 = text->Value();
 errRate2 = atof(errRateTmp2.c_str());
 }
 
-if (elemName=="DelayParam")
-{
-string jitterTmp = elem->Attribute("jitter");	
-if (GetLowerCase(jitterTmp)=="false"){
-jitter=0;
 
 if (elemName=="DelayParamUP")
 {	
@@ -180,17 +175,17 @@ string delayTmp = elem->Attribute("avg_delay");
 avg_delay_dw=atof(delayTmp.c_str());
 }
 
-if (elemName=="UserBandwidth")
+if (elemName=="UserBandwidthDown")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
-user_bw = text->Value();
+user_bw_down = text->Value();
 }
-if (elemName=="ServerBandwidth")
+if (elemName=="UserBandwidthUp")
 {
 TiXmlNode* e = elem->FirstChild();
 TiXmlText* text = e->ToText();
-server_bw = text->Value();
+user_bw_up = text->Value();
 }	
 if (elemName=="ErrorModel")
 {

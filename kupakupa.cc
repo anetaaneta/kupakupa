@@ -145,8 +145,8 @@ int main (int argc, char *argv[])
 
 	std::string udp_bw="1";
 	
-	std::string user_bw = "150Mbps";
-	std::string server_bw = "10Gbps";
+	std::string user_bw_down = "150Mbps";
+	std::string user_bw_up = "150Mbps";
 	
 	double k_up = 0;
 	double pdv_up = 0;
@@ -191,8 +191,8 @@ int main (int argc, char *argv[])
             
      cmd.AddValue ("tcp_mem_server_rmem", "put 3 values (min, default, max) separaed by comma for tcp_mem in server, range 4096-54000000", tcp_mem_server_rmem);
                   
-      cmd.AddValue ("user_bw", "bandwidth between user and BS, in Mbps. Default is 150", user_bw);
-      cmd.AddValue ("server_bw", "bandwidth between server and BS, in Gbps. Default is 10", server_bw);
+      cmd.AddValue ("user_bw_down", "bandwidth between user and BS, in Mbps. Default is 150", user_bw_down);
+      cmd.AddValue ("user_bw_up", "bandwidth between server and BS, in Gbps. Default is 10", user_bw_up);
 
      
      cmd.AddValue ("errRate", "download Error rate.", errRate);
@@ -219,7 +219,7 @@ int main (int argc, char *argv[])
 	string fileName = "inputDCE.xml";	
 	ParseInput parser;
 
-    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,k_up, pdv_up, avg_delay_up, k_dw, pdv_dw, avg_delay_dw, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+    parser.parseInputXml(fileName,TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate, errRate2,k_up, pdv_up, avg_delay_up, k_dw, pdv_dw, avg_delay_dw, ErrorModel, ErrorModel2, user_bw_down, user_bw_up, htmlSize,tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
 
 	}
       	  TypeOfConnection = tolower (TypeOfConnection);
@@ -381,11 +381,11 @@ if (!downloadMode) {
 // channel for mobile router to BS
 	NS_LOG_INFO ("Create channels.");
 	PointToPointHelper p2p;
-	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
+	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw_down));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
 	NetDeviceContainer chanRouterBSDown = p2p.Install (routerBSDown);
 	
-	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw));
+	p2p.SetDeviceAttribute ("DataRate", StringValue (user_bw_up));
 	p2p.SetChannelAttribute ("Delay", StringValue ("0ms"));
 	NetDeviceContainer chanRouterBSUp = p2p.Install (routerBSUp);
 
@@ -397,7 +397,7 @@ delay_oss << delay_dw <<"ms";
 std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
 //channel for core router to BS
-p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
+p2p.SetDeviceAttribute ("DataRate", StringValue ("200Gbps"));
 p2p.SetChannelAttribute ("Delay", StringValue (delay_oss.str ().c_str ()));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
 p2p.SetChannelAttribute ("k", DoubleValue (k_dw));
@@ -409,7 +409,7 @@ delay_oss.str ("");
 delay_oss << delay_up <<"ms";
 std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
-p2p.SetDeviceAttribute ("DataRate", StringValue (server_bw));
+p2p.SetDeviceAttribute ("DataRate", StringValue ("200Gbps"));
 p2p.SetChannelAttribute ("Delay", StringValue (delay_oss.str ().c_str ()));
 p2p.SetChannelAttribute ("Jitter", UintegerValue (1));
 p2p.SetChannelAttribute ("k", DoubleValue (k_up));
@@ -595,8 +595,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
             {
-            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
             // Launch iperf server on node 0 (mobile device)
             
             dce.SetBinary ("iperf");
@@ -625,8 +625,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
             else
             {
-                chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-                chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
                 // Launch iperf server on node 2
                 // server will receive tcp message
                 dce.SetBinary ("iperf");
@@ -660,8 +660,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
       {
         if (downloadMode)
         {
-            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
        	// Launch iperf udp server on node 0
        	dce.SetBinary ("iperf");
        	dce.ResetArguments ();
@@ -693,8 +693,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
         }
         else
             {
-            chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-            chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+            chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+            chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
 		// Launch iperf udp server on node 0
              dce.SetBinary ("iperf");
              dce.ResetArguments ();
@@ -730,8 +730,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     case 'w':
       {
         downloadMode=true;
-        chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-        chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
 
         dce.SetBinary ("thttpd");
         dce.ResetArguments ();
@@ -754,8 +754,8 @@ NetDeviceContainer chanBSRouterUp = p2p.Install (BSRouterUp);
     default:
         {
             // Launch iperf server on node 0
-          chanMobileRouter.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
-          chanRouterCore.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
+        chanRouterBSDown.Get(0)-> SetAttribute ("ReceiveErrorModel", PointerValue (em));
+        chanBSRouterUp.Get(1)-> SetAttribute ("ReceiveErrorModel", PointerValue (em2));
             dce.SetBinary ("iperf");
             dce.ResetArguments ();
             dce.ResetEnvironment ();
