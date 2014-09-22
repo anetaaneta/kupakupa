@@ -207,9 +207,9 @@ int main (int argc, char *argv[])
     cmd.AddValue ("delay_pdv_up", "theta for normal random distribution in server-BS conection upstream", pdv_up);
     cmd.AddValue ("chan_k_up", " Normal random distribution k in server-BS conection upstream", k_up);
     
-    cmd.AddValue ("avg_delay_up", "average delay downstream.", avg_delay_dw);
-    cmd.AddValue ("delay_pdv_up", "theta for normal random distribution in server-BS conection downstream", pdv_dw);
-    cmd.AddValue ("chan_k_up", " Normal random distribution k in server-BS conection downstream", k_dw);
+    cmd.AddValue ("avg_delay_dw", "average delay downstream.", avg_delay_dw);
+    cmd.AddValue ("delay_pdv_dw", "theta for normal random distribution in server-BS conection downstream", pdv_dw);
+    cmd.AddValue ("chan_k_dw", " Normal random distribution k in server-BS conection downstream", k_dw);
 	
      cmd.Parse (argc, argv);     
       

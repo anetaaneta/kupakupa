@@ -39,7 +39,7 @@ QString user_bw="";
 QString server_bw="";
 QString error_rate="";
 QString error_rate_2="";
-QString chan_jitter="";
+//QString chan_jitter="";
 string dce_source;
 
 using namespace std;
@@ -150,36 +150,44 @@ void kupagui::on_button_generate_command_clicked()
 
     QString ModeOperation = " --ModeOperation=true";
     QString userBwUnit;
-    if (ui->user_bw_unit->currentIndex()==0) {
+    if (ui->user_bw_down_unit->currentIndex()==0) {
         userBwUnit="Mbps";
     }
-    else if (ui->user_bw_unit->currentIndex()==1) {
+    else if (ui->user_bw_down_unit->currentIndex()==1) {
         userBwUnit="Gbps";
     }
     QString serverBwUnit;
-    if (ui->server_bw_unit->currentIndex()==0) {
+    if (ui->user_bw_up_unit->currentIndex()==0) {
         serverBwUnit="Mbps";
     }
-    else if (ui->server_bw_unit->currentIndex()==1) {
+    else if (ui->user_bw_up_unit->currentIndex()==1) {
         serverBwUnit="Gbps";
     }
-    user_bw=" --user_bw="+ui->user_bw->text()+userBwUnit;
-    server_bw=" --server_bw="+ui->server_bw->text()+serverBwUnit;
+    user_bw=" --user_bw_down="+ui->user_bw_down->text()+userBwUnit;
+    server_bw=" --user_bw_up="+ui->user_bw_up->text()+serverBwUnit;
     error_rate=" --errRate="+ui->error_rate->text();
     error_rate_2=" --errRate2="+ui->error_rate_2->text();
 
     dce_source = ui->dce_source->text ().toUtf8 ().constData ();
 
 
-    chan_jitter=" --chan_jitter=1";
+    //chan_jitter=" --chan_jitter=1";
 
-    QString chan_k;
-    QString delay_pdv;
-    QString avg_delay;
+    QString chan_k_dw;
+    QString delay_pdv_dw;
+    QString avg_delay_dw;
 
-    delay_pdv=" --delay_pdv="+ui->delay_pdv->text ();
-    avg_delay=" --avg_delay="+ui->avg_delay->text ();
-    chan_k=" --chan_k="+ui->k->text();
+    QString chan_k_up;
+    QString delay_pdv_up;
+    QString avg_delay_up;
+
+    delay_pdv_dw=" --delay_pdv_dw="+ui->delay_pdv->text ();
+    avg_delay_dw=" --avg_delay_dw="+ui->avg_delay->text ();
+    chan_k_dw=" --chan_k_dw="+ui->k->text();
+
+    delay_pdv_up=" --delay_pdv_up="+ui->delay_pdv_up->text ();
+    avg_delay_up=" --avg_delay_up="+ui->avg_delay_up->text ();
+    chan_k_up=" --chan_k_up="+ui->k_up->text();
 
     if (ui->error_model->currentIndex()==0){
         error_model=" --ErrorModel=1"; //rate error model
@@ -421,7 +429,7 @@ void kupagui::on_button_generate_command_clicked()
         resultNumber=3;
     }
 //concatenates all commands
-    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + error_model_2 + error_rate_2 + chan_jitter + chan_k + avg_delay + delay_pdv ;
+    FinalCommand = FinalCommand + user_bw + server_bw + error_model + error_rate + error_model_2 + error_rate_2 + chan_k_dw + avg_delay_dw + delay_pdv_dw + chan_k_up + avg_delay_up + delay_pdv_up ;
     ui->final_command->setText(FinalCommand);
     statusBar()->showMessage(tr("command created"));
     theCommand = FinalCommand.toUtf8 ().constData ();
@@ -520,12 +528,12 @@ void kupagui::on_actionLoad_Command_triggered()
   //string delay;
   string tcp_cc,udp_bw,delay,server_bw,user_bw;
   string tcp_mem_user, tcp_mem_user_wmem, tcp_mem_user_rmem,tcp_mem_server,tcp_mem_server_wmem,tcp_mem_server_rmem;
-  int jitter,htmlSize,ErrorModel, ErrorModel2;
-  double k,avg_delay,pdv,SimuTime,errRate, errRate2;
+  int htmlSize,ErrorModel, ErrorModel2;
+  double k_dw,avg_delay_dw,pdv_dw, k_up,avg_delay_up,pdv_up,SimuTime,errRate, errRate2;
   bool downloadMode;
 
   ParseInput parser;
-  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,errRate2,jitter,k, pdv, avg_delay, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
+  parser.parseInputXml(filename.toUtf8 ().constData (),TypeOfConnection,tcp_cc,udp_bw,SimuTime,downloadMode,errRate,errRate2,k_dw, pdv_dw, avg_delay_dw, k_up, pdv_up, avg_delay_up, ErrorModel, ErrorModel2, user_bw, server_bw, htmlSize,tcp_mem_user, tcp_mem_user_wmem,tcp_mem_user_rmem, tcp_mem_server, tcp_mem_server_wmem, tcp_mem_server_rmem);
   if (TypeOfConnection=='p'){
       ui->tabWidget->setCurrentIndex (0);
       ui->tcp_cc->setCurrentText (QString::fromStdString (tcp_cc));
@@ -567,24 +575,24 @@ void kupagui::on_actionLoad_Command_triggered()
 
   if (user_bw.find ('M')!=std::string::npos){
       std::string v = user_bw.erase (user_bw.find ('M'),4);
-      ui->user_bw->setValue (atoi(v.c_str ()));
-      ui->user_bw_unit->setCurrentIndex (0);
+      ui->user_bw_down->setValue (atoi(v.c_str ()));
+      ui->user_bw_down_unit->setCurrentIndex (0);
   }
   if (user_bw.find ('G')!=std::string::npos){
       std::string v = user_bw.erase (user_bw.find ('G'),4);
-      ui->user_bw->setValue (atoi(v.c_str ()));
-      ui->user_bw_unit->setCurrentIndex (1);
+      ui->user_bw_down->setValue (atoi(v.c_str ()));
+      ui->user_bw_down_unit->setCurrentIndex (1);
   }
 
   if (server_bw.find ('M')!=std::string::npos){
       std::string v = server_bw.erase (server_bw.find ('M'),4);
-      ui->server_bw->setValue (atoi(v.c_str ()));
-      ui->server_bw_unit->setCurrentIndex (0);
+      ui->user_bw_up->setValue (atoi(v.c_str ()));
+      ui->user_bw_up_unit->setCurrentIndex (0);
   }
   if (server_bw.find ('G')!=std::string::npos){
       std::string v = server_bw.erase (server_bw.find ('G'),4);
-      ui->server_bw->setValue (atoi(v.c_str ()));
-      ui->server_bw_unit->setCurrentIndex (1);
+      ui->user_bw_up->setValue (atoi(v.c_str ()));
+      ui->user_bw_up_unit->setCurrentIndex (1);
   }
 
 
@@ -605,9 +613,13 @@ void kupagui::on_actionLoad_Command_triggered()
   ui->error_rate->setValue(errRate);
   ui->error_rate_2->setValue(errRate2);
 
-  ui->k->setValue (k);
-  ui->avg_delay->setValue (avg_delay);
-  ui->delay_pdv->setValue (pdv);
+  ui->k->setValue (k_dw);
+  ui->avg_delay->setValue (avg_delay_dw);
+  ui->delay_pdv->setValue (pdv_dw);
+
+  ui->k_up->setValue (k_up);
+  ui->avg_delay_up->setValue (avg_delay_up);
+  ui->delay_pdv_up->setValue (pdv_up);
 
   on_button_generate_command_clicked ();
   statusBar()->showMessage(tr("Xml loaded"));
@@ -880,30 +892,34 @@ void kupagui::on_actionSave_Command_triggered()
   xmlWriter.writeTextElement("ErrorRate2",ui->error_rate_2->text());
 
   xmlWriter.writeStartElement("DelayParam");
-  xmlWriter.writeAttribute("jitter", "true");
-  xmlWriter.writeAttribute("k",ui->k->text ());
-  xmlWriter.writeAttribute("avg_delay",ui->avg_delay->text ());
-  xmlWriter.writeAttribute("pdv",ui->delay_pdv->text ());
+
+  xmlWriter.writeAttribute("k_dw",ui->k->text ());
+  xmlWriter.writeAttribute("avg_delay_dw",ui->avg_delay->text ());
+  xmlWriter.writeAttribute("pdv_dw",ui->delay_pdv->text ());
+
+  xmlWriter.writeAttribute("k_up",ui->k_up->text ());
+  xmlWriter.writeAttribute("avg_delay_up",ui->avg_delay_up->text ());
+  xmlWriter.writeAttribute("pdv_up",ui->delay_pdv_up->text ());
 
   xmlWriter.writeEndElement();
 
   QString userBwUnit;
-  if (ui->user_bw_unit->currentIndex()==0) {
+  if (ui->user_bw_down_unit->currentIndex()==0) {
       userBwUnit="Mbps";
   }
-  else if (ui->user_bw_unit->currentIndex()==1) {
+  else if (ui->user_bw_down_unit->currentIndex()==1) {
       userBwUnit="Gbps";
   }
-  xmlWriter.writeTextElement("UserBandwidth", ui->user_bw->text ()+userBwUnit);
+  xmlWriter.writeTextElement("UserBandwidthDown", ui->user_bw_down->text ()+userBwUnit);
 
   QString serverBwUnit;
-  if (ui->server_bw_unit->currentIndex()==0) {
+  if (ui->user_bw_up_unit->currentIndex()==0) {
       serverBwUnit="Mbps";
   }
-  else if (ui->server_bw_unit->currentIndex()==1) {
+  else if (ui->user_bw_up_unit->currentIndex()==1) {
       serverBwUnit="Gbps";
   }
-  xmlWriter.writeTextElement("ServerBandwidth",ui->server_bw->text ()+serverBwUnit);;
+  xmlWriter.writeTextElement("UserBandwidthUp",ui->user_bw_up->text ()+serverBwUnit);;
 
   xmlWriter.writeTextElement("Errormodel",QString::number(ui->error_model->currentIndex ()+1));
   xmlWriter.writeTextElement("Errormodel2",QString::number(ui->error_model_2->currentIndex ()+1));
