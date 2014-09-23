@@ -489,11 +489,28 @@ void kupagui::on_button_run_clicked()
     //remove previous output
     system("rm -f ./stdout-kupa.txt");
     statusBar()->showMessage(tr("simulation is done"));
-    if (n[1]=='1' or n[1]=='2'){
-        GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
+    if (n[1]=='1'){
+        if ( ui->tcp_download->isChecked ()){
+            GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
+          }
+        else if (ui->tcp_upload->isChecked ()) {
+            GetStdoutFromCommand ("cat "+dce_source+"/files-5/var/log/*/stdout > ./stdout-kupa.txt");
+          }
         ui->output_result->append(qstr);
         resultNumber=n[1]-48;
       }
+
+     else if (n[1]=='2'){
+       if ( ui->udp_download->isChecked ()){
+           GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stdout > ./stdout-kupa.txt");
+         }
+       else if (ui->udp_upload->isChecked ()) {
+           GetStdoutFromCommand ("cat "+dce_source+"/files-5/var/log/*/stdout > ./stdout-kupa.txt");
+         }
+       ui->output_result->append(qstr);
+       resultNumber=n[1]-48;
+      }
+
     else {
         GetStdoutFromCommand ("cat "+dce_source+"/files-0/var/log/*/stderr > ./stdout-kupa.txt");
         ui->output_result->append(qstr);

@@ -248,8 +248,7 @@ double pk_up = FindPk(k_up);
 
 theta_up = pdv_up/pk_up;
 delay_up = avg_delay_up-k_up*theta_up;
-std::cout << "calculated theta " << theta_up << std::endl;
-std::cout << "calculater node processing time " << delay_up << std::endl;
+
 	if (delay_up < 0) {
 		std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
 		std::cout << "UPSTREAM" << std::endl;
@@ -265,8 +264,6 @@ double pk_dw = FindPk(k_dw);
 
 theta_dw = pdv_dw/pk_dw;
 delay_dw = avg_delay_dw-k_dw*theta_dw;
-std::cout << "calculated theta " << theta_dw << std::endl;
-std::cout << "calculater node processing time " << delay_dw << std::endl;
 
 	if (delay_dw < 0) {
 		std::cout << "IMPOSIBLE DELAY ABORT SIMULATION" << std::endl;
@@ -394,7 +391,7 @@ if (!downloadMode) {
 std::ostringstream delay_oss;
 delay_oss.str ("");
 delay_oss << delay_dw <<"ms";
-std::cout << "delay ="<<delay_oss.str () <<std::endl;
+//std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
 //channel for core router to BS
 p2p.SetDeviceAttribute ("DataRate", StringValue ("200Gbps"));
@@ -407,7 +404,7 @@ NetDeviceContainer chanBSRouterDown = p2p.Install (BSRouterDown);
 
 delay_oss.str ("");
 delay_oss << delay_up <<"ms";
-std::cout << "delay ="<<delay_oss.str () <<std::endl;
+//std::cout << "delay ="<<delay_oss.str () <<std::endl;
 
 p2p.SetDeviceAttribute ("DataRate", StringValue ("200Gbps"));
 p2p.SetChannelAttribute ("Delay", StringValue (delay_oss.str ().c_str ()));
